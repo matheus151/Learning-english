@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V16 Reset Option</title>
+    <title>English Pro - V17 Smart Match</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -64,15 +64,12 @@
         button#add-btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1.05rem; margin-top: 10px; }
         .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
 
-        /* Data Controls (Backup & Delete) */
+        /* Data Controls */
         .data-controls { display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
         .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         .data-btn:hover { background: rgba(255,255,255,0.2); }
-        
-        /* Botão Perigoso (Apagar) */
         .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
         .btn-danger:hover { background: rgba(239, 68, 68, 0.8); color: white; }
-
         #file-input { display: none; }
 
         /* Importação */
@@ -114,11 +111,18 @@
 
         .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; }
         .edit-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-        .color-btn { border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; background: #fff; transition: 0.2s; }
+        
+        /* Botões de Cor Pequenos */
+        .color-btn { border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: #fff; transition: 0.2s; }
         .btn-blue { color: #0284c7; background: #eff6ff; border-color: #bfdbfe; }
         .btn-red { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
         .btn-lilac { color: #9333ea; background: #faf5ff; border-color: #e9d5ff; }
         .btn-bold { color: #000; background: #f1f5f9; border-color: #94a3b8; }
+        
+        /* SMART BTN */
+        .btn-smart { background: #334155; color: white; border: 1px solid #1e293b; }
+        .btn-smart:hover { background: #1e293b; }
+
         .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
         .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
 
@@ -158,7 +162,6 @@
         <button class="data-btn" onclick="downloadBackup()">💾 Fazer Backup</button>
         <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
         <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar App</button>
-        
         <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
@@ -178,7 +181,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV16'; // Nova chave para V16
+        const STORAGE_KEY = 'englishCardsFinalV17';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -200,7 +203,6 @@
             return google || natural || voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
-        // --- NAVEGAÇÃO ---
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
@@ -212,7 +214,6 @@
             localStorage.setItem('englishAppFontSize', currentFontSize);
         }
 
-        // --- BACKUP E RESTORE ---
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
             const downloadAnchorNode = document.createElement('a');
@@ -240,21 +241,15 @@
             reader.readAsText(file);
         }
 
-        // --- NOVO: APAGAR TUDO ---
         function clearAllData() {
-            if(confirm("ATENÇÃO: Isso apagará TODOS os seus cartões e configurações.\n\nTem certeza absoluta?")) {
-                if(confirm("Confirmação final: Deseja realmente zerar o app?")) {
-                    localStorage.removeItem(STORAGE_KEY);
-                    localStorage.removeItem('englishCardsFinalV13'); // Remove versão anterior por segurança
-                    localStorage.removeItem('englishAppLastPos');
-                    localStorage.removeItem('englishAppFontSize');
-                    
+            if(confirm("ATENÇÃO: Isso apagará TODOS os cartões.\n\nTem certeza?")) {
+                if(confirm("Confirmação final: Deseja zerar o app?")) {
+                    localStorage.clear();
                     cards = [];
                     currentFontSize = 1.15;
                     document.documentElement.style.setProperty('--line-font-size', '1.15rem');
-                    
                     renderCards();
-                    alert("O app foi zerado com sucesso.");
+                    alert("App zerado.");
                 }
             }
         }
@@ -276,22 +271,12 @@
                 currentFontSize = parseFloat(savedFont);
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
-
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV13');
-            
-            if (saved) { 
-                cards = JSON.parse(saved); 
-            } else if (savedOld) {
-                // Migração automática da V13/V14/V15 se não existir V16
-                cards = JSON.parse(savedOld);
-                saveCards(); // Salva na nova chave
-            } else {
-                cards = [{ id: 1, phrase: "Welcome! **This is bold** (markdown import).", translation: "Bem vindo!", accent: 'US' }];
-            }
-            
+            const savedOld = localStorage.getItem('englishCardsFinalV16');
+            if (saved) { cards = JSON.parse(saved); } 
+            else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
+            else { cards = [{ id: 1, phrase: "Use ^Bold^ in line 1 to enable Smart Match.\nThen click 🔗 Smart and select this text.", translation: "Exemplo", accent: 'US' }]; }
             renderCards();
-
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
                 if (lastPos) {
@@ -371,10 +356,12 @@
 
                     <div id="edit-mode-${index}" style="display:none;">
                         <div class="edit-toolbar">
-                            <button class="color-btn btn-blue" onclick="applyHighlight(${index}, '*')">🖍️ Azul</button>
-                            <button class="color-btn btn-red" onclick="applyHighlight(${index}, '#')">🖍️ Vermelho</button>
-                            <button class="color-btn btn-lilac" onclick="applyHighlight(${index}, '~')">🖍️ Lilás</button>
-                            <button class="color-btn btn-bold" onclick="applyHighlight(${index}, '^')">𝐁 Negrito</button>
+                            <button class="color-btn btn-smart" id="btn-smart-${index}" onclick="smartMark(${index})">🔗 Smart</button>
+                            <span style="color:#cbd5e1">|</span>
+                            <button class="color-btn btn-blue" onclick="applyHighlight(${index}, '*')">Blue</button>
+                            <button class="color-btn btn-red" onclick="applyHighlight(${index}, '#')">Red</button>
+                            <button class="color-btn btn-lilac" onclick="applyHighlight(${index}, '~')">Lilac</button>
+                            <button class="color-btn btn-bold" onclick="applyHighlight(${index}, '^')">Bold</button>
                         </div>
                         <textarea id="edit-phrase-${index}" rows="4" class="edit-mode-area">${card.phrase}</textarea>
                         <textarea id="edit-trans-${index}" rows="3" class="edit-mode-area">${card.translation || ''}</textarea>
@@ -424,6 +411,59 @@
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
         }
+        
+        // --- SMART FUNCTION ---
+        function smartMark(index) {
+            const textarea = document.getElementById(`edit-phrase-${index}`);
+            const text = textarea.value;
+            
+            // Verifica se existe negrito na linha 1
+            const firstLine = text.split('\n')[0];
+            const hasBold = firstLine.match(/\^(.*?)\^/);
+            
+            if (!hasBold) {
+                alert("Para usar o Smart Match, primeiro marque a palavra principal em NEGRITO (botão Bold) na primeira linha.");
+                return;
+            }
+
+            const btn = document.getElementById(`btn-smart-${index}`);
+            const originalText = btn.innerText;
+            btn.innerText = "⏳ Selecione o texto abaixo...";
+            btn.style.background = "#dbeafe";
+            btn.style.color = "#1e3a8a";
+
+            // Handler único para detectar seleção
+            const selectionHandler = () => {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+
+                if (start !== end) {
+                    // Texto selecionado
+                    const selectedText = textarea.value.substring(start, end);
+                    // Determina a linha
+                    const textBefore = textarea.value.substring(0, start);
+                    const lineIndex = textBefore.split('\n').length - 1;
+
+                    let char = '';
+                    if (lineIndex === 1) char = '*'; // Linha 2 (Ex 1) -> Blue
+                    else if (lineIndex >= 2) char = '#'; // Linha 3+ (Ex 2) -> Red
+                    
+                    if (char) {
+                        const clean = selectedText.replace(/[*#~^]/g, '');
+                        textarea.setRangeText(`${char}${clean}${char}`, start, end, 'select');
+                    }
+                    
+                    // Cleanup
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                    btn.style.color = "";
+                    textarea.removeEventListener('mouseup', selectionHandler);
+                }
+            };
+            
+            textarea.addEventListener('mouseup', selectionHandler);
+        }
+
         function applyHighlight(i, s) {
             const t = document.getElementById(`edit-phrase-${i}`);
             const start = t.selectionStart; const end = t.selectionEnd;
