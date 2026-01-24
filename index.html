@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - Colors & Numbers</title>
+    <title>English Pro - V15 Smart Import</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -28,6 +28,33 @@
             padding-bottom: 150px;
             font-weight: 400;
         }
+
+        /* Botões Flutuantes de Navegação */
+        .nav-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: rgba(37, 99, 235, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .nav-btn:hover { transform: scale(1.1); background: var(--primary); }
 
         /* Header */
         .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -72,26 +99,17 @@
             padding: 25px; 
             border-radius: 16px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
-            /* A borda agora é definida via JS */
             border-left-width: 6px;
             border-left-style: solid;
             animation: fadeIn 0.4s ease-out; 
             position: relative; 
             scroll-margin-top: 20px; 
-            padding-top: 35px; /* Espaço extra para o número */
+            padding-top: 35px; 
         }
         
-        /* NUMERAÇÃO NOVO */
         .card-number {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            font-weight: 600;
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
+            position: absolute; top: 10px; left: 15px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;
+            background: #f1f5f9; padding: 2px 8px; border-radius: 4px;
         }
 
         .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 10; }
@@ -131,6 +149,11 @@
 </head>
 <body>
 
+    <div class="nav-float">
+        <button class="nav-btn" onclick="scrollToTop()">⬆</button>
+        <button class="nav-btn" onclick="scrollToBottom()">⬇</button>
+    </div>
+
     <div class="header-container">
         <h1>🇬🇧 English Pro</h1>
         <div class="font-controls">
@@ -143,7 +166,7 @@
         <h3>Nova Entrada</h3>
         <div class="input-row">
             <label>Frases em Inglês</label>
-            <textarea id="input-phrase" rows="4" placeholder="Ex:&#10;I'm the *best* guy..."></textarea>
+            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto do iPhone com negrito (**texto**)..."></textarea>
         </div>
         <div class="input-row">
             <label>Tradução</label>
@@ -160,7 +183,7 @@
     </div>
 
     <div class="import-toggle">
-        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo (Markdown Suportado)</button>
     </div>
     <div id="import-section">
         <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
@@ -174,15 +197,7 @@
         let voices = [];
         let currentFontSize = 1.15; 
         
-        // --- CORES PARA OS CARTÕES ---
-        const borderColors = [
-            '#2563eb', // Azul
-            '#dc2626', // Vermelho
-            '#16a34a', // Verde
-            '#d97706', // Laranja
-            '#9333ea', // Roxo
-            '#0891b2'  // Turquesa
-        ];
+        const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -204,13 +219,20 @@
             return google || natural || voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
+        // --- NAVEGAÇÃO ---
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+
+        // --- FONTE COM MEMÓRIA ---
         function changeFontSize(delta) {
             currentFontSize += delta;
             if (currentFontSize < 0.8) currentFontSize = 0.8;
             if (currentFontSize > 2.5) currentFontSize = 2.5;
             document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
+            localStorage.setItem('englishAppFontSize', currentFontSize); // Salva preferência
         }
 
+        // --- BACKUP ---
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
             const downloadAnchorNode = document.createElement('a');
@@ -238,23 +260,43 @@
             reader.readAsText(file);
         }
 
+        // --- SMART MARKDOWN IMPORT ---
         function normalizeFormatting(text) {
             if (!text) return '';
             let t = text;
-            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^');
-            t = t.replace(/__(.*?)__/g, '^$1^');
+            
+            // Markdown Clássico e iPhone Notes
+            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^'); // Negrito **texto** -> ^texto^ (App Bold)
+            t = t.replace(/__(.*?)__/g, '^$1^'); // Negrito __texto__
+            
+            // HTML Básico (às vezes colado de sites)
             t = t.replace(/<b>(.*?)<\/b>/gi, '^$1^');
             t = t.replace(/<strong>(.*?)<\/strong>/gi, '^$1^');
+            
+            // Itálico básico -> Azul (Opcional, mapeado para destaque azul)
+            t = t.replace(/_(.*?)_/g, '*$1*'); 
+
             return t;
         }
 
+        // --- INICIALIZAÇÃO ---
         function loadCards() {
-            const saved = localStorage.getItem('englishCardsFinalV13');
+            // 1. Carrega Fonte Salva
+            const savedFont = localStorage.getItem('englishAppFontSize');
+            if (savedFont) {
+                currentFontSize = parseFloat(savedFont);
+                document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
+            }
+
+            // 2. Carrega Cards
+            const saved = localStorage.getItem('englishCardsFinalV13'); // Mantém base compatível
             if (saved) { cards = JSON.parse(saved); } 
             else {
-                cards = [{ id: 1, phrase: "Welcome! **This is bold** and ^this too^.", translation: "Bem vindo!", accent: 'US' }];
+                cards = [{ id: 1, phrase: "Welcome! **This is bold** (markdown import).", translation: "Bem vindo!", accent: 'US' }];
             }
             renderCards();
+
+            // 3. Restaura Posição
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
                 if (lastPos) {
@@ -275,7 +317,6 @@
                 el.id = `card-${index}`;
                 observer.observe(el);
 
-                // --- NOVA LÓGICA DE BORDA COLORIDA ---
                 const color = borderColors[index % borderColors.length];
                 el.style.borderLeftColor = color;
 
@@ -299,17 +340,13 @@
                     ? `<div class="translation-text">${card.translation}</div>`
                     : `<button class="translate-action-btn" onclick="translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
 
-                // --- INSERINDO NUMERAÇÃO (index + 1) ---
                 el.innerHTML = `
                     <div class="card-number">#${index + 1}</div>
-                    
                     <div class="card-top-actions">
                         <button class="edit-btn" onclick="enableEditMode(${index})" title="Editar">✏️</button>
                     </div>
-
                     <div id="view-mode-${index}">
                         <div class="phrases-area">${phrasesHtml}</div>
-                        
                         <div class="card-footer">
                             <div class="controls-group">
                                 <div><span class="control-label">Sotaque:</span>
@@ -388,7 +425,7 @@
         function cancelEdit(i) { renderCards(); }
         function saveEdit(i) {
             const rawPhrase = document.getElementById(`edit-phrase-${i}`).value;
-            cards[i].phrase = normalizeFormatting(rawPhrase);
+            cards[i].phrase = normalizeFormatting(rawPhrase); 
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
         }
