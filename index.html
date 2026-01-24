@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V15 Smart Import</title>
+    <title>English Pro - V16 Reset Option</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,30 +29,13 @@
             font-weight: 400;
         }
 
-        /* Botões Flutuantes de Navegação */
+        /* Nav Flutuante */
         .nav-float {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 100;
+            position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100;
         }
         .nav-btn {
-            background: rgba(37, 99, 235, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
+            background: rgba(37, 99, 235, 0.9); color: white; border: none; border-radius: 50%; width: 45px; height: 45px;
+            font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
         }
         .nav-btn:hover { transform: scale(1.1); background: var(--primary); }
 
@@ -81,10 +64,15 @@
         button#add-btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1.05rem; margin-top: 10px; }
         .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
 
-        /* Data Controls */
-        .data-controls { display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center; }
+        /* Data Controls (Backup & Delete) */
+        .data-controls { display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
         .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         .data-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Botão Perigoso (Apagar) */
+        .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.8); color: white; }
+
         #file-input { display: none; }
 
         /* Importação */
@@ -95,23 +83,13 @@
         /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 20px; }
         .card { 
-            background: var(--card-bg); 
-            padding: 25px; 
-            border-radius: 16px; 
+            background: var(--card-bg); padding: 25px; border-radius: 16px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
-            border-left-width: 6px;
-            border-left-style: solid;
-            animation: fadeIn 0.4s ease-out; 
-            position: relative; 
-            scroll-margin-top: 20px; 
-            padding-top: 35px; 
+            border-left-width: 6px; border-left-style: solid;
+            animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 20px; padding-top: 35px; 
         }
         
-        .card-number {
-            position: absolute; top: 10px; left: 15px; font-size: 0.85rem; color: #94a3b8; font-weight: 600;
-            background: #f1f5f9; padding: 2px 8px; border-radius: 4px;
-        }
-
+        .card-number { position: absolute; top: 10px; left: 15px; font-size: 0.85rem; color: #94a3b8; font-weight: 600; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
         .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 10; }
         .edit-btn { background: #f1f5f9; color: #475569; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
         
@@ -166,7 +144,7 @@
         <h3>Nova Entrada</h3>
         <div class="input-row">
             <label>Frases em Inglês</label>
-            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto do iPhone com negrito (**texto**)..."></textarea>
+            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto..."></textarea>
         </div>
         <div class="input-row">
             <label>Tradução</label>
@@ -179,6 +157,8 @@
     <div class="data-controls">
         <button class="data-btn" onclick="downloadBackup()">💾 Fazer Backup</button>
         <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
+        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar App</button>
+        
         <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
@@ -198,6 +178,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+        const STORAGE_KEY = 'englishCardsFinalV16'; // Nova chave para V16
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -223,16 +204,15 @@
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
-        // --- FONTE COM MEMÓRIA ---
         function changeFontSize(delta) {
             currentFontSize += delta;
             if (currentFontSize < 0.8) currentFontSize = 0.8;
             if (currentFontSize > 2.5) currentFontSize = 2.5;
             document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
-            localStorage.setItem('englishAppFontSize', currentFontSize); // Salva preferência
+            localStorage.setItem('englishAppFontSize', currentFontSize);
         }
 
-        // --- BACKUP ---
+        // --- BACKUP E RESTORE ---
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
             const downloadAnchorNode = document.createElement('a');
@@ -260,43 +240,58 @@
             reader.readAsText(file);
         }
 
-        // --- SMART MARKDOWN IMPORT ---
+        // --- NOVO: APAGAR TUDO ---
+        function clearAllData() {
+            if(confirm("ATENÇÃO: Isso apagará TODOS os seus cartões e configurações.\n\nTem certeza absoluta?")) {
+                if(confirm("Confirmação final: Deseja realmente zerar o app?")) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    localStorage.removeItem('englishCardsFinalV13'); // Remove versão anterior por segurança
+                    localStorage.removeItem('englishAppLastPos');
+                    localStorage.removeItem('englishAppFontSize');
+                    
+                    cards = [];
+                    currentFontSize = 1.15;
+                    document.documentElement.style.setProperty('--line-font-size', '1.15rem');
+                    
+                    renderCards();
+                    alert("O app foi zerado com sucesso.");
+                }
+            }
+        }
+
         function normalizeFormatting(text) {
             if (!text) return '';
             let t = text;
-            
-            // Markdown Clássico e iPhone Notes
-            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^'); // Negrito **texto** -> ^texto^ (App Bold)
-            t = t.replace(/__(.*?)__/g, '^$1^'); // Negrito __texto__
-            
-            // HTML Básico (às vezes colado de sites)
+            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^');
+            t = t.replace(/__(.*?)__/g, '^$1^');
             t = t.replace(/<b>(.*?)<\/b>/gi, '^$1^');
             t = t.replace(/<strong>(.*?)<\/strong>/gi, '^$1^');
-            
-            // Itálico básico -> Azul (Opcional, mapeado para destaque azul)
             t = t.replace(/_(.*?)_/g, '*$1*'); 
-
             return t;
         }
 
-        // --- INICIALIZAÇÃO ---
         function loadCards() {
-            // 1. Carrega Fonte Salva
             const savedFont = localStorage.getItem('englishAppFontSize');
             if (savedFont) {
                 currentFontSize = parseFloat(savedFont);
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
 
-            // 2. Carrega Cards
-            const saved = localStorage.getItem('englishCardsFinalV13'); // Mantém base compatível
-            if (saved) { cards = JSON.parse(saved); } 
-            else {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            const savedOld = localStorage.getItem('englishCardsFinalV13');
+            
+            if (saved) { 
+                cards = JSON.parse(saved); 
+            } else if (savedOld) {
+                // Migração automática da V13/V14/V15 se não existir V16
+                cards = JSON.parse(savedOld);
+                saveCards(); // Salva na nova chave
+            } else {
                 cards = [{ id: 1, phrase: "Welcome! **This is bold** (markdown import).", translation: "Bem vindo!", accent: 'US' }];
             }
+            
             renderCards();
 
-            // 3. Restaura Posição
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
                 if (lastPos) {
@@ -305,7 +300,7 @@
                 }
             }, 500);
         }
-        function saveCards() { localStorage.setItem('englishCardsFinalV13', JSON.stringify(cards)); }
+        function saveCards() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
 
         function renderCards() {
             const container = document.getElementById('card-container');
