@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V24 Granular Click</title>
+    <title>English Pro - V25 Male Voices Only</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -66,10 +66,8 @@
         .font-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #475569; font-size: 1rem; }
         .font-btn:hover { background: var(--primary); color: white; }
 
-        /* Destaques (Container) */
+        /* Destaques */
         .hl-base { padding: 0 4px; border-radius: 4px; display: inline-block; }
-        
-        /* Palavras Interativas dentro do destaque */
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 1px dotted transparent; }
         .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); transform: translateY(-1px); display:inline-block; }
 
@@ -212,7 +210,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV24';
+        const STORAGE_KEY = 'englishCardsFinalV25';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -225,14 +223,26 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ COM GÊNERO ---
+        // --- VOZ MASCULINA PARA TODOS ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
-            const genderKeywords = isUS ? ["Male", "David", "Guy", "Mark"] : ["Female", "Susan", "Zira", "Hazel"];
-            let bestMatch = voices.find(v => v.lang === langCode && genderKeywords.some(k => v.name.includes(k)));
+            
+            // Palavras-chave para garantir voz MASCULINA e NATURAL
+            const maleKeywords = isUS 
+                ? ["Male", "David", "Guy", "Mark", "Natural"] 
+                : ["Male", "Ryan", "George", "Daniel", "Natural"];
+
+            // 1. Tenta achar idioma + masculino
+            let bestMatch = voices.find(v => {
+                return v.lang === langCode && maleKeywords.some(k => v.name.includes(k));
+            });
+
             if (bestMatch) return bestMatch;
+
+            // 2. Fallback
             return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
@@ -290,16 +300,13 @@
             document.getElementById('example-modal').style.display = 'none';
         }
 
-        // --- DESTAQUE GRANULAR (TOKENIZER) ---
         function formatHighlight(t) {
             if(!t) return '';
             
-            // Função para envolver cada palavra individualmente
             const granularWrap = (text) => {
-                // Separa por espaços, mantendo os espaços para remontar
                 const parts = text.split(/(\s+)/);
                 return parts.map(part => {
-                    if (part.match(/^\s+$/)) return part; // Se for espaço, retorna igual
+                    if (part.match(/^\s+$/)) return part; 
                     return `<span class="word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${part}</span>`;
                 }).join('');
             };
@@ -313,7 +320,6 @@
             return h;
         }
 
-        // --- DEMAIS FUNÇÕES (Manter V22) ---
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
             const downloadAnchorNode = document.createElement('a');
@@ -367,10 +373,10 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV22');
+            const savedOld = localStorage.getItem('englishCardsFinalV24');
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
-            else { cards = [{ id: 1, phrase: "Click words in ^good person^ individually.\nGranular *test here*.", translation: "Exemplo", accent: 'US' }]; }
+            else { cards = [{ id: 1, phrase: "You are a ^good person^.\nYoure a nice person.\nYou are a fine human.", translation: "Exemplo", accent: 'US' }]; }
             renderCards();
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
@@ -504,7 +510,8 @@
             document.querySelector(`#card-${i} .card-top-actions`).style.display='none';
             const pArea = document.getElementById(`edit-phrase-${i}`);
             const tArea = document.getElementById(`edit-trans-${i}`);
-            document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
+            const tWrapper = document.getElementById(`edit-trans-wrapper-${i}`);
+            tWrapper.style.display = 'none';
             pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
             tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
         }
