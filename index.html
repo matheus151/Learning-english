@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - System Final</title>
+    <title>English Pro - Colors & Numbers</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
             max-width: 700px;
             margin: 0 auto;
             padding: 30px 20px;
-            padding-bottom: 150px; /* Espaço extra no final */
+            padding-bottom: 150px;
             font-weight: 400;
         }
 
@@ -54,14 +54,9 @@
         button#add-btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1.05rem; margin-top: 10px; }
         .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
 
-        /* --- DATA CONTROLS (BACKUP) --- */
-        .data-controls {
-            display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center;
-        }
-        .data-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
-            padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px;
-        }
+        /* Data Controls */
+        .data-controls { display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center; }
+        .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
         .data-btn:hover { background: rgba(255,255,255,0.2); }
         #file-input { display: none; }
 
@@ -72,16 +67,43 @@
 
         /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 5px solid var(--primary); animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 20px; }
-        .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+        .card { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
+            /* A borda agora é definida via JS */
+            border-left-width: 6px;
+            border-left-style: solid;
+            animation: fadeIn 0.4s ease-out; 
+            position: relative; 
+            scroll-margin-top: 20px; 
+            padding-top: 35px; /* Espaço extra para o número */
+        }
+        
+        /* NUMERAÇÃO NOVO */
+        .card-number {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 10; }
         .edit-btn { background: #f1f5f9; color: #475569; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
         
+        .phrases-area { margin-right: 40px; }
+
         .line-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
         .line-item:last-child { border-bottom: none; }
-        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.6; margin-top: 4px; transition: font-size 0.2s; }
+        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.6; margin-top: 4px; transition: font-size 0.2s; word-wrap: break-word; }
         .play-mini { background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; }
         
-        /* Footer do Cartão */
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .controls-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .control-label { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-right: 2px;}
@@ -89,13 +111,11 @@
         .play-all-btn { background: none; border: 1px solid #cbd5e1; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; color: #475569; }
         .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.7; }
         
-        /* Tradução */
         .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 10px; margin-top: 5px; font-size: 0.9rem; font-weight: 500; }
         .details-area { display: none; background-color: #f0fdf4; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #bbf7d0; }
         .details-area.visible { display: block; }
         .translation-text { color: #15803d; white-space: pre-line; line-height: 1.6; font-size: 1rem; }
 
-        /* Edição */
         .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; }
         .edit-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
         .color-btn { border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; background: #fff; transition: 0.2s; }
@@ -154,17 +174,24 @@
         let voices = [];
         let currentFontSize = 1.15; 
         
-        // --- OBSERVER PARA MEMORIZAR POSIÇÃO ---
-        // Vigia qual card está visível na tela
+        // --- CORES PARA OS CARTÕES ---
+        const borderColors = [
+            '#2563eb', // Azul
+            '#dc2626', // Vermelho
+            '#16a34a', // Verde
+            '#d97706', // Laranja
+            '#9333ea', // Roxo
+            '#0891b2'  // Turquesa
+        ];
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // Salva o índice do card visível
                     const index = entry.target.id.replace('card-', '');
                     localStorage.setItem('englishAppLastPos', index);
                 }
             });
-        }, { threshold: 0.6 }); // 60% do card precisa estar visível
+        }, { threshold: 0.6 });
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
@@ -184,7 +211,6 @@
             document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
         }
 
-        // --- BACKUP E RESTORE ---
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
             const downloadAnchorNode = document.createElement('a');
@@ -203,11 +229,8 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
-                        if(confirm(`Encontrados ${data.length} cartões. Substituir os atuais?`)) {
-                            cards = data;
-                            saveCards();
-                            renderCards();
-                            alert("Restaurado com sucesso!");
+                        if(confirm(`Encontrados ${data.length} cartões. Substituir?`)) {
+                            cards = data; saveCards(); renderCards(); alert("Restaurado!");
                         }
                     } else { alert("Arquivo inválido."); }
                 } catch(err) { alert("Erro ao ler arquivo."); }
@@ -215,25 +238,32 @@
             reader.readAsText(file);
         }
 
-        // --- Inicialização ---
+        function normalizeFormatting(text) {
+            if (!text) return '';
+            let t = text;
+            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^');
+            t = t.replace(/__(.*?)__/g, '^$1^');
+            t = t.replace(/<b>(.*?)<\/b>/gi, '^$1^');
+            t = t.replace(/<strong>(.*?)<\/strong>/gi, '^$1^');
+            return t;
+        }
+
         function loadCards() {
-            const saved = localStorage.getItem('englishCardsFinalSys');
+            const saved = localStorage.getItem('englishCardsFinalV13');
             if (saved) { cards = JSON.parse(saved); } 
             else {
-                cards = [{ id: 1, phrase: "Welcome! *This* is a demo.", translation: "Bem vindo!", accent: 'US' }];
+                cards = [{ id: 1, phrase: "Welcome! **This is bold** and ^this too^.", translation: "Bem vindo!", accent: 'US' }];
             }
             renderCards();
-
-            // --- RESTAURA POSIÇÃO ---
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
                 if (lastPos) {
                     const el = document.getElementById(`card-${lastPos}`);
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            }, 500); // Pequeno delay para garantir renderização
+            }, 500);
         }
-        function saveCards() { localStorage.setItem('englishCardsFinalSys', JSON.stringify(cards)); }
+        function saveCards() { localStorage.setItem('englishCardsFinalV13', JSON.stringify(cards)); }
 
         function renderCards() {
             const container = document.getElementById('card-container');
@@ -243,9 +273,11 @@
                 const el = document.createElement('div');
                 el.className = 'card';
                 el.id = `card-${index}`;
-
-                // Inicia observador de rolagem neste card
                 observer.observe(el);
+
+                // --- NOVA LÓGICA DE BORDA COLORIDA ---
+                const color = borderColors[index % borderColors.length];
+                el.style.borderLeftColor = color;
 
                 const currentAccent = card.accent || 'US';
                 const lines = card.phrase.split('\n');
@@ -267,7 +299,10 @@
                     ? `<div class="translation-text">${card.translation}</div>`
                     : `<button class="translate-action-btn" onclick="translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
 
+                // --- INSERINDO NUMERAÇÃO (index + 1) ---
                 el.innerHTML = `
+                    <div class="card-number">#${index + 1}</div>
+                    
                     <div class="card-top-actions">
                         <button class="edit-btn" onclick="enableEditMode(${index})" title="Editar">✏️</button>
                     </div>
@@ -352,7 +387,8 @@
         }
         function cancelEdit(i) { renderCards(); }
         function saveEdit(i) {
-            cards[i].phrase = document.getElementById(`edit-phrase-${i}`).value;
+            const rawPhrase = document.getElementById(`edit-phrase-${i}`).value;
+            cards[i].phrase = normalizeFormatting(rawPhrase);
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
         }
@@ -397,19 +433,28 @@
             const res = await fetchTranslation(cards[i].phrase);
             cards[i].translation = res; saveCards(); renderCards();
         }
+        
         function addCard() {
-            const p = document.getElementById('input-phrase').value.trim();
+            const rawPhrase = document.getElementById('input-phrase').value.trim();
             const t = document.getElementById('input-translation').value.trim();
-            if(!p) return alert("Vazio!");
-            cards.unshift({ id: Date.now(), phrase: p, translation: t, accent: 'US' });
+            if(!rawPhrase) return alert("Vazio!");
+            const formattedPhrase = normalizeFormatting(rawPhrase);
+            cards.unshift({ id: Date.now(), phrase: formattedPhrase, translation: t, accent: 'US' });
             saveCards(); renderCards();
             document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
         }
+
         function processBulkImport() {
             const r = document.getElementById('import-area').value;
-            r.split(/\n\s*\n/).forEach(b=>{if(b.trim())cards.unshift({id:Date.now()+Math.random(),phrase:b.trim(),translation:"",accent:'US'});});
+            r.split(/\n\s*\n/).forEach(b=>{
+                if(b.trim()) {
+                    const formatted = normalizeFormatting(b.trim());
+                    cards.unshift({id:Date.now()+Math.random(), phrase:formatted, translation:"", accent:'US'});
+                }
+            });
             saveCards(); renderCards(); toggleImportArea();
         }
+
         function deleteCard(i) { if(confirm("Excluir?")) { cards.splice(i,1); saveCards(); renderCards(); }}
         function toggleDetails(btn) { btn.nextElementSibling.classList.toggle('visible'); }
         function toggleImportArea() { const d=document.getElementById('import-section'); d.style.display=d.style.display==='block'?'none':'block'; }
