@@ -3,306 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Mastery 6.0 - Audio Control</title>
+    <title>English Pro - System Final</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
-            --bg: #f3f4f6;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
-            --text: #1f2937;
-            --highlight: #fef08a;
+            --text: #334155;
+            --line-font-size: 1.15rem; 
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             max-width: 700px;
             margin: 0 auto;
-            padding: 20px;
-            padding-bottom: 100px;
+            padding: 30px 20px;
+            padding-bottom: 150px; /* Espaço extra no final */
+            font-weight: 400;
         }
 
-        h1 { text-align: center; color: var(--primary); margin-bottom: 25px; }
+        /* Header */
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; color: #1e293b; font-weight: 700; font-size: 1.8rem; }
+        .font-controls { display: flex; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .font-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #475569; font-size: 1rem; }
+        .font-btn:hover { background: var(--primary); color: white; }
 
-        /* --- FORMULÁRIO --- */
-        .input-group {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            border: 1px solid #e5e7eb;
+        /* Destaques */
+        .hl-base { padding: 0 4px; border-radius: 4px; display: inline-block; }
+        .hl-blue { color: #0284c7; background-color: #e0f2fe; font-weight: 700; }
+        .hl-red { color: #dc2626; background-color: #fee2e2; font-weight: 700; }
+        .hl-lilac { color: #9333ea; background-color: #f3e8ff; font-weight: 700; }
+        .hl-bold { font-weight: 900; color: #000; border-bottom: 2px solid #cbd5e1; }
+
+        /* Formulário */
+        .input-group { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .input-group h3 { margin-top: 0; color: #1e293b; font-size: 1.25rem; margin-bottom: 20px; font-weight: 600; }
+        .input-row { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #64748b; }
+        textarea, input[type="text"] { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; font-family: 'Inter', sans-serif; resize: vertical; background-color: #fff; color: #334155; box-sizing: border-box; }
+        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+        button#add-btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1.05rem; margin-top: 10px; }
+        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
+
+        /* --- DATA CONTROLS (BACKUP) --- */
+        .data-controls {
+            display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center;
         }
-
-        .input-group h3 { margin-top: 0; color: #374151; font-size: 1.2rem; margin-bottom: 15px; }
-        .input-row { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.9rem; color: #4b5563; }
-        
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: inherit;
-            resize: vertical;
-            background-color: #fff;
+        .data-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;
+            padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px;
         }
+        .data-btn:hover { background: rgba(255,255,255,0.2); }
+        #file-input { display: none; }
 
-        /* Botão Salvar */
-        button#add-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            font-size: 1.1rem;
-            margin-top: 10px;
-        }
-        button#add-btn:hover { background-color: var(--primary-hover); }
+        /* Importação */
+        .import-toggle { text-align: center; margin-bottom: 25px; }
+        .import-link { color: #64748b; text-decoration: none; border-bottom: 1px dashed #94a3b8; background: none; border: none; font-size: 0.9rem; }
+        #import-section { display: none; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 30px; }
 
-        /* --- IMPORTAÇÃO --- */
-        .import-toggle { text-align: center; margin-bottom: 20px; }
-        .import-link { color: #6b7280; text-decoration: underline; cursor: pointer; background: none; border: none; font-size: 0.9rem;}
-        
-        #import-section {
-            display: none;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px dashed #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        /* --- CARTÕES --- */
+        /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 20px; }
-
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 6px solid var(--primary);
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        /* Linhas do Cartão */
-        .line-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 8px;
-            padding: 4px 0;
-            border-bottom: 1px dashed #f1f5f9;
-        }
-        .line-item:last-child { border-bottom: none; }
-
-        .line-text {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #111827;
-            flex-grow: 1;
-            line-height: 1.5;
-        }
-
-        /* Botão Play Pequeno (Linha) */
-        .play-mini {
-            background: #e0f2fe;
-            border: none;
-            color: var(--primary);
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: 0.2s;
-        }
-        .play-mini:hover { background: var(--primary); color: #fff; }
-
-        .highlight-word { background-color: var(--highlight); padding: 0 2px; border-radius: 3px; }
-
-        /* Controles do Rodapé do Cartão */
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 2px solid #f3f4f6;
-        }
-
-        .speed-control {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
-            color: #64748b;
-        }
-        select.speed-select {
-            padding: 4px;
-            border-radius: 4px;
-            border: 1px solid #cbd5e1;
-        }
-
-        .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-
-        /* Área de Detalhes (Tradução) */
-        .toggle-btn {
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            font-size: 0.9rem;
-        }
-        .toggle-btn:hover { color: var(--primary); text-decoration: underline; }
-
-        .details-area {
-            display: none;
-            background-color: #f0fdf4;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border: 1px solid #bbf7d0;
-        }
-        .details-area.visible { display: block; }
-
-        .translation-text { color: #166534; white-space: pre-line; font-weight: 600; line-height: 1.6; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 5px solid var(--primary); animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 20px; }
+        .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+        .edit-btn { background: #f1f5f9; color: #475569; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
         
-        .card-translate-btn {
-            background-color: #8b5cf6;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .card-translate-btn:disabled { opacity: 0.6; cursor: wait; }
+        .line-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
+        .line-item:last-child { border-bottom: none; }
+        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.6; margin-top: 4px; transition: font-size 0.2s; }
+        .play-mini { background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; }
+        
+        /* Footer do Cartão */
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+        .controls-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .control-label { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-right: 2px;}
+        select.control-select { padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.9rem; cursor: pointer; }
+        .play-all-btn { background: none; border: 1px solid #cbd5e1; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; color: #475569; }
+        .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.7; }
+        
+        /* Tradução */
+        .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 10px; margin-top: 5px; font-size: 0.9rem; font-weight: 500; }
+        .details-area { display: none; background-color: #f0fdf4; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #bbf7d0; }
+        .details-area.visible { display: block; }
+        .translation-text { color: #15803d; white-space: pre-line; line-height: 1.6; font-size: 1rem; }
+
+        /* Edição */
+        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; }
+        .edit-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+        .color-btn { border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; background: #fff; transition: 0.2s; }
+        .btn-blue { color: #0284c7; background: #eff6ff; border-color: #bfdbfe; }
+        .btn-red { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+        .btn-lilac { color: #9333ea; background: #faf5ff; border-color: #e9d5ff; }
+        .btn-bold { color: #000; background: #f1f5f9; border-color: #94a3b8; }
+        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
+        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1>🇬🇧 English Pro</h1>
+    <div class="header-container">
+        <h1>🇬🇧 English Pro</h1>
+        <div class="font-controls">
+            <button class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
+            <button class="font-btn" onclick="changeFontSize(0.1)">A+</button>
+        </div>
+    </div>
 
     <div class="input-group">
-        <h3>Nova Entrada Manual</h3>
+        <h3>Nova Entrada</h3>
         <div class="input-row">
-            <label>Frases (Original + Exemplos)</label>
-            <textarea id="input-phrase" rows="4" placeholder="Cole aqui (uma por linha)"></textarea>
+            <label>Frases em Inglês</label>
+            <textarea id="input-phrase" rows="4" placeholder="Ex:&#10;I'm the *best* guy..."></textarea>
         </div>
         <div class="input-row">
             <label>Tradução</label>
-            <textarea id="input-translation" rows="4" placeholder="Tradução aparecerá aqui..."></textarea>
+            <textarea id="input-translation" rows="4" placeholder="..."></textarea>
         </div>
-        
-        <button onclick="translateForm()" style="background:#8b5cf6; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; width:auto; margin-bottom:10px;">
-            🪄 Traduzir Campos Acima
-        </button>
-
+        <button class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
         <button id="add-btn" onclick="addCard()">Salvar Cartão</button>
     </div>
 
-    <div class="import-toggle">
-        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo (Vários cartões)</button>
+    <div class="data-controls">
+        <button class="data-btn" onclick="downloadBackup()">💾 Fazer Backup</button>
+        <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
+        <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
+    <div class="import-toggle">
+        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+    </div>
     <div id="import-section">
-        <label>Cole seu texto. Separe cada bloco de frases com uma <strong>linha em branco</strong>.</label>
-        <textarea id="import-area" rows="6" placeholder="Frase 1&#10;Exemplo 1&#10;Exemplo 2&#10;&#10;Frase 2&#10;Exemplo 2..."></textarea>
-        <button id="add-btn" style="background-color: #4b5563;" onclick="processBulkImport()">Processar e Criar Cartões</button>
+        <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
+        <button id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
     </div>
 
     <div id="card-container"></div>
 
     <script>
         let cards = [];
+        let voices = [];
+        let currentFontSize = 1.15; 
+        
+        // --- OBSERVER PARA MEMORIZAR POSIÇÃO ---
+        // Vigia qual card está visível na tela
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Salva o índice do card visível
+                    const index = entry.target.id.replace('card-', '');
+                    localStorage.setItem('englishAppLastPos', index);
+                }
+            });
+        }, { threshold: 0.6 }); // 60% do card precisa estar visível
+
+        window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
+
+        function getVoiceByAccent(accent) {
+            if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            const isUS = accent === 'US';
+            const langCode = isUS ? 'en-US' : 'en-GB';
+            const google = voices.find(v => v.lang === langCode && v.name.includes("Google"));
+            const natural = voices.find(v => v.lang === langCode && (v.name.includes("Natural") || v.name.includes("Microsoft")));
+            return google || natural || voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
+        }
+
+        function changeFontSize(delta) {
+            currentFontSize += delta;
+            if (currentFontSize < 0.8) currentFontSize = 0.8;
+            if (currentFontSize > 2.5) currentFontSize = 2.5;
+            document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
+        }
+
+        // --- BACKUP E RESTORE ---
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "backup_ingles_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        if(confirm(`Encontrados ${data.length} cartões. Substituir os atuais?`)) {
+                            cards = data;
+                            saveCards();
+                            renderCards();
+                            alert("Restaurado com sucesso!");
+                        }
+                    } else { alert("Arquivo inválido."); }
+                } catch(err) { alert("Erro ao ler arquivo."); }
+            };
+            reader.readAsText(file);
+        }
 
         // --- Inicialização ---
         function loadCards() {
-            const saved = localStorage.getItem('englishCardsV6');
+            const saved = localStorage.getItem('englishCardsFinalSys');
             if (saved) { cards = JSON.parse(saved); } 
             else {
-                cards = [{
-                    id: 1,
-                    phrase: "You have to be *sure footed* here\nWatch your step carefully\nKeep your balance",
-                    translation: "Você tem que ter firmeza aqui\nCuidado onde pisa\nMantenha seu equilíbrio"
-                }];
+                cards = [{ id: 1, phrase: "Welcome! *This* is a demo.", translation: "Bem vindo!", accent: 'US' }];
             }
             renderCards();
-        }
 
-        function saveCards() { localStorage.setItem('englishCardsV6', JSON.stringify(cards)); }
-
-        // --- API de Tradução ---
-        async function fetchTranslation(text) {
-            if (!text.trim()) return "";
-            try {
-                // Traduz linha a linha para manter a formatação
-                const lines = text.split('\n');
-                const translatedLines = [];
-                
-                for (let line of lines) {
-                    if (line.trim() === "") {
-                        translatedLines.push(""); 
-                        continue;
-                    }
-                    const clean = line.replace(/\*/g, '');
-                    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=en|pt-BR`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    translatedLines.push(data.responseData ? data.responseData.translatedText : "Erro");
+            // --- RESTAURA POSIÇÃO ---
+            setTimeout(() => {
+                const lastPos = localStorage.getItem('englishAppLastPos');
+                if (lastPos) {
+                    const el = document.getElementById(`card-${lastPos}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                return translatedLines.join('\n');
-            } catch (e) {
-                console.error(e);
-                return "Erro na conexão.";
-            }
+            }, 500); // Pequeno delay para garantir renderização
         }
+        function saveCards() { localStorage.setItem('englishCardsFinalSys', JSON.stringify(cards)); }
 
-        // --- Funções de UI ---
-        async function translateForm() {
-            const phrase = document.getElementById('input-phrase').value;
-            const target = document.getElementById('input-translation');
-            if(!phrase) return alert("Digite algo!");
-            
-            target.placeholder = "Traduzindo...";
-            target.value = await fetchTranslation(phrase);
-        }
-
-        async function translateCardNow(index) {
-            const card = cards[index];
-            const btn = document.getElementById(`btn-trans-${index}`);
-            const textDiv = document.getElementById(`trans-text-${index}`);
-            
-            btn.disabled = true;
-            btn.innerText = "⏳ Traduzindo...";
-            
-            const translation = await fetchTranslation(card.phrase);
-            
-            // Atualiza dados e salva
-            cards[index].translation = translation;
-            saveCards();
-            
-            // Atualiza UI
-            textDiv.innerText = translation;
-            btn.style.display = 'none'; // Some com o botão após traduzir
-        }
-
-        // --- Renderização Poderosa ---
         function renderCards() {
             const container = document.getElementById('card-container');
             container.innerHTML = '';
@@ -310,134 +242,177 @@
             cards.forEach((card, index) => {
                 const el = document.createElement('div');
                 el.className = 'card';
-                const speedId = `speed-${index}`;
+                el.id = `card-${index}`;
 
-                // 1. Gera HTML das linhas em inglês (com botão Play individual)
+                // Inicia observador de rolagem neste card
+                observer.observe(el);
+
+                const currentAccent = card.accent || 'US';
                 const lines = card.phrase.split('\n');
                 let phrasesHtml = '';
                 
                 lines.forEach(line => {
                     if(line.trim() === "") return;
-                    const clean = line.replace(/\*/g, '').replace(/'/g, "\\'"); // Escape quotes
                     const display = formatHighlight(line);
-                    
+                    const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
-                            <button class="play-mini" onclick="speakText('${clean}', '${speedId}')" title="Ouvir esta linha">🔈</button>
+                            <button class="play-mini" onclick="speakText('${clean.replace(/'/g, "\\'")}', ${index})">🔈</button>
                             <div class="line-text">${display}</div>
                         </div>
                     `;
                 });
 
-                // 2. Botão de tradução (se estiver vazio)
-                let transContent = '';
-                if (!card.translation) {
-                    transContent = `
-                        <button id="btn-trans-${index}" class="card-translate-btn" onclick="translateCardNow(${index})">
-                            ✨ Esta carta não tem tradução. Clique para gerar.
-                        </button>
-                        <div id="trans-text-${index}" class="translation-text"></div>
-                    `;
-                } else {
-                    transContent = `<div class="translation-text">${card.translation}</div>`;
-                }
+                let transContent = card.translation 
+                    ? `<div class="translation-text">${card.translation}</div>`
+                    : `<button class="translate-action-btn" onclick="translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
 
                 el.innerHTML = `
-                    <div class="phrases-area">
-                        ${phrasesHtml}
+                    <div class="card-top-actions">
+                        <button class="edit-btn" onclick="enableEditMode(${index})" title="Editar">✏️</button>
                     </div>
 
-                    <div class="card-footer">
-                        <div class="speed-control">
-                            <label>Velocidade:</label>
-                            <select id="${speedId}" class="speed-select">
-                                <option value="1">1.0x</option>
-                                <option value="1.1">1.1x</option>
-                                <option value="1.2">1.2x</option>
-                                <option value="1.3">1.3x</option>
-                                <option value="1.5">1.5x</option>
-                                <option value="2">2.0x</option>
-                            </select>
-                            <button class="play-mini" style="margin-left:10px; width:auto; padding:0 10px; border-radius:15px;" 
-                                onclick="speakText('${card.phrase.replace(/\n/g, '. ').replace(/\*/g,'').replace(/'/g,"\\'")}', '${speedId}')">
-                                ▶ Ouvir Tudo
-                            </button>
+                    <div id="view-mode-${index}">
+                        <div class="phrases-area">${phrasesHtml}</div>
+                        
+                        <div class="card-footer">
+                            <div class="controls-group">
+                                <div><span class="control-label">Sotaque:</span>
+                                    <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
+                                        <option value="US" ${currentAccent === 'US' ? 'selected' : ''}>🇺🇸 EUA</option>
+                                        <option value="UK" ${currentAccent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
+                                    </select>
+                                </div>
+                                <div><span class="control-label">Vel:</span>
+                                    <select id="speed-${index}" class="control-select">
+                                        <option value="0.8">0.8x</option>
+                                        <option value="1" selected>1.0x</option>
+                                        <option value="1.1">1.1x</option>
+                                        <option value="1.2">1.2x</option>
+                                        <option value="1.3">1.3x</option>
+                                        <option value="1.5">1.5x</option>
+                                        <option value="2">2.0x</option>
+                                    </select>
+                                </div>
+                                <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir Tudo</button>
+                            </div>
+                            <button class="delete-btn" onclick="deleteCard(${index})">🗑️</button>
                         </div>
-                        <button class="delete-btn" onclick="deleteCard(${index})">🗑️</button>
+                        <button class="toggle-btn" onclick="toggleDetails(this)">👁️ Ver Tradução</button>
+                        <div class="details-area">${transContent}</div>
                     </div>
 
-                    <button class="toggle-btn" onclick="toggleDetails(this)">👁️ Ver/Esconder Tradução</button>
-                    <div class="details-area">
-                        ${transContent}
+                    <div id="edit-mode-${index}" style="display:none;">
+                        <div class="edit-toolbar">
+                            <button class="color-btn btn-blue" onclick="applyHighlight(${index}, '*')">🖍️ Azul</button>
+                            <button class="color-btn btn-red" onclick="applyHighlight(${index}, '#')">🖍️ Vermelho</button>
+                            <button class="color-btn btn-lilac" onclick="applyHighlight(${index}, '~')">🖍️ Lilás</button>
+                            <button class="color-btn btn-bold" onclick="applyHighlight(${index}, '^')">𝐁 Negrito</button>
+                        </div>
+                        <textarea id="edit-phrase-${index}" rows="4" class="edit-mode-area">${card.phrase}</textarea>
+                        <textarea id="edit-trans-${index}" rows="3" class="edit-mode-area">${card.translation || ''}</textarea>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="save-btn" onclick="saveEdit(${index})">Salvar</button>
+                            <button class="cancel-btn" onclick="cancelEdit(${index})">Cancelar</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(el);
             });
         }
 
-        // --- Lógica Principal ---
-        function addCard() {
-            const p = document.getElementById('input-phrase').value.trim();
-            const t = document.getElementById('input-translation').value.trim();
-            if(!p) return alert("Precisa de frase em inglês!");
-            
-            cards.unshift({ id: Date.now(), phrase: p, translation: t });
-            saveCards(); renderCards();
-            
-            document.getElementById('input-phrase').value = '';
-            document.getElementById('input-translation').value = '';
+        function updateCardSettings(index) {
+            const accentSelect = document.getElementById(`accent-${index}`);
+            cards[index].accent = accentSelect.value;
+            saveCards();
         }
 
-        function processBulkImport() {
-            const raw = document.getElementById('import-area').value;
-            if(!raw.trim()) return;
-
-            // Divide por quebra de linha dupla (blocos)
-            const blocks = raw.split(/\n\s*\n/);
-            
-            blocks.forEach(block => {
-                if(block.trim()) {
-                    cards.unshift({
-                        id: Date.now() + Math.random(),
-                        phrase: block.trim(),
-                        translation: "" // Importa vazio para traduzir depois no card
-                    });
-                }
-            });
-
-            saveCards(); renderCards();
-            document.getElementById('import-area').value = '';
-            toggleImportArea();
-        }
-
-        // --- Utils ---
-        function formatHighlight(text) {
-            return text.replace(/\*(.*?)\*/g, '<span class="highlight-word">$1</span>');
-        }
-
-        function speakText(text, speedId) {
+        function speakText(text, index) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const rate = document.getElementById(speedId).value;
+                const rate = document.getElementById(`speed-${index}`).value;
+                const accent = document.getElementById(`accent-${index}`).value;
                 const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'en-US';
+                const voice = getVoiceByAccent(accent);
+                if (voice) u.voice = voice;
+                u.lang = accent === 'US' ? 'en-US' : 'en-GB';
                 u.rate = parseFloat(rate);
                 window.speechSynthesis.speak(u);
             }
         }
-
-        function deleteCard(i) {
-            if(confirm("Apagar?")) { cards.splice(i, 1); saveCards(); renderCards(); }
+        function speakAll(index) {
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
         }
 
-        function toggleDetails(btn) {
-            const d = btn.nextElementSibling;
-            d.classList.toggle('visible');
+        function enableEditMode(i) {
+            document.getElementById(`view-mode-${i}`).style.display='none';
+            document.getElementById(`edit-mode-${i}`).style.display='block';
+            document.querySelector(`#card-${i} .card-top-actions`).style.display='none';
         }
-        function toggleImportArea() {
-            const d = document.getElementById('import-section');
-            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+        function cancelEdit(i) { renderCards(); }
+        function saveEdit(i) {
+            cards[i].phrase = document.getElementById(`edit-phrase-${i}`).value;
+            cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
+            saveCards(); renderCards();
         }
+        function applyHighlight(i, s) {
+            const t = document.getElementById(`edit-phrase-${i}`);
+            const start = t.selectionStart; const end = t.selectionEnd;
+            if (start === end) return alert("Selecione texto!");
+            const txt = t.value.substring(start, end).replace(/[*#~^]/g, '');
+            t.setRangeText(`${s}${txt}${s}`, start, end, 'select');
+        }
+
+        function formatHighlight(t) {
+            if(!t) return '';
+            let h = t.replace(/\*(.*?)\*/g, '<span class="hl-base hl-blue">$1</span>');
+            h = h.replace(/#(.*?)#/g, '<span class="hl-base hl-red">$1</span>');
+            h = h.replace(/~(.*?)~/g, '<span class="hl-base hl-lilac">$1</span>');
+            h = h.replace(/\^(.*?)\^/g, '<span class="hl-base hl-bold">$1</span>');
+            return h;
+        }
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            let c = t.replace(/[*#~^]/g, '');
+            return c.replace(/^(Example|Another example|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '').trim();
+        }
+
+        async function fetchTranslation(text) {
+            if (!text.trim()) return "";
+            try {
+                const lines = text.split('\n'); const tr = [];
+                for (let l of lines) {
+                    if (!l.trim()) { tr.push(""); continue; }
+                    const cl = l.replace(/[*#~^]/g, '');
+                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cl)}&langpair=en|pt-BR`);
+                    const d = await res.json();
+                    tr.push(d.responseData ? d.responseData.translatedText : "Erro");
+                }
+                return tr.join('\n');
+            } catch (e) { return "Erro conexão"; }
+        }
+        async function translateForm() { document.getElementById('input-translation').value = await fetchTranslation(document.getElementById('input-phrase').value); }
+        async function translateCardNow(i) {
+            const res = await fetchTranslation(cards[i].phrase);
+            cards[i].translation = res; saveCards(); renderCards();
+        }
+        function addCard() {
+            const p = document.getElementById('input-phrase').value.trim();
+            const t = document.getElementById('input-translation').value.trim();
+            if(!p) return alert("Vazio!");
+            cards.unshift({ id: Date.now(), phrase: p, translation: t, accent: 'US' });
+            saveCards(); renderCards();
+            document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
+        }
+        function processBulkImport() {
+            const r = document.getElementById('import-area').value;
+            r.split(/\n\s*\n/).forEach(b=>{if(b.trim())cards.unshift({id:Date.now()+Math.random(),phrase:b.trim(),translation:"",accent:'US'});});
+            saveCards(); renderCards(); toggleImportArea();
+        }
+        function deleteCard(i) { if(confirm("Excluir?")) { cards.splice(i,1); saveCards(); renderCards(); }}
+        function toggleDetails(btn) { btn.nextElementSibling.classList.toggle('visible'); }
+        function toggleImportArea() { const d=document.getElementById('import-section'); d.style.display=d.style.display==='block'?'none':'block'; }
 
         loadCards();
     </script>
