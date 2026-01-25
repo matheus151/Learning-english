@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V27 Mobile Compact</title>
+    <title>English Pro - V29 Voice & Audio Filter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
             color: var(--text);
             max-width: 700px;
             margin: 0 auto;
-            padding: 15px 12px; /* Margem da tela bem reduzida para mobile */
+            padding: 15px 12px;
             padding-bottom: 150px;
             font-weight: 400;
         }
@@ -74,95 +74,34 @@
         #file-input { display: none; }
         .import-toggle { text-align: center; margin-bottom: 15px; }
         .import-link { color: #64748b; font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
-        #import-section { display: none; background: #fff; padding: 15px; border-radius: 10px; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
+        #import-section { display: none; background: #fff; padding: 15px; border-radius: 10px; border: 2px dashed #cbd5e1; margin-bottom: 25px; }
 
-        /* --- CARTÕES OTIMIZADOS --- */
+        /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 15px; }
-        
-        .card { 
-            background: var(--card-bg); 
-            padding: 18px 12px; /* Padding reduzido para ganhar espaço */
-            border-radius: 12px; 
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05); 
-            border-left-width: 5px; border-left-style: solid;
-            animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; 
-            padding-top: 30px; 
-        }
-        
+        .card { background: var(--card-bg); padding: 20px 15px; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); border-left-width: 5px; border-left-style: solid; animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; padding-top: 30px; }
         .card-number { position: absolute; top: 8px; left: 10px; font-size: 0.75rem; color: #94a3b8; font-weight: 600; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
-        
-        /* Botão Editar */
         .card-top-actions { position: absolute; top: 8px; right: 8px; z-index: 10; }
         .edit-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;}
-
-        /* ÁREA DE TEXTO - ZERO MARGEM DIREITA */
-        .phrases-area { 
-            margin-right: 0; /* Ocupa tudo */
-        }
-
-        .line-item { 
-            display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; 
-            border-bottom: 1px dashed #f1f5f9; 
-        }
+        .phrases-area { margin-right: 0; }
+        .line-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #f1f5f9; }
         .line-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        
-        /* TRUQUE: Só a primeira linha ganha margem para não bater no botão editar */
         .line-item:first-child { margin-right: 32px; } 
+        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.4; word-wrap: break-word; margin-top: 2px; }
+        .play-mini { background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
 
-        .line-text { 
-            font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; 
-            line-height: 1.4; word-wrap: break-word; 
-            margin-top: 2px; /* Alinha com o ícone */
-        }
-        
-        /* Ícone de Som Menor */
-        .play-mini { 
-            background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; 
-            width: 24px; height: 24px; /* Bem menor */
-            display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; 
-            font-size: 0.8rem; margin-top: 3px; 
-        }
-
-        /* --- FOOTER COMPACTO (LINHA ÚNICA) --- */
-        .card-footer { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; /* Distribui */
-            margin-top: 15px; 
-            padding-top: 10px; 
-            border-top: 1px solid #e2e8f0; 
-            gap: 5px;
-        }
-        
-        .controls-group { 
-            display: flex; align-items: center; gap: 6px; flex: 1;
-        }
-        
-        select.control-select { 
-            padding: 3px 2px; border-radius: 5px; border: 1px solid #cbd5e1; 
-            background: #fff; font-size: 0.75rem; height: 28px;
-        }
-        .control-label { display: none; } /* Esconde labels */
-
-        .play-all-btn { 
-            background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; 
-            padding: 0 10px; height: 28px; 
-            font-size: 0.75rem; font-weight: 600; color: #475569; 
-            display: flex; align-items: center; gap: 4px; white-space: nowrap;
-        }
-        
-        /* Lixeira Compacta */
-        .delete-btn { 
-            color: #ef4444; background: none; border: none; cursor: pointer; 
-            font-size: 1.1rem; padding: 4px; opacity: 0.6;
-        }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; gap: 5px; }
+        .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
+        select.control-select { padding: 3px 2px; border-radius: 5px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.75rem; height: 28px; }
+        .control-label { display: none; }
+        .play-all-btn { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px; opacity: 0.6; }
         
         .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
         .details-area { display: none; background-color: #f0fdf4; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #bbf7d0; }
         .details-area.visible { display: block; }
         .translation-text { color: #15803d; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
 
-        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6; font-size: 16px; } /* 16px evita zoom no iphone */
+        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6; font-size: 16px; }
         .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
         .color-btn { border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: #fff; }
         .btn-blue { color: #0284c7; background: #eff6ff; border-color: #bfdbfe; }
@@ -170,7 +109,9 @@
         .btn-lilac { color: #9333ea; background: #faf5ff; border-color: #e9d5ff; }
         .btn-bold { color: #000; background: #f1f5f9; border-color: #94a3b8; }
         .btn-smart { background: #334155; color: white; border: 1px solid #1e293b; }
+        .btn-smart:hover { background: #1e293b; }
         .btn-secondary { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background: #cbd5e1; }
         .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
         .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
 
@@ -203,7 +144,7 @@
         <h3>Nova Entrada</h3>
         <div class="input-row">
             <label>Frases em Inglês</label>
-            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto..."></textarea>
+            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto... Use ==texto== para destacar"></textarea>
         </div>
         <div class="input-row">
             <label>Tradução</label>
@@ -236,7 +177,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV27';
+        const STORAGE_KEY = 'englishCardsFinalV29';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -249,12 +190,22 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
+        // --- VOZ COM GÊNERO (REVERTIDO PARA US=MALE / UK=FEMALE) ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
-            const maleKeywords = isUS ? ["Male", "David", "Guy", "Mark", "Natural"] : ["Male", "Ryan", "George", "Daniel", "Natural"];
-            let bestMatch = voices.find(v => v.lang === langCode && maleKeywords.some(k => v.name.includes(k)));
+            
+            // Preferência Específica:
+            // US -> Masculino (David, Guy, Mark)
+            // UK -> Feminino (Susan, Zira, Google UK)
+            const preferredKeywords = isUS 
+                ? ["Male", "David", "Guy", "Mark"] 
+                : ["Female", "Susan", "Zira", "Google UK"];
+
+            let bestMatch = voices.find(v => v.lang === langCode && preferredKeywords.some(k => v.name.includes(k)));
+            
+            // Fallback genérico para a língua
             if (bestMatch) return bestMatch;
             return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
@@ -357,15 +308,22 @@
             }
         }
 
+        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
         function normalizeFormatting(text) {
             if (!text) return '';
-            let t = text;
-            t = t.replace(/\*\*(.*?)\*\*/g, '^$1^');
-            t = t.replace(/__(.*?)__/g, '^$1^');
-            t = t.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-            t = t.replace(/<strong>(.*?)<\/strong>/gi, '^$1^');
-            t = t.replace(/_(.*?)_/g, '*$1*'); 
-            return t;
+            let lines = text.split('\n');
+            lines = lines.map((line, index) => {
+                let l = line;
+                l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
+                l = l.replace(/__(.*?)__/g, '^$1^');
+                l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
+                // Lógica Posicional para ==
+                if (index === 1) l = l.replace(/==(.*?)==/g, '*$1*'); // Linha 2 -> Blue
+                else if (index >= 2) l = l.replace(/==(.*?)==/g, '#$1#'); // Linha 3+ -> Red
+                else l = l.replace(/==(.*?)==/g, '^$1^'); // Linha 1 -> Bold
+                return l;
+            });
+            return lines.join('\n');
         }
 
         function loadCards() {
@@ -375,10 +333,10 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV26');
+            const savedOld = localStorage.getItem('englishCardsFinalV28');
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
-            else { cards = [{ id: 1, phrase: "You are a ^good person^.\nYoure a nice person.\nYou are a fine human.", translation: "Exemplo", accent: 'US' }]; }
+            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
             renderCards();
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
@@ -409,6 +367,7 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
+                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -579,9 +538,15 @@
             t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
+        // --- FILTRO DE AUDIO OTIMIZADO ---
         function cleanTextForAudio(t) {
             if(!t) return '';
-            return t.replace(/[*#~^]/g, '').replace(/^(Example|Another example|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '').trim();
+            // Remove símbolos
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove etiquetas comuns (Example:, Exemple, Exemplo, Another example)
+            // Regex ajustada para pegar variações e "Ex" curto
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
+            return c.trim();
         }
 
         async function fetchTranslation(text) {
