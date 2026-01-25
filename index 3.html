@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Pro - V30 Final Adjustments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --line-font-size: 1.15rem; 
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 15px 12px;
+            padding-bottom: 150px;
+            font-weight: 400;
+        }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); position: relative; animation: slideUp 0.3s ease-out; }
+        .modal-header { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; border: none; background: none; }
+        .example-item { background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #cbd5e1; font-style: italic; color: #475569; }
+        .definition-tag { font-size: 0.75rem; background: #e0e7ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-bottom: 4px; display: inline-block; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Nav */
+        .nav-float { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+        .nav-btn { background: rgba(37, 99, 235, 0.9); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        
+        /* Header */
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        h1 { margin: 0; color: #1e293b; font-weight: 700; font-size: 1.5rem; }
+        .font-controls { display: flex; gap: 5px; background: #fff; padding: 4px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .font-btn { background: #f1f5f9; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #475569; font-size: 0.9rem; }
+
+        /* Destaques */
+        .hl-base { padding: 0 2px; border-radius: 3px; display: inline-block; }
+        .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 1px dotted transparent; }
+        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); display:inline-block; }
+        .hl-blue { color: #0284c7; background-color: #e0f2fe; font-weight: 700; }
+        .hl-red { color: #dc2626; background-color: #fee2e2; font-weight: 700; }
+        .hl-lilac { color: #9333ea; background-color: #f3e8ff; font-weight: 700; }
+        .hl-bold { font-weight: 900; color: #000; border-bottom: 2px solid #cbd5e1; }
+
+        /* Form & Data */
+        .input-group { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .input-group h3 { margin-top: 0; color: #1e293b; font-size: 1.1rem; margin-bottom: 10px; font-weight: 600; }
+        .input-row { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #64748b; }
+        textarea, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; font-family: 'Inter', sans-serif; resize: vertical; background-color: #fff; color: #334155; box-sizing: border-box; }
+        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+        button { font-family: 'Inter', sans-serif; cursor: pointer; }
+        button#add-btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; width: 100%; font-size: 1rem; margin-top: 5px; }
+        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; cursor: pointer; }
+        
+        .data-controls { display: flex; gap: 5px; margin-bottom: 20px; background: #334155; padding: 8px; border-radius: 8px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
+        #file-input { display: none; }
+        .import-toggle { text-align: center; margin-bottom: 15px; }
+        .import-link { color: #64748b; font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
+        #import-section { display: none; background: #fff; padding: 15px; border-radius: 10px; border: 2px dashed #cbd5e1; margin-bottom: 25px; }
+
+        /* Cartões */
+        #card-container { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--card-bg); padding: 20px 15px; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); border-left-width: 5px; border-left-style: solid; animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; padding-top: 30px; }
+        .card-number { position: absolute; top: 8px; left: 10px; font-size: 0.75rem; color: #94a3b8; font-weight: 600; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+        .card-top-actions { position: absolute; top: 8px; right: 8px; z-index: 10; }
+        .edit-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;}
+        .phrases-area { margin-right: 0; }
+        .line-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #f1f5f9; }
+        .line-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .line-item:first-child { margin-right: 32px; } 
+        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.4; word-wrap: break-word; margin-top: 2px; }
+        .play-mini { background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
+
+        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid #e2e8f0; gap: 5px; }
+        .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
+        select.control-select { padding: 3px 2px; border-radius: 5px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.75rem; height: 28px; }
+        .control-label { display: none; }
+        .play-all-btn { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px; opacity: 0.6; }
+        
+        .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
+        .details-area { display: none; background-color: #f0fdf4; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #bbf7d0; }
+        .details-area.visible { display: block; }
+        .translation-text { color: #15803d; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
+
+        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6; font-size: 16px; }
+        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+        .color-btn { border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: #fff; }
+        .btn-blue { color: #0284c7; background: #eff6ff; border-color: #bfdbfe; }
+        .btn-red { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+        .btn-lilac { color: #9333ea; background: #faf5ff; border-color: #e9d5ff; }
+        .btn-bold { color: #000; background: #f1f5f9; border-color: #94a3b8; }
+        .btn-smart { background: #334155; color: white; border: 1px solid #1e293b; }
+        .btn-smart:hover { background: #1e293b; }
+        .btn-secondary { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
+        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeExampleModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div class="nav-float">
+        <button class="nav-btn" onclick="scrollToTop()">⬆</button>
+        <button class="nav-btn" onclick="scrollToBottom()">⬇</button>
+    </div>
+
+    <div class="header-container">
+        <h1>🇬🇧 English Pro</h1>
+        <div class="font-controls">
+            <button class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
+            <button class="font-btn" onclick="changeFontSize(0.1)">A+</button>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <h3>Nova Entrada</h3>
+        <div class="input-row">
+            <label>Frases em Inglês</label>
+            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto... Use ==texto== para destacar"></textarea>
+        </div>
+        <div class="input-row">
+            <label>Tradução</label>
+            <textarea id="input-translation" rows="4" placeholder="..."></textarea>
+        </div>
+        <button class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
+        <button id="add-btn" onclick="addCard()">Salvar Cartão</button>
+    </div>
+
+    <div class="data-controls">
+        <button class="data-btn" onclick="downloadBackup()">💾 Backup</button>
+        <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
+        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
+        <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
+    </div>
+
+    <div class="import-toggle">
+        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+    </div>
+    <div id="import-section">
+        <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
+        <button id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
+    </div>
+
+    <div id="card-container"></div>
+
+    <script>
+        let cards = [];
+        let voices = [];
+        let currentFontSize = 1.15; 
+        
+        const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+        const STORAGE_KEY = 'englishCardsFinalV30';
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = entry.target.id.replace('card-', '');
+                    localStorage.setItem('englishAppLastPos', index);
+                }
+            });
+        }, { threshold: 0.6 });
+
+        window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
+
+        // --- VOZ COM GÊNERO (REVERTIDO PARA US=MALE / UK=FEMALE) ---
+        function getVoiceByAccent(accent) {
+            if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            const isUS = accent === 'US';
+            const langCode = isUS ? 'en-US' : 'en-GB';
+            
+            // Preferência Específica:
+            // US -> Masculino (David, Guy, Mark)
+            // UK -> Feminino (Susan, Zira, Google UK)
+            const preferredKeywords = isUS 
+                ? ["Male", "David", "Guy", "Mark"] 
+                : ["Female", "Susan", "Zira", "Google UK"];
+
+            let bestMatch = voices.find(v => v.lang === langCode && preferredKeywords.some(k => v.name.includes(k)));
+            
+            // Fallback genérico para a língua
+            if (bestMatch) return bestMatch;
+            return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
+        }
+
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+
+        function changeFontSize(delta) {
+            currentFontSize += delta;
+            if (currentFontSize < 0.8) currentFontSize = 0.8;
+            if (currentFontSize > 2.5) currentFontSize = 2.5;
+            document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
+            localStorage.setItem('englishAppFontSize', currentFontSize);
+        }
+
+        async function openExampleModal(element) {
+            const rawText = element.innerText;
+            const term = rawText.replace(/[.,!?;:]/g, '').trim();
+            const modal = document.getElementById('example-modal');
+            const content = document.getElementById('modal-body');
+            modal.style.display = 'flex';
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b">⏳ Buscando exemplos reais para: <b>"${term}"</b>...</div>`;
+            try {
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(term)}`);
+                const data = await res.json();
+                if (!Array.isArray(data)) throw new Error("Não encontrado");
+                let html = `<div class="modal-header">Exemplos para "${term}"</div>`;
+                let foundAny = false;
+                data.forEach(entry => {
+                    entry.meanings.forEach(meaning => {
+                        meaning.definitions.forEach(def => {
+                            if (def.example) {
+                                foundAny = true;
+                                html += `<div class="example-item"><div class="definition-tag">${meaning.partOfSpeech}</div>"${def.example}"</div>`;
+                            }
+                        });
+                    });
+                });
+                if (!foundAny) html += `<div style="padding:10px; color:#64748b">Sem exemplos no dicionário.</div>`;
+                content.innerHTML = html;
+            } catch (e) {
+                content.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Palavra não encontrada ou sem exemplos.</div>`;
+            }
+        }
+
+        function closeExampleModal(e) {
+            if (e && e.target !== document.getElementById('example-modal') && e.target !== document.querySelector('.modal-close')) return;
+            document.getElementById('example-modal').style.display = 'none';
+        }
+
+        function formatHighlight(t) {
+            if(!t) return '';
+            const granularWrap = (text) => {
+                const parts = text.split(/(\s+)/);
+                return parts.map(part => {
+                    if (part.match(/^\s+$/)) return part; 
+                    return `<span class="word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${part}</span>`;
+                }).join('');
+            };
+            const wrap = (txt, cls) => `<span class="hl-base ${cls}">${granularWrap(txt)}</span>`;
+            let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
+            h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
+            h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
+            h = h.replace(/\^(.*?)\^/g, (m,p1) => wrap(p1, 'hl-bold'));
+            return h;
+        }
+
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "backup_ingles_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        if(confirm(`Encontrados ${data.length} cartões. Substituir?`)) {
+                            cards = data; saveCards(); renderCards(); alert("Restaurado!");
+                        }
+                    } else { alert("Arquivo inválido."); }
+                } catch(err) { alert("Erro ao ler arquivo."); }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if(confirm("Apagar TUDO?")) {
+                if(confirm("Confirmação final?")) {
+                    localStorage.clear(); cards = []; currentFontSize = 1.15; renderCards(); alert("Zerado.");
+                }
+            }
+        }
+
+        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
+        function normalizeFormatting(text) {
+            if (!text) return '';
+            let lines = text.split('\n');
+            lines = lines.map((line, index) => {
+                let l = line;
+                // Markdown Básico
+                l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
+                l = l.replace(/__(.*?)__/g, '^$1^');
+                l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
+                // Lógica Posicional para ==
+                if (index === 1) { // Linha 2 -> Blue
+                    l = l.replace(/==(.*?)==/g, '*$1*');
+                } else if (index >= 2) { // Linha 3+ -> Red
+                    l = l.replace(/==(.*?)==/g, '#$1#');
+                } else { // Linha 1 -> Bold
+                    l = l.replace(/==(.*?)==/g, '^$1^');
+                }
+                return l;
+            });
+            return lines.join('\n');
+        }
+
+        function loadCards() {
+            const savedFont = localStorage.getItem('englishAppFontSize');
+            if (savedFont) {
+                currentFontSize = parseFloat(savedFont);
+                document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
+            }
+            const saved = localStorage.getItem(STORAGE_KEY);
+            const savedOld = localStorage.getItem('englishCardsFinalV28');
+            if (saved) { cards = JSON.parse(saved); } 
+            else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
+            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
+            renderCards();
+            setTimeout(() => {
+                const lastPos = localStorage.getItem('englishAppLastPos');
+                if (lastPos) {
+                    const el = document.getElementById(`card-${lastPos}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 500);
+        }
+        function saveCards() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+
+        function renderCards() {
+            const container = document.getElementById('card-container');
+            container.innerHTML = '';
+            
+            cards.forEach((card, index) => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.id = `card-${index}`;
+                observer.observe(el);
+
+                const color = borderColors[index % borderColors.length];
+                el.style.borderLeftColor = color;
+
+                const lines = card.phrase.split('\n');
+                let phrasesHtml = '';
+                
+                lines.forEach(line => {
+                    if(line.trim() === "") return;
+                    const display = formatHighlight(line);
+                    // Aqui usamos cleanTextForAudio no onClick
+                    const clean = cleanTextForAudio(line);
+                    phrasesHtml += `
+                        <div class="line-item">
+                            <button class="play-mini" onclick="speakText('${clean.replace(/'/g, "\\'")}', ${index})">🔈</button>
+                            <div class="line-text">${display}</div>
+                        </div>
+                    `;
+                });
+
+                let transContent = card.translation 
+                    ? `<div class="translation-text">${card.translation}</div>`
+                    : `<button class="translate-action-btn" onclick="translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
+
+                el.innerHTML = `
+                    <div class="card-number">#${index + 1}</div>
+                    <div class="card-top-actions">
+                        <button class="edit-btn" onclick="enableEditMode(${index})" title="Editar">✏️</button>
+                    </div>
+                    <div id="view-mode-${index}">
+                        <div class="phrases-area">${phrasesHtml}</div>
+                        <div class="card-footer">
+                            <div class="controls-group">
+                                <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
+                                    <option value="US" ${card.accent === 'US' ? 'selected' : ''}>🇺🇸 US</option>
+                                    <option value="UK" ${card.accent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
+                                </select>
+                                <select id="speed-${index}" class="control-select">
+                                    <option value="0.8">0.8x</option>
+                                    <option value="1" selected>1.0x</option>
+                                    <option value="1.1">1.1x</option> <option value="1.2">1.2x</option>
+                                    <option value="1.5">1.5x</option>
+                                </select>
+                                <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir</button>
+                            </div>
+                            <button class="delete-btn" onclick="deleteCard(${index})">🗑️</button>
+                        </div>
+                        <button class="toggle-btn" onclick="toggleDetails(this)">👁️ Ver Tradução</button>
+                        <div class="details-area">${transContent}</div>
+                    </div>
+
+                    <div id="edit-mode-${index}" style="display:none;">
+                        <div class="edit-toolbar">
+                            <button class="color-btn btn-smart" id="btn-smart-${index}" onclick="autoSmartMark(${index})">🔗 Auto Smart</button>
+                            <span style="color:#cbd5e1">|</span>
+                            <button class="color-btn btn-blue" onclick="applyHighlight(${index}, '*')">Blue</button>
+                            <button class="color-btn btn-red" onclick="applyHighlight(${index}, '#')">Red</button>
+                            <button class="color-btn btn-lilac" onclick="applyHighlight(${index}, '~')">Lilac</button>
+                            <button class="color-btn btn-bold" onclick="applyHighlight(${index}, '^')">Bold</button>
+                        </div>
+                        <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <button class="color-btn btn-secondary" onclick="toggleTransEdit(${index})">📝 Ver/Editar Tradução</button>
+                            <button class="color-btn btn-secondary" onclick="updateTranslationInEdit(${index})">✨ Traduzir/Atualizar</button>
+                        </div>
+                        <div id="edit-trans-wrapper-${index}" style="display:none;">
+                            <textarea id="edit-trans-${index}" rows="5" class="edit-mode-area"></textarea>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="save-btn" onclick="saveEdit(${index})">Salvar</button>
+                            <button class="cancel-btn" onclick="cancelEdit(${index})">Cancelar</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function updateCardSettings(index) {
+            cards[index].accent = document.getElementById(`accent-${index}`).value;
+            saveCards();
+        }
+
+        function speakText(text, index) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const accent = document.getElementById(`accent-${index}`).value;
+                const u = new SpeechSynthesisUtterance(text);
+                const voice = getVoiceByAccent(accent);
+                if (voice) u.voice = voice;
+                u.lang = accent === 'US' ? 'en-US' : 'en-GB';
+                u.rate = parseFloat(rate);
+                window.speechSynthesis.speak(u);
+            }
+        }
+        function speakAll(index) {
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
+        }
+
+        function enableEditMode(i) {
+            document.getElementById(`view-mode-${i}`).style.display='none';
+            document.getElementById(`edit-mode-${i}`).style.display='block';
+            document.querySelector(`#card-${i} .card-top-actions`).style.display='none';
+            const pArea = document.getElementById(`edit-phrase-${i}`);
+            const tArea = document.getElementById(`edit-trans-${i}`);
+            document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
+            pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
+            tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
+        }
+
+        function toggleTransEdit(index) {
+            const wrapper = document.getElementById(`edit-trans-wrapper-${index}`);
+            wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function updateTranslationInEdit(index) {
+            const phraseText = document.getElementById(`edit-phrase-${index}`).value;
+            const transArea = document.getElementById(`edit-trans-${index}`);
+            document.getElementById(`edit-trans-wrapper-${index}`).style.display = 'block'; 
+            transArea.value = "Traduzindo...";
+            transArea.value = await fetchTranslation(phraseText);
+        }
+
+        function cancelEdit(i) { renderCards(); }
+        function saveEdit(i) {
+            cards[i].phrase = normalizeFormatting(document.getElementById(`edit-phrase-${i}`).value); 
+            cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
+            saveCards(); renderCards();
+        }
+        
+        async function autoSmartMark(index) {
+            const textarea = document.getElementById(`edit-phrase-${index}`);
+            const btn = document.getElementById(`btn-smart-${index}`);
+            let text = textarea.value;
+            let lines = text.split('\n').filter(l => l.trim() !== '');
+            if (lines.length < 1) return;
+            const match = lines[0].match(/\^(.*?)\^/);
+            if (!match) { alert("Marque o termo principal em NEGRITO na linha 1 primeiro."); return; }
+            const term = match[1].replace(/[.,!?;:]/g, ''); 
+            const originalBtnText = btn.innerText;
+            btn.innerText = "⏳ Triangulando...";
+            btn.disabled = true;
+            try {
+                let keywords = [term];
+                const datamuseRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(term)}&max=10`);
+                const dmData = await datamuseRes.json();
+                dmData.forEach(i => keywords.push(i.word));
+                const ptRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(term)}&langpair=en|pt-BR`);
+                const ptData = await ptRes.json();
+                const words = term.split(/\s+/);
+                words.forEach(w => { if(w.length > 3) keywords.push(w); });
+                keywords = [...new Set(keywords.map(k => k.toLowerCase()))];
+                if (lines.length > 1) lines[1] = smartReplace(lines[1], keywords, '*');
+                if (lines.length > 2) lines[2] = smartReplace(lines[2], keywords, '#');
+                textarea.value = lines.join('\n\n');
+            } catch (error) { alert("Erro na análise."); } 
+            finally { btn.innerText = originalBtnText; btn.disabled = false; }
+        }
+
+        function smartReplace(sentence, keywords, symbol) {
+            let clean = sentence.replace(/[*#~]/g, '');
+            keywords.sort((a, b) => b.length - a.length);
+            const phraseWords = clean.split(/(\s+|[.,!?;:])/);
+            const processed = phraseWords.map(word => {
+                const wLow = word.toLowerCase();
+                const isMatch = keywords.some(k => (wLow.includes(k) && k.length>3) || (k.includes(wLow) && wLow.length>3));
+                if (isMatch && word.trim().length > 0) return `${symbol}${word}${symbol}`;
+                return word;
+            });
+            return processed.join('');
+        }
+
+        function applyHighlight(i, s) {
+            const t = document.getElementById(`edit-phrase-${i}`);
+            const start = t.selectionStart; const end = t.selectionEnd;
+            if (start === end) return alert("Selecione texto!");
+            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
+        }
+
+        // --- FILTRO DE AUDIO OTIMIZADO ---
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            // Remove símbolos
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove etiquetas comuns (Example:, Exemple, Exemplo, Another example)
+            // Regex ajustada para pegar variações e "Ex" curto
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
+            return c.trim();
+        }
+
+        async function fetchTranslation(text) {
+            if (!text.trim()) return "";
+            try {
+                const lines = text.split('\n'); const tr = [];
+                for (let l of lines) {
+                    if (!l.trim()) { tr.push(""); continue; }
+                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(l.replace(/[*#~^]/g, ''))}&langpair=en|pt-BR`);
+                    const d = await res.json();
+                    tr.push(d.responseData ? d.responseData.translatedText : "Erro");
+                }
+                return tr.join('\n');
+            } catch (e) { return "Erro conexão"; }
+        }
+        async function translateForm() { document.getElementById('input-translation').value = await fetchTranslation(document.getElementById('input-phrase').value); }
+        async function translateCardNow(i) {
+            const res = await fetchTranslation(cards[i].phrase);
+            cards[i].translation = res; saveCards(); renderCards();
+        }
+        
+        function addCard() {
+            const raw = document.getElementById('input-phrase').value.trim();
+            const t = document.getElementById('input-translation').value.trim();
+            if(!raw) return alert("Vazio!");
+            cards.unshift({ id: Date.now(), phrase: normalizeFormatting(raw), translation: t, accent: 'US' });
+            saveCards(); renderCards();
+            document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
+        }
+
+        function processBulkImport() {
+            document.getElementById('import-area').value.split(/\n\s*\n/).forEach(b=>{
+                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:normalizeFormatting(b.trim()), translation:"", accent:'US'});
+            });
+            saveCards(); renderCards(); toggleImportArea();
+        }
+
+        function deleteCard(i) { if(confirm("Excluir?")) { cards.splice(i,1); saveCards(); renderCards(); }}
+        function toggleDetails(btn) { btn.nextElementSibling.classList.toggle('visible'); }
+        function toggleImportArea() { const d=document.getElementById('import-section'); d.style.display=d.style.display==='block'?'none':'block'; }
+
+        loadCards();
+    </script>
+</body>
+</html>
