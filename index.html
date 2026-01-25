@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V25 Male Voices Only</title>
+    <title>English Pro - V27 Mobile Compact</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -24,129 +24,155 @@
             color: var(--text);
             max-width: 700px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 15px 12px; /* Margem da tela bem reduzida para mobile */
             padding-bottom: 150px;
             font-weight: 400;
         }
 
-        /* --- MODAL POP-UP --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(2px);
-        }
-        .modal-content {
-            background: white; padding: 25px; border-radius: 16px;
-            max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            position: relative; animation: slideUp 0.3s ease-out;
-        }
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); position: relative; animation: slideUp 0.3s ease-out; }
         .modal-header { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; border: none; background: none; }
-        .modal-close:hover { color: #ef4444; }
-        
-        .example-item { 
-            background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius: 8px; 
-            border-left: 4px solid #cbd5e1; font-style: italic; color: #475569;
-        }
+        .example-item { background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #cbd5e1; font-style: italic; color: #475569; }
         .definition-tag { font-size: 0.75rem; background: #e0e7ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-bottom: 4px; display: inline-block; }
-
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Nav Flutuante */
+        /* Nav */
         .nav-float { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
         .nav-btn { background: rgba(37, 99, 235, 0.9); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-        .nav-btn:hover { transform: scale(1.1); background: var(--primary); }
-
+        
         /* Header */
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h1 { margin: 0; color: #1e293b; font-weight: 700; font-size: 1.8rem; }
-        .font-controls { display: flex; gap: 5px; background: #fff; padding: 5px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .font-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #475569; font-size: 1rem; }
-        .font-btn:hover { background: var(--primary); color: white; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        h1 { margin: 0; color: #1e293b; font-weight: 700; font-size: 1.5rem; }
+        .font-controls { display: flex; gap: 5px; background: #fff; padding: 4px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .font-btn { background: #f1f5f9; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #475569; font-size: 0.9rem; }
 
         /* Destaques */
-        .hl-base { padding: 0 4px; border-radius: 4px; display: inline-block; }
+        .hl-base { padding: 0 2px; border-radius: 3px; display: inline-block; }
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 1px dotted transparent; }
-        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); transform: translateY(-1px); display:inline-block; }
-
+        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); display:inline-block; }
         .hl-blue { color: #0284c7; background-color: #e0f2fe; font-weight: 700; }
         .hl-red { color: #dc2626; background-color: #fee2e2; font-weight: 700; }
         .hl-lilac { color: #9333ea; background-color: #f3e8ff; font-weight: 700; }
         .hl-bold { font-weight: 900; color: #000; border-bottom: 2px solid #cbd5e1; }
 
-        /* Formulário */
-        .input-group { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        .input-group h3 { margin-top: 0; color: #1e293b; font-size: 1.25rem; margin-bottom: 20px; font-weight: 600; }
-        .input-row { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #64748b; }
-        textarea, input[type="text"] { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 16px; font-family: 'Inter', sans-serif; resize: vertical; background-color: #fff; color: #334155; box-sizing: border-box; }
-        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        button { font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
-        button#add-btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1.05rem; margin-top: 10px; }
-        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
-
-        /* Data Controls */
-        .data-controls { display: flex; gap: 10px; margin-bottom: 30px; background: #334155; padding: 10px; border-radius: 10px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .data-btn:hover { background: rgba(255,255,255,0.2); }
+        /* Form & Data */
+        .input-group { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .input-group h3 { margin-top: 0; color: #1e293b; font-size: 1.1rem; margin-bottom: 10px; font-weight: 600; }
+        .input-row { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #64748b; }
+        textarea, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; font-family: 'Inter', sans-serif; resize: vertical; background-color: #fff; color: #334155; box-sizing: border-box; }
+        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+        button { font-family: 'Inter', sans-serif; cursor: pointer; }
+        button#add-btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; width: 100%; font-size: 1rem; margin-top: 5px; }
+        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; cursor: pointer; }
+        
+        .data-controls { display: flex; gap: 5px; margin-bottom: 20px; background: #334155; padding: 8px; border-radius: 8px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
-        .btn-danger:hover { background: rgba(239, 68, 68, 0.8); color: white; }
         #file-input { display: none; }
+        .import-toggle { text-align: center; margin-bottom: 15px; }
+        .import-link { color: #64748b; font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
+        #import-section { display: none; background: #fff; padding: 15px; border-radius: 10px; border: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
-        /* Importação */
-        .import-toggle { text-align: center; margin-bottom: 25px; }
-        .import-link { color: #64748b; text-decoration: none; border-bottom: 1px dashed #94a3b8; background: none; border: none; font-size: 0.9rem; }
-        #import-section { display: none; background: #fff; padding: 20px; border-radius: 12px; border: 2px dashed #cbd5e1; margin-bottom: 30px; }
-
-        /* Cartões */
-        #card-container { display: flex; flex-direction: column; gap: 20px; }
+        /* --- CARTÕES OTIMIZADOS --- */
+        #card-container { display: flex; flex-direction: column; gap: 15px; }
+        
         .card { 
-            background: var(--card-bg); padding: 25px; border-radius: 16px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04); 
-            border-left-width: 6px; border-left-style: solid;
-            animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 20px; padding-top: 35px; 
+            background: var(--card-bg); 
+            padding: 18px 12px; /* Padding reduzido para ganhar espaço */
+            border-radius: 12px; 
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05); 
+            border-left-width: 5px; border-left-style: solid;
+            animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; 
+            padding-top: 30px; 
         }
         
-        .card-number { position: absolute; top: 10px; left: 15px; font-size: 0.85rem; color: #94a3b8; font-weight: 600; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
-        .card-top-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 10; }
-        .edit-btn { background: #f1f5f9; color: #475569; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .card-number { position: absolute; top: 8px; left: 10px; font-size: 0.75rem; color: #94a3b8; font-weight: 600; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
         
-        .phrases-area { margin-right: 40px; }
+        /* Botão Editar */
+        .card-top-actions { position: absolute; top: 8px; right: 8px; z-index: 10; }
+        .edit-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;}
 
-        .line-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; }
-        .line-item:last-child { border-bottom: none; }
-        .line-text { font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; line-height: 1.6; margin-top: 4px; transition: font-size 0.2s; word-wrap: break-word; }
-        .play-mini { background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; }
+        /* ÁREA DE TEXTO - ZERO MARGEM DIREITA */
+        .phrases-area { 
+            margin-right: 0; /* Ocupa tudo */
+        }
+
+        .line-item { 
+            display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; 
+            border-bottom: 1px dashed #f1f5f9; 
+        }
+        .line-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
-        .controls-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .control-label { font-size: 0.8rem; color: #64748b; font-weight: 600; margin-right: 2px;}
-        select.control-select { padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.9rem; cursor: pointer; }
-        .play-all-btn { background: none; border: 1px solid #cbd5e1; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; color: #475569; }
-        .delete-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.7; }
+        /* TRUQUE: Só a primeira linha ganha margem para não bater no botão editar */
+        .line-item:first-child { margin-right: 32px; } 
+
+        .line-text { 
+            font-size: var(--line-font-size); color: #1e293b; flex-grow: 1; 
+            line-height: 1.4; word-wrap: break-word; 
+            margin-top: 2px; /* Alinha com o ícone */
+        }
         
-        .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 10px; margin-top: 5px; font-size: 0.9rem; font-weight: 500; }
-        .details-area { display: none; background-color: #f0fdf4; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #bbf7d0; }
+        /* Ícone de Som Menor */
+        .play-mini { 
+            background: #eff6ff; border: none; color: var(--primary); border-radius: 50%; 
+            width: 24px; height: 24px; /* Bem menor */
+            display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; 
+            font-size: 0.8rem; margin-top: 3px; 
+        }
+
+        /* --- FOOTER COMPACTO (LINHA ÚNICA) --- */
+        .card-footer { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; /* Distribui */
+            margin-top: 15px; 
+            padding-top: 10px; 
+            border-top: 1px solid #e2e8f0; 
+            gap: 5px;
+        }
+        
+        .controls-group { 
+            display: flex; align-items: center; gap: 6px; flex: 1;
+        }
+        
+        select.control-select { 
+            padding: 3px 2px; border-radius: 5px; border: 1px solid #cbd5e1; 
+            background: #fff; font-size: 0.75rem; height: 28px;
+        }
+        .control-label { display: none; } /* Esconde labels */
+
+        .play-all-btn { 
+            background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; 
+            padding: 0 10px; height: 28px; 
+            font-size: 0.75rem; font-weight: 600; color: #475569; 
+            display: flex; align-items: center; gap: 4px; white-space: nowrap;
+        }
+        
+        /* Lixeira Compacta */
+        .delete-btn { 
+            color: #ef4444; background: none; border: none; cursor: pointer; 
+            font-size: 1.1rem; padding: 4px; opacity: 0.6;
+        }
+        
+        .toggle-btn { background: none; border: none; color: #64748b; cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
+        .details-area { display: none; background-color: #f0fdf4; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #bbf7d0; }
         .details-area.visible { display: block; }
-        .translation-text { color: #15803d; white-space: pre-line; line-height: 1.6; font-size: 1rem; }
+        .translation-text { color: #15803d; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
 
-        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6; }
-        .edit-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-        
-        .color-btn { border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: #fff; transition: 0.2s; }
+        .edit-mode-area { background: #f8fafc; padding: 10px; border-radius: 8px; border: 2px solid #cbd5e1; margin-bottom: 10px; line-height: 1.6; font-size: 16px; } /* 16px evita zoom no iphone */
+        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+        .color-btn { border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: #fff; }
         .btn-blue { color: #0284c7; background: #eff6ff; border-color: #bfdbfe; }
         .btn-red { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
         .btn-lilac { color: #9333ea; background: #faf5ff; border-color: #e9d5ff; }
         .btn-bold { color: #000; background: #f1f5f9; border-color: #94a3b8; }
         .btn-smart { background: #334155; color: white; border: 1px solid #1e293b; }
-        .btn-smart:hover { background: #1e293b; }
         .btn-secondary { background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; }
-        .btn-secondary:hover { background: #cbd5e1; }
-
-        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
-        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;}
+        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
+        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -188,9 +214,9 @@
     </div>
 
     <div class="data-controls">
-        <button class="data-btn" onclick="downloadBackup()">💾 Fazer Backup</button>
+        <button class="data-btn" onclick="downloadBackup()">💾 Backup</button>
         <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
-        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar App</button>
+        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
         <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
@@ -210,7 +236,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV25';
+        const STORAGE_KEY = 'englishCardsFinalV27';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -223,26 +249,13 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ MASCULINA PARA TODOS ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
-            
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
-            
-            // Palavras-chave para garantir voz MASCULINA e NATURAL
-            const maleKeywords = isUS 
-                ? ["Male", "David", "Guy", "Mark", "Natural"] 
-                : ["Male", "Ryan", "George", "Daniel", "Natural"];
-
-            // 1. Tenta achar idioma + masculino
-            let bestMatch = voices.find(v => {
-                return v.lang === langCode && maleKeywords.some(k => v.name.includes(k));
-            });
-
+            const maleKeywords = isUS ? ["Male", "David", "Guy", "Mark", "Natural"] : ["Male", "Ryan", "George", "Daniel", "Natural"];
+            let bestMatch = voices.find(v => v.lang === langCode && maleKeywords.some(k => v.name.includes(k)));
             if (bestMatch) return bestMatch;
-
-            // 2. Fallback
             return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
@@ -257,25 +270,19 @@
             localStorage.setItem('englishAppFontSize', currentFontSize);
         }
 
-        // --- POP-UP GRANULAR ---
         async function openExampleModal(element) {
             const rawText = element.innerText;
             const term = rawText.replace(/[.,!?;:]/g, '').trim();
-
             const modal = document.getElementById('example-modal');
             const content = document.getElementById('modal-body');
             modal.style.display = 'flex';
             content.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b">⏳ Buscando exemplos reais para: <b>"${term}"</b>...</div>`;
-
             try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(term)}`);
                 const data = await res.json();
-
                 if (!Array.isArray(data)) throw new Error("Não encontrado");
-
                 let html = `<div class="modal-header">Exemplos para "${term}"</div>`;
                 let foundAny = false;
-
                 data.forEach(entry => {
                     entry.meanings.forEach(meaning => {
                         meaning.definitions.forEach(def => {
@@ -286,10 +293,8 @@
                         });
                     });
                 });
-
                 if (!foundAny) html += `<div style="padding:10px; color:#64748b">Sem exemplos no dicionário.</div>`;
                 content.innerHTML = html;
-
             } catch (e) {
                 content.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Palavra não encontrada ou sem exemplos.</div>`;
             }
@@ -302,7 +307,6 @@
 
         function formatHighlight(t) {
             if(!t) return '';
-            
             const granularWrap = (text) => {
                 const parts = text.split(/(\s+)/);
                 return parts.map(part => {
@@ -310,9 +314,7 @@
                     return `<span class="word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${part}</span>`;
                 }).join('');
             };
-
             const wrap = (txt, cls) => `<span class="hl-base ${cls}">${granularWrap(txt)}</span>`;
-            
             let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
             h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
             h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
@@ -373,7 +375,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV24');
+            const savedOld = localStorage.getItem('englishCardsFinalV26');
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "You are a ^good person^.\nYoure a nice person.\nYou are a fine human.", translation: "Exemplo", accent: 'US' }]; }
@@ -429,24 +431,17 @@
                         <div class="phrases-area">${phrasesHtml}</div>
                         <div class="card-footer">
                             <div class="controls-group">
-                                <div><span class="control-label">Sotaque:</span>
-                                    <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
-                                        <option value="US" ${card.accent === 'US' ? 'selected' : ''}>🇺🇸 EUA</option>
-                                        <option value="UK" ${card.accent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
-                                    </select>
-                                </div>
-                                <div><span class="control-label">Vel:</span>
-                                    <select id="speed-${index}" class="control-select">
-                                        <option value="0.8">0.8x</option>
-                                        <option value="1" selected>1.0x</option>
-                                        <option value="1.1">1.1x</option>
-                                        <option value="1.2">1.2x</option>
-                                        <option value="1.3">1.3x</option>
-                                        <option value="1.5">1.5x</option>
-                                        <option value="2">2.0x</option>
-                                    </select>
-                                </div>
-                                <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir Tudo</button>
+                                <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
+                                    <option value="US" ${card.accent === 'US' ? 'selected' : ''}>🇺🇸 US</option>
+                                    <option value="UK" ${card.accent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
+                                </select>
+                                <select id="speed-${index}" class="control-select">
+                                    <option value="0.8">0.8x</option>
+                                    <option value="1" selected>1.0x</option>
+                                    <option value="1.2">1.2x</option>
+                                    <option value="1.5">1.5x</option>
+                                </select>
+                                <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir</button>
                             </div>
                             <button class="delete-btn" onclick="deleteCard(${index})">🗑️</button>
                         </div>
@@ -510,8 +505,7 @@
             document.querySelector(`#card-${i} .card-top-actions`).style.display='none';
             const pArea = document.getElementById(`edit-phrase-${i}`);
             const tArea = document.getElementById(`edit-trans-${i}`);
-            const tWrapper = document.getElementById(`edit-trans-wrapper-${i}`);
-            tWrapper.style.display = 'none';
+            document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
             pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
             tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
         }
