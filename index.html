@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V33 iOS Voice Fix</title>
+    <title>English Pro - V34 Force Quality Voice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -177,7 +177,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV33'; // Nova chave para V33
+        const STORAGE_KEY = 'englishCardsFinalV34';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -190,38 +190,30 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ ESPECÍFICA PARA IPHONE/iOS + ANDROID ---
+        // --- VOZ COM PRIORIDADE TOTAL AO GOOGLE / QUALIDADE IOS ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
-            
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
             
-            // PRIORIDADE PARA IPHONE (iOS Names):
-            // US (MASCULINO): Aaron, Fred, Nicky
-            // UK (FEMININO): Martha, Catherine, Arthur (Arthur é masc, mas high quality, Martha é fem)
-            // Também adicionamos "Google" para quem usa Android.
-            
-            let specificKeywords = [];
-            
-            if (isUS) {
-                // US -> Masculino preferido
-                specificKeywords = ["Aaron", "Fred", "Nicky", "Alex", "Google US English", "English United States"];
-            } else {
-                // UK -> Feminino preferido
-                specificKeywords = ["Martha", "Catherine", "Google UK English Female", "English United Kingdom"];
+            // 1. TENTA GOOGLE (Prioridade Absoluta)
+            let googleVoice = voices.find(v => v.lang === langCode && v.name.includes("Google"));
+            if (googleVoice) return googleVoice;
+
+            // 2. TENTA "ENHANCED" / "PREMIUM" (Vozes de Alta Qualidade do iOS)
+            // No iPhone, as vozes boas geralmente tem "Enhanced" ou "Siri" no nome (ex: "Samantha Enhanced")
+            let iosQuality = voices.find(v => v.lang === langCode && (v.name.includes("Enhanced") || v.name.includes("Siri") || v.name.includes("Premium")));
+            if (iosQuality) return iosQuality;
+
+            // 3. FALLBACK INTELIGENTE
+            // Evita a primeira voz se houver mais de uma, pois a primeira costuma ser a compacta (robótica)
+            const allLangVoices = voices.filter(v => v.lang === langCode);
+            if (allLangVoices.length > 1) {
+                // Tenta pegar a segunda da lista, muitas vezes é a melhor no iOS se não tiver nome específico
+                return allLangVoices.find(v => !v.name.includes("Compact")) || allLangVoices[1]; 
             }
 
-            // 1. Busca por nomes específicos do sistema (iOS/Android)
-            let bestMatch = voices.find(v => v.lang === langCode && specificKeywords.some(k => v.name.includes(k)));
-            
-            // 2. Fallback: Tenta achar "Enhanced" ou "Premium" (iOS High Quality genérico)
-            if (!bestMatch) {
-                bestMatch = voices.find(v => v.lang === langCode && (v.name.includes("Enhanced") || v.name.includes("Premium")));
-            }
-
-            // 3. Último caso: Qualquer voz do idioma
-            return bestMatch || voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
+            return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -352,7 +344,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV29'); // Alterado para buscar v29 se existir
+            const savedOld = localStorage.getItem('englishCardsFinalV30'); // Mantém retrocompatibilidade
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -386,6 +378,7 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
+                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
