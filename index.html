@@ -188,60 +188,32 @@
             });
         }, { threshold: 0.6 });
 
-        // Garantir atualização das vozes e armazenar lista
-        window.speechSynthesis.onvoiceschanged = () => { 
-            voices = window.speechSynthesis.getVoices(); 
-            // opcional: ordenar para estabilidade (não altera lógica)
-            voices.sort((a,b) => (a.name || '').localeCompare(b.name || '')); 
-        };
+        window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
         // --- VOZ COM PRIORIDADE TOTAL AO GOOGLE / QUALIDADE IOS ---
         function getVoiceByAccent(accent) {
-            if (voices.length === 0) voices = window.speechSynthesis.getVoices() || [];
+            if (voices.length === 0) voices = window.speechSynthesis.getVoices();
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
+            
+            // 1. TENTA GOOGLE (Prioridade Absoluta)
+            let googleVoice = voices.find(v => v.lang === langCode && v.name.includes("Google"));
+            if (googleVoice) return googleVoice;
 
-            // Filtra candidatas que correspondam ao idioma (preferencial)
-            const candidates = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langCode.toLowerCase()));
+            // 2. TENTA "ENHANCED" / "PREMIUM" (Vozes de Alta Qualidade do iOS)
+            // No iPhone, as vozes boas geralmente tem "Enhanced" ou "Siri" no nome (ex: "Samantha Enhanced")
+            let iosQuality = voices.find(v => v.lang === langCode && (v.name.includes("Enhanced") || v.name.includes("Siri") || v.name.includes("Premium")));
+            if (iosQuality) return iosQuality;
 
-            // Heurística de pontuação para priorizar vozes mais naturais
-            function scoreVoice(v) {
-                const name = (v.name || '').toLowerCase();
-                let score = 0;
-                // Preferir vozes com o código exato
-                if (v.lang && v.lang.toLowerCase().startsWith(langCode.toLowerCase())) score += 40;
-                // Priorizar Google / Wavenet / Neural keywords
-                if (name.includes('google')) score += 60;
-                if (name.includes('wavenet') || name.includes('wave') || name.includes('neural')) score += 55;
-                // Siri / Samantha / Alex / Daniel geralmente são de melhor qualidade no iOS
-                if (name.includes('siri') || name.includes('samantha') || name.includes('alex') || name.includes('daniel')) score += 45;
-                // Microsoft / Azure / Amazon Polly também costumam ser boas
-                if (name.includes('microsoft') || name.includes('azure') || name.includes('polly') || name.includes('amazon')) score += 30;
-                // Evitar vozes compactas/low-quality
-                if (name.includes('compact') || name.includes('lite') || name.includes('small')) score -= 25;
-                // Vozes marcadas como default podem ser preferidas
-                if (v.default) score += 10;
-                // Voices localService (nativas) tendem a ser mais naturais no device
-                if (v.localService) score += 8;
-                // small boost for exact lang match (e.g., en-US vs en)
-                if (v.lang && v.lang.toLowerCase() === langCode.toLowerCase()) score += 8;
-                return score;
+            // 3. FALLBACK INTELIGENTE
+            // Evita a primeira voz se houver mais de uma, pois a primeira costuma ser a compacta (robótica)
+            const allLangVoices = voices.filter(v => v.lang === langCode);
+            if (allLangVoices.length > 1) {
+                // Tenta pegar a segunda da lista, muitas vezes é a melhor no iOS se não tiver nome específico
+                return allLangVoices.find(v => !v.name.includes("Compact")) || allLangVoices[1]; 
             }
 
-            let chosen = null;
-            if (candidates.length) {
-                // escolhe a de maior pontuação
-                chosen = candidates.map(v => ({v, s: scoreVoice(v)})).sort((a,b)=>b.s-a.s)[0].v;
-            } else {
-                // fallback: procurar vozes en-* gerais
-                const fallback = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-                if (fallback.length) {
-                    chosen = fallback.map(v=>({v,s:scoreVoice(v)})).sort((a,b)=>b.s-a.s)[0].v;
-                } else {
-                    chosen = voices[0] || null;
-                }
-            }
-            return chosen;
+            return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -482,40 +454,15 @@
 
         function speakText(text, index) {
             if ('speechSynthesis' in window) {
-                try {
-                    window.speechSynthesis.cancel();
-                    const rate = document.getElementById(`speed-${index}`).value;
-                    const accent = document.getElementById(`accent-${index}`).value;
-                    const u = new SpeechSynthesisUtterance(text);
-
-                    // Seleciona voz usando heurística aprimorada
-                    const voice = getVoiceByAccent(accent);
-                    if (voice) u.voice = voice;
-
-                    u.lang = accent === 'US' ? 'en-US' : 'en-GB';
-
-                    // Definições para tornar a voz mais "natural"
-                    // Pitch ligeiramente ajustado para timbre mais agradável
-                    u.pitch = 1.05;
-                    u.volume = 1;
-
-                    // Ajuste fino da velocidade: se a voz for do tipo Google/Wavenet/Neural, reduz um pouco para soar mais natural
-                    const vname = (voice && voice.name) ? voice.name.toLowerCase() : '';
-                    let finalRate = parseFloat(rate);
-                    if (vname.includes('google') || vname.includes('wavenet') || vname.includes('neural') || vname.includes('siri') || vname.includes('samantha')) {
-                        finalRate = Math.max(0.7, finalRate * 0.95);
-                    }
-                    u.rate = finalRate;
-
-                    window.speechSynthesis.speak(u);
-                } catch (err) {
-                    // fallback mínimo: tenta falar sem voz específica
-                    const u2 = new SpeechSynthesisUtterance(text);
-                    u2.lang = 'en-US';
-                    u2.rate = parseFloat(document.getElementById(`speed-${index}`).value || 1);
-                    u2.pitch = 1.05;
-                    window.speechSynthesis.speak(u2);
-                }
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const accent = document.getElementById(`accent-${index}`).value;
+                const u = new SpeechSynthesisUtterance(text);
+                const voice = getVoiceByAccent(accent);
+                if (voice) u.voice = voice;
+                u.lang = accent === 'US' ? 'en-US' : 'en-GB';
+                u.rate = parseFloat(rate);
+                window.speechSynthesis.speak(u);
             }
         }
         function speakAll(index) {
