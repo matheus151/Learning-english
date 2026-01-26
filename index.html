@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V29 Voice & Audio Filter</title>
+    <title>English Pro - V32 Mobile Voice Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -177,7 +177,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV29';
+        const STORAGE_KEY = 'englishCardsFinalV32';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -190,23 +190,27 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ COM GÊNERO (REVERTIDO PARA US=MALE / UK=FEMALE) ---
+        // --- VOZ NATURAL OTIMIZADA PARA MOBILE (V32) ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
             
-            // Preferência Específica:
-            // US -> Masculino (David, Guy, Mark)
-            // UK -> Feminino (Susan, Zira, Google UK)
-            const preferredKeywords = isUS 
-                ? ["Male", "David", "Guy", "Mark"] 
-                : ["Female", "Susan", "Zira", "Google UK"];
-
-            let bestMatch = voices.find(v => v.lang === langCode && preferredKeywords.some(k => v.name.includes(k)));
+            // Palavras-chave expandidas para Mobile (Android/iOS)
+            // "Google" = Android Nativo
+            // "Enhanced" = iOS Nativo Alta Qualidade
+            // "Natural" = Microsoft Edge/Outros
+            // "Network" = Android Online
+            const qualityKeywords = ["Google", "Enhanced", "Premium", "Natural", "Online", "Network"];
             
-            // Fallback genérico para a língua
+            // 1. Tenta achar voz de alta qualidade no idioma certo
+            let bestMatch = voices.find(v => v.lang === langCode && qualityKeywords.some(k => v.name.includes(k)));
+            
+            // 2. Se achar, usa.
             if (bestMatch) return bestMatch;
+
+            // 3. Fallback de Segurança para Mobile: Pega a primeira do idioma correto
+            // (Muitas vezes no mobile a voz boa não tem nome especial, é a default do idioma)
             return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
@@ -317,10 +321,9 @@
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                // Lógica Posicional para ==
-                if (index === 1) l = l.replace(/==(.*?)==/g, '*$1*'); // Linha 2 -> Blue
-                else if (index >= 2) l = l.replace(/==(.*?)==/g, '#$1#'); // Linha 3+ -> Red
-                else l = l.replace(/==(.*?)==/g, '^$1^'); // Linha 1 -> Bold
+                if (index === 1) l = l.replace(/==(.*?)==/g, '*$1*'); 
+                else if (index >= 2) l = l.replace(/==(.*?)==/g, '#$1#'); 
+                else l = l.replace(/==(.*?)==/g, '^$1^'); 
                 return l;
             });
             return lines.join('\n');
@@ -333,7 +336,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV28');
+            const savedOld = localStorage.getItem('englishCardsFinalV30');
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -367,7 +370,6 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
-                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -397,6 +399,7 @@
                                 <select id="speed-${index}" class="control-select">
                                     <option value="0.8">0.8x</option>
                                     <option value="1" selected>1.0x</option>
+                                    <option value="1.1">1.1x</option>
                                     <option value="1.2">1.2x</option>
                                     <option value="1.5">1.5x</option>
                                 </select>
