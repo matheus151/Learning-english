@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V32 Mobile Voice Fix</title>
+    <title>English Pro - V33 iOS Voice Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -177,7 +177,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV32';
+        const STORAGE_KEY = 'englishCardsFinalV33'; // Nova chave para V33
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -190,28 +190,38 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ NATURAL OTIMIZADA PARA MOBILE (V32) ---
+        // --- VOZ ESPECÍFICA PARA IPHONE/iOS + ANDROID ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
             
-            // Palavras-chave expandidas para Mobile (Android/iOS)
-            // "Google" = Android Nativo
-            // "Enhanced" = iOS Nativo Alta Qualidade
-            // "Natural" = Microsoft Edge/Outros
-            // "Network" = Android Online
-            const qualityKeywords = ["Google", "Enhanced", "Premium", "Natural", "Online", "Network"];
+            // PRIORIDADE PARA IPHONE (iOS Names):
+            // US (MASCULINO): Aaron, Fred, Nicky
+            // UK (FEMININO): Martha, Catherine, Arthur (Arthur é masc, mas high quality, Martha é fem)
+            // Também adicionamos "Google" para quem usa Android.
             
-            // 1. Tenta achar voz de alta qualidade no idioma certo
-            let bestMatch = voices.find(v => v.lang === langCode && qualityKeywords.some(k => v.name.includes(k)));
+            let specificKeywords = [];
             
-            // 2. Se achar, usa.
-            if (bestMatch) return bestMatch;
+            if (isUS) {
+                // US -> Masculino preferido
+                specificKeywords = ["Aaron", "Fred", "Nicky", "Alex", "Google US English", "English United States"];
+            } else {
+                // UK -> Feminino preferido
+                specificKeywords = ["Martha", "Catherine", "Google UK English Female", "English United Kingdom"];
+            }
 
-            // 3. Fallback de Segurança para Mobile: Pega a primeira do idioma correto
-            // (Muitas vezes no mobile a voz boa não tem nome especial, é a default do idioma)
-            return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
+            // 1. Busca por nomes específicos do sistema (iOS/Android)
+            let bestMatch = voices.find(v => v.lang === langCode && specificKeywords.some(k => v.name.includes(k)));
+            
+            // 2. Fallback: Tenta achar "Enhanced" ou "Premium" (iOS High Quality genérico)
+            if (!bestMatch) {
+                bestMatch = voices.find(v => v.lang === langCode && (v.name.includes("Enhanced") || v.name.includes("Premium")));
+            }
+
+            // 3. Último caso: Qualquer voz do idioma
+            return bestMatch || voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -318,12 +328,18 @@
             let lines = text.split('\n');
             lines = lines.map((line, index) => {
                 let l = line;
+                // Markdown Básico
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                if (index === 1) l = l.replace(/==(.*?)==/g, '*$1*'); 
-                else if (index >= 2) l = l.replace(/==(.*?)==/g, '#$1#'); 
-                else l = l.replace(/==(.*?)==/g, '^$1^'); 
+                // Lógica Posicional para ==
+                if (index === 1) { // Linha 2 -> Blue
+                    l = l.replace(/==(.*?)==/g, '*$1*');
+                } else if (index >= 2) { // Linha 3+ -> Red
+                    l = l.replace(/==(.*?)==/g, '#$1#');
+                } else { // Linha 1 -> Bold
+                    l = l.replace(/==(.*?)==/g, '^$1^');
+                }
                 return l;
             });
             return lines.join('\n');
@@ -336,7 +352,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV30');
+            const savedOld = localStorage.getItem('englishCardsFinalV29'); // Alterado para buscar v29 se existir
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
