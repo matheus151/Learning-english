@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V34.1 Siri Voice</title>
+    <title>English Pro - V34.2 Manual Voice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -27,6 +27,30 @@
             padding: 15px 12px;
             padding-bottom: 150px;
             font-weight: 400;
+        }
+
+        /* SELETOR DE VOZ GLOBAL (NOVO) */
+        .voice-config-area {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .voice-config-area label {
+            color: #0369a1;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: block;
+        }
+        #global-voice-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #7dd3fc;
+            font-size: 0.9rem;
+            color: #0c4a6e;
+            background: white;
         }
 
         /* MODAL */
@@ -140,6 +164,13 @@
         </div>
     </div>
 
+    <div class="voice-config-area">
+        <label>📢 Escolher Voz do Sistema:</label>
+        <select id="global-voice-select" onchange="saveGlobalVoice()">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
+
     <div class="input-group">
         <h3>Nova Entrada</h3>
         <div class="input-row">
@@ -188,26 +219,77 @@
             });
         }, { threshold: 0.6 });
 
-        window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
-
-        // --- VOZ ESPECÍFICA PARA PACOTE "SIRI" DO IPHONE ---
-        function getVoiceByAccent(accent) {
-            if (voices.length === 0) voices = window.speechSynthesis.getVoices();
-            const isUS = accent === 'US';
-            const langCode = isUS ? 'en-US' : 'en-GB';
+        // --- SISTEMA DE VOZ MANUAL ---
+        function populateVoiceList() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('global-voice-select');
             
-            // Tenta encontrar uma voz que contenha "Siri" no nome e corresponda ao idioma (US ou UK)
-            // Isso força o uso do pacote "Siri Voz 1" se estiver disponível/baixado no iPhone
-            let siriVoice = voices.find(v => v.lang === langCode && v.name.includes("Siri"));
+            // Se as vozes ainda não carregaram, sai
+            if (voices.length === 0) return;
+
+            // Salva a seleção atual (se houver)
+            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
             
-            if (siriVoice) return siriVoice;
+            voiceSelect.innerHTML = '';
+            
+            // Filtra e ordena vozes (prioriza inglês)
+            voices.sort((a, b) => {
+                const aname = a.name.toUpperCase();
+                const bname = b.name.toUpperCase();
+                if (aname < bname) return -1;
+                else if (aname == bname) return 0;
+                else return +1;
+            });
 
-            // Fallback: Se não achar "Siri", tenta "Enhanced" (Melhorada) que também é boa no iOS
-            let enhancedVoice = voices.find(v => v.lang === langCode && v.name.includes("Enhanced"));
-            if (enhancedVoice) return enhancedVoice;
+            voices.forEach((voice) => {
+                // Mostra apenas vozes em inglês (ou todas se preferir, mas inglês é o foco)
+                if(voice.lang.includes('en')) {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    
+                    if (voice.name === savedVoiceName) {
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                }
+            });
+        }
 
-            // Fallback final: Qualquer voz do idioma
-            return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
+        // Tenta carregar vozes em momentos diferentes para garantir compatibilidade com iOS
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function saveGlobalVoice() {
+            const select = document.getElementById('global-voice-select');
+            localStorage.setItem('englishAppGlobalVoiceName', select.value);
+        }
+
+        // Função de fala modificada para usar a voz global selecionada
+        function speakText(text, index) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const u = new SpeechSynthesisUtterance(text);
+                
+                // Pega a voz selecionada no dropdown
+                const selectedVoiceName = document.getElementById('global-voice-select').value;
+                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+
+                if (selectedVoice) {
+                    u.voice = selectedVoice;
+                    u.lang = selectedVoice.lang;
+                } else {
+                    // Fallback se nada selecionado (tenta achar a primeira em inglês)
+                    const fallback = voices.find(v => v.lang.startsWith('en'));
+                    if(fallback) u.voice = fallback;
+                }
+
+                u.rate = parseFloat(rate);
+                window.speechSynthesis.speak(u);
+            }
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -395,10 +477,6 @@
                         <div class="phrases-area">${phrasesHtml}</div>
                         <div class="card-footer">
                             <div class="controls-group">
-                                <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
-                                    <option value="US" ${card.accent === 'US' ? 'selected' : ''}>🇺🇸 US</option>
-                                    <option value="UK" ${card.accent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
-                                </select>
                                 <select id="speed-${index}" class="control-select">
                                     <option value="0.8">0.8x</option>
                                     <option value="1" selected>1.0x</option>
@@ -441,24 +519,9 @@
             });
         }
 
-        function updateCardSettings(index) {
-            cards[index].accent = document.getElementById(`accent-${index}`).value;
-            saveCards();
-        }
+        // Removido updateCardSettings pois agora a voz é global
+        // function updateCardSettings(index) { ... }
 
-        function speakText(text, index) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const rate = document.getElementById(`speed-${index}`).value;
-                const accent = document.getElementById(`accent-${index}`).value;
-                const u = new SpeechSynthesisUtterance(text);
-                const voice = getVoiceByAccent(accent);
-                if (voice) u.voice = voice;
-                u.lang = accent === 'US' ? 'en-US' : 'en-GB';
-                u.rate = parseFloat(rate);
-                window.speechSynthesis.speak(u);
-            }
-        }
         function speakAll(index) {
             const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
             speakText(clean, index);
