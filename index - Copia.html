@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V34.2 Manual Voice</title>
+    <title>English Pro - V34.3 Selector Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,26 +29,43 @@
             font-weight: 400;
         }
 
-        /* SELETOR DE VOZ GLOBAL (NOVO) */
+        /* --- SELETOR DE VOZ (CORRIGIDO) --- */
         .voice-config-area {
             background: #e0f2fe;
             border: 1px solid #bae6fd;
-            padding: 10px;
+            padding: 15px;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .voice-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .voice-config-area label {
             color: #0369a1;
             font-weight: 700;
-            margin-bottom: 5px;
-            display: block;
+            font-size: 0.9rem;
+        }
+        .refresh-voice-btn {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
         }
         #global-voice-select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             border: 1px solid #7dd3fc;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Maior para facilitar toque */
             color: #0c4a6e;
             background: white;
         }
@@ -165,10 +182,16 @@
     </div>
 
     <div class="voice-config-area">
-        <label>📢 Escolher Voz do Sistema:</label>
+        <div class="voice-label-row">
+            <label>📢 Sua Voz Preferida:</label>
+            <button class="refresh-voice-btn" onclick="populateVoiceList()">🔄 Recarregar Vozes</button>
+        </div>
         <select id="global-voice-select" onchange="saveGlobalVoice()">
-            <option value="">Carregando vozes...</option>
+            <option value="">Carregando lista...</option>
         </select>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:5px;">
+            Dica: Se a voz "Siri" não aparecer, toque em "Recarregar".
+        </div>
     </div>
 
     <div class="input-group">
@@ -219,32 +242,26 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ MANUAL ---
+        // --- SISTEMA DE VOZ MANUAL COM REFRESH ---
         function populateVoiceList() {
-            voices = window.speechSynthesis.getVoices();
-            const voiceSelect = document.getElementById('global-voice-select');
-            
-            // Se as vozes ainda não carregaram, sai
-            if (voices.length === 0) return;
+            if ('speechSynthesis' in window) {
+                voices = window.speechSynthesis.getVoices();
+                const voiceSelect = document.getElementById('global-voice-select');
+                
+                if (voices.length === 0) {
+                    voiceSelect.innerHTML = '<option value="">Toque em Recarregar Vozes...</option>';
+                    return;
+                }
 
-            // Salva a seleção atual (se houver)
-            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
-            
-            voiceSelect.innerHTML = '';
-            
-            // Filtra e ordena vozes (prioriza inglês)
-            voices.sort((a, b) => {
-                const aname = a.name.toUpperCase();
-                const bname = b.name.toUpperCase();
-                if (aname < bname) return -1;
-                else if (aname == bname) return 0;
-                else return +1;
-            });
-
-            voices.forEach((voice) => {
-                // Mostra apenas vozes em inglês (ou todas se preferir, mas inglês é o foco)
-                if(voice.lang.includes('en')) {
+                const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
+                voiceSelect.innerHTML = '';
+                
+                // Filtra vozes inglesas e ordena
+                const enVoices = voices.filter(v => v.lang.includes('en'));
+                
+                enVoices.forEach((voice) => {
                     const option = document.createElement('option');
+                    // Exibe nome exato para achar "Siri"
                     option.textContent = `${voice.name} (${voice.lang})`;
                     option.value = voice.name;
                     
@@ -252,13 +269,17 @@
                         option.selected = true;
                     }
                     voiceSelect.appendChild(option);
+                });
+                
+                if(enVoices.length === 0) {
+                     voiceSelect.innerHTML = '<option value="">Nenhuma voz em inglês detectada</option>';
                 }
-            });
+            }
         }
 
-        // Tenta carregar vozes em momentos diferentes para garantir compatibilidade com iOS
+        // Tenta carregar no início e no evento
         populateVoiceList();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
@@ -267,24 +288,18 @@
             localStorage.setItem('englishAppGlobalVoiceName', select.value);
         }
 
-        // Função de fala modificada para usar a voz global selecionada
         function speakText(text, index) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const rate = document.getElementById(`speed-${index}`).value;
                 const u = new SpeechSynthesisUtterance(text);
                 
-                // Pega a voz selecionada no dropdown
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
                 const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
                 if (selectedVoice) {
                     u.voice = selectedVoice;
                     u.lang = selectedVoice.lang;
-                } else {
-                    // Fallback se nada selecionado (tenta achar a primeira em inglês)
-                    const fallback = voices.find(v => v.lang.startsWith('en'));
-                    if(fallback) u.voice = fallback;
                 }
 
                 u.rate = parseFloat(rate);
@@ -396,18 +411,12 @@
             let lines = text.split('\n');
             lines = lines.map((line, index) => {
                 let l = line;
-                // Markdown Básico
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                // Lógica Posicional para ==
-                if (index === 1) { // Linha 2 -> Blue
-                    l = l.replace(/==(.*?)==/g, '*$1*');
-                } else if (index >= 2) { // Linha 3+ -> Red
-                    l = l.replace(/==(.*?)==/g, '#$1#');
-                } else { // Linha 1 -> Bold
-                    l = l.replace(/==(.*?)==/g, '^$1^');
-                }
+                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
+                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
+                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
                 return l;
             });
             return lines.join('\n');
@@ -420,7 +429,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV30'); // Mantém retrocompatibilidade
+            const savedOld = localStorage.getItem('englishCardsFinalV30'); 
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -454,7 +463,6 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
-                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -519,8 +527,10 @@
             });
         }
 
-        // Removido updateCardSettings pois agora a voz é global
-        // function updateCardSettings(index) { ... }
+        // Removido updateCardSettings individual pois a voz é global
+        function updateCardSettings(index) {
+             // Mantido vazio para compatibilidade se algo chamar, mas a voz vem do select global
+        }
 
         function speakAll(index) {
             const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
@@ -612,8 +622,7 @@
             if(!t) return '';
             // Remove símbolos
             let c = t.replace(/[*#~^]/g, '');
-            // Remove etiquetas comuns (Example:, Exemple, Exemplo, Another example)
-            // Regex ajustada para pegar variações e "Ex" curto
+            // Remove etiquetas comuns
             c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
             return c.trim();
         }
