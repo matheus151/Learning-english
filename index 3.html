@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V30 Final Adjustments</title>
+    <title>English Pro - V31 Google Natural Voice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -190,23 +190,22 @@
 
         window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
 
-        // --- VOZ COM GÊNERO (REVERTIDO PARA US=MALE / UK=FEMALE) ---
+        // --- VOZ "NATURAL" (Google Translate Focus) ---
         function getVoiceByAccent(accent) {
             if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+            
             const isUS = accent === 'US';
             const langCode = isUS ? 'en-US' : 'en-GB';
             
-            // Preferência Específica:
-            // US -> Masculino (David, Guy, Mark)
-            // UK -> Feminino (Susan, Zira, Google UK)
-            const preferredKeywords = isUS 
-                ? ["Male", "David", "Guy", "Mark"] 
-                : ["Female", "Susan", "Zira", "Google UK"];
-
-            let bestMatch = voices.find(v => v.lang === langCode && preferredKeywords.some(k => v.name.includes(k)));
+            // PRIORIDADE 1: Vozes do "Google Translate" (Web Speech API padrão do Chrome/Android)
+            // Geralmente são as mais naturais e fluidas.
+            const naturalKeywords = ["Google", "Natural", "Premium"];
             
-            // Fallback genérico para a língua
+            let bestMatch = voices.find(v => v.lang === langCode && naturalKeywords.some(k => v.name.includes(k)));
+            
             if (bestMatch) return bestMatch;
+
+            // PRIORIDADE 2: Fallback para qualquer voz do idioma
             return voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith('en'));
         }
 
@@ -338,7 +337,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV28');
+            const savedOld = localStorage.getItem('englishCardsFinalV29');
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -597,3 +596,4 @@
     </script>
 </body>
 </html>
+
