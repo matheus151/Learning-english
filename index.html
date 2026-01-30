@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V34.7 System Voice</title>
+    <title>English Pro - V45 Google Neural</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -27,47 +27,6 @@
             padding: 15px 12px;
             padding-bottom: 150px;
             font-weight: 400;
-        }
-
-        /* SELETOR DE VOZ (Estilo iOS) */
-        .voice-config-area {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .voice-label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .voice-config-area label {
-            color: #334155;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-        .refresh-voice-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        #global-voice-select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #94a3b8;
-            font-size: 1rem;
-            color: #0f172a;
-            background: white;
-            -webkit-appearance: none; /* Visual Nativo */
         }
 
         /* MODAL */
@@ -181,20 +140,6 @@
         </div>
     </div>
 
-    <div class="voice-config-area">
-        <div class="voice-label-row">
-            <label>📢 Sua Voz:</label>
-            <button class="refresh-voice-btn" onclick="populateVoiceList()">🔄 Carregar Vozes</button>
-        </div>
-        <select id="global-voice-select" onchange="saveGlobalVoice()">
-            <option value="">Toque em "Carregar" ↗</option>
-        </select>
-        <div style="font-size:0.75rem; color:#64748b; margin-top:8px; line-height:1.4;">
-            <strong>Dica Siri:</strong> Se a Siri 1 não aparecer, escolha "Aaron" (Masculino) ou "Nicky" (Feminino) na lista.<br>
-            Ou tente a opção "💎 Padrão do iPhone" para usar a configuração do sistema.
-        </div>
-    </div>
-
     <div class="input-group">
         <h3>Nova Entrada</h3>
         <div class="input-row">
@@ -228,11 +173,11 @@
 
     <script>
         let cards = [];
-        let voices = [];
         let currentFontSize = 1.15; 
+        let audioCtx = null; // Contexto de áudio para iOS
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV34';
+        const STORAGE_KEY = 'englishCardsFinalV45';
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -243,104 +188,72 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ INTELIGENTE ---
-        function populateVoiceList() {
-            if ('speechSynthesis' in window) {
-                voices = window.speechSynthesis.getVoices();
-                const voiceSelect = document.getElementById('global-voice-select');
-                
-                if (voices.length === 0) {
-                    voiceSelect.innerHTML = '<option value="">Toque no botão Recarregar...</option>';
-                    return;
-                }
+        // --- SISTEMA DE ÁUDIO DO GOOGLE (CORRIGIDO PARA IPHONE) ---
+        // Usa AudioContext para processar o MP3 em memória, evitando o QuickTime
+        async function speakText(text, index) {
+            // 1. Limpeza
+            const cleanText = cleanTextForAudio(text);
+            if (!cleanText) return;
 
-                const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
-                voiceSelect.innerHTML = '';
-
-                // 1. OPÇÃO PADRÃO (Tenta forçar o sistema)
-                const defaultOption = document.createElement('option');
-                defaultOption.textContent = "💎 Padrão do iPhone (Tentar Siri)";
-                defaultOption.value = "system_default";
-                voiceSelect.appendChild(defaultOption);
-                
-                // 2. LISTA VOZES EM INGLÊS
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                // Ordena para facilitar (Aaron geralmente é a primeira)
-                enVoices.sort((a, b) => a.name.localeCompare(b.name));
-
-                enVoices.forEach((voice) => {
-                    const option = document.createElement('option');
-                    // Marca nomes suspeitos de serem Siri
-                    let marker = "";
-                    if(voice.name.includes("Aaron") || voice.name.includes("Nicky") || voice.name.includes("Samantha")) marker = "⭐ ";
-                    
-                    option.textContent = `${marker}${voice.name} (${voice.lang})`;
-                    option.value = voice.name;
-                    
-                    if (voice.name === savedVoiceName) {
-                        option.selected = true;
-                    }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(savedVoiceName === "system_default") defaultOption.selected = true;
+            // 2. Inicializa AudioContext (Necessário clique do usuário no iOS)
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-        }
-
-        // Tenta carregar no início
-        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-        setTimeout(populateVoiceList, 500); // Tenta um pouco depois também
-
-        function saveGlobalVoice() {
-            const select = document.getElementById('global-voice-select');
-            localStorage.setItem('englishAppGlobalVoiceName', select.value);
-        }
-
-        // --- FUNÇÃO DE FALA ---
-        function speakText(text, index) {
-            // Limpa o texto (remove Example, etc)
-            const clean = cleanTextForAudio(text);
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const rate = document.getElementById(`speed-${index}`).value;
-                const u = new SpeechSynthesisUtterance(clean);
-                
-                const selectedVoiceName = document.getElementById('global-voice-select').value;
-
-                if (selectedVoiceName === "system_default") {
-                    // Mágica: Não define voice, apenas o idioma. O iOS deve assumir a padrão.
-                    u.lang = 'en-US';
-                    u.voice = null;
-                } else {
-                    // Busca a voz específica (ex: Aaron)
-                    const selectedVoice = voices.find(v => v.name === selectedVoiceName);
-                    if (selectedVoice) {
-                        u.voice = selectedVoice;
-                        u.lang = selectedVoice.lang;
-                    }
-                }
-
-                u.rate = parseFloat(rate);
-                window.speechSynthesis.speak(u);
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
             }
-        }
 
-        // --- FILTRO DE AUDIO OTIMIZADO ---
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            // Remove etiquetas comuns
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
+            const btn = document.activeElement; 
+            if(btn) btn.innerText = "⏳"; // Feedback visual
+
+            const rate = document.getElementById(`speed-${index}`).value;
+            // Google GTX URL (Voz Neural Gratuita)
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=en-US&client=gtx`;
+
+            try {
+                // 3. Baixa o áudio
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Erro Rede");
+                const arrayBuffer = await response.arrayBuffer();
+
+                // 4. Decodifica e Toca (Sem criar tag <audio>)
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const source = audioCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                
+                // Ajuste de velocidade (gambiarra no playbackRate)
+                source.playbackRate.value = parseFloat(rate);
+                
+                source.connect(audioCtx.destination);
+                source.start(0);
+
+                // Restaura botão após o tempo de duração
+                const duration = audioBuffer.duration / source.playbackRate.value;
+                if(btn) btn.innerText = "🔊";
+                setTimeout(() => { if(btn) btn.innerText = "🔈"; }, duration * 1000);
+
+            } catch (e) {
+                console.error("Erro AudioContext:", e);
+                // Fallback silencioso para método antigo se falhar
+                const audio = new Audio(url);
+                audio.playbackRate = parseFloat(rate);
+                audio.play();
+                if(btn) btn.innerText = "🔈";
+            }
         }
 
         function speakAll(index) {
             const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
             speakText(clean, index);
+        }
+
+        // --- FILTRO DE ÁUDIO ---
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove: Example:, Ex:, Another example:
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
+            return c.trim();
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -563,7 +476,7 @@
             });
         }
 
-        // Removido updateCardSettings
+        // Removido updateCardSettings individual pois agora é fixo no Google
         function updateCardSettings(index) { }
 
         function enableEditMode(i) {
@@ -644,14 +557,6 @@
             const start = t.selectionStart; const end = t.selectionEnd;
             if (start === end) return alert("Selecione texto!");
             t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
-        }
-
-        // --- FILTRO DE AUDIO OTIMIZADO ---
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
         }
 
         async function fetchTranslation(text) {
