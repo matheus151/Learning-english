@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V34.3 Fix</title>
+    <title>English Pro - V34.5 Siri Focus</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,30 +29,28 @@
             font-weight: 400;
         }
 
-        /* --- SELETOR DE VOZ (CORRIGIDO) --- */
+        /* SELETOR DE VOZ DESTAQUE */
         .voice-config-area {
-            background: #e0f2fe;
-            border: 1px solid #bae6fd;
-            padding: 15px;
+            background: #f0fdf4; /* Verde claro para destacar */
+            border: 1px solid #86efac;
+            padding: 12px;
             border-radius: 12px;
             margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
-        .voice-label-row {
+        .voice-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 8px;
         }
         .voice-config-area label {
-            color: #0369a1;
+            color: #166534;
             font-weight: 700;
-            font-size: 0.9rem;
             margin: 0;
+            font-size: 0.95rem;
         }
-        .refresh-voice-btn {
-            background: #0ea5e9;
+        .refresh-btn {
+            background: #16a34a;
             color: white;
             border: none;
             border-radius: 6px;
@@ -65,11 +63,11 @@
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid #7dd3fc;
+            border: 1px solid #bbf7d0;
             font-size: 1rem;
-            color: #0c4a6e;
+            color: #14532d;
             background: white;
-            -webkit-appearance: none; /* Estilo nativo iOS */
+            -webkit-appearance: none;
         }
 
         /* MODAL */
@@ -184,15 +182,15 @@
     </div>
 
     <div class="voice-config-area">
-        <div class="voice-label-row">
-            <label>📢 Sua Voz Preferida:</label>
-            <button class="refresh-voice-btn" onclick="populateVoiceList()">🔄 Recarregar Vozes</button>
+        <div class="voice-row">
+            <label>📢 Selecionar Voz:</label>
+            <button class="refresh-btn" onclick="populateVoiceList()">🔄 Carregar Vozes</button>
         </div>
         <select id="global-voice-select" onchange="saveGlobalVoice()">
-            <option value="">Carregando lista...</option>
+            <option value="">Toque em "Carregar" ↗</option>
         </select>
-        <div style="font-size:0.75rem; color:#64748b; margin-top:5px;">
-            Dica: Se a voz "Siri" não aparecer, toque em "Recarregar".
+        <div style="font-size:0.75rem; color:#15803d; margin-top:5px;">
+            ⚠️ <strong>Dica:</strong> A "Siri 1" pode aparecer como <strong>"Aaron"</strong>, <strong>"Siri"</strong> ou <strong>"English (US)"</strong> nesta lista.
         </div>
     </div>
 
@@ -244,30 +242,40 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ MANUAL COM REFRESH ---
+        // --- SISTEMA DE VOZ INTELIGENTE ---
         function populateVoiceList() {
             if ('speechSynthesis' in window) {
                 voices = window.speechSynthesis.getVoices();
                 const voiceSelect = document.getElementById('global-voice-select');
                 
-                // Se a lista estiver vazia, avisa para tentar de novo
                 if (voices.length === 0) {
-                    voiceSelect.innerHTML = '<option value="">Toque em Recarregar Vozes...</option>';
+                    voiceSelect.innerHTML = '<option value="">Toque em Recarregar...</option>';
                     return;
                 }
 
                 const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
                 voiceSelect.innerHTML = '';
                 
-                // Filtra vozes inglesas e ordena
-                // REMOVIDO FILTRO RESTRITO PARA GARANTIR QUE SIRI APAREÇA
-                // Agora mostra todas as vozes em inglês (EN)
-                const enVoices = voices.filter(v => v.lang.includes('en'));
+                // 1. TENTA ENCONTRAR SIRI/AARON PRIMEIRO
+                let exactSiri = null;
+                const enVoices = voices.filter(v => v.lang.startsWith('en'));
                 
+                enVoices.sort((a, b) => {
+                    // Joga Siri/Aaron pro topo da lista
+                    const aSiri = a.name.includes('Siri') || a.name.includes('Aaron');
+                    const bSiri = b.name.includes('Siri') || b.name.includes('Aaron');
+                    if (aSiri && !bSiri) return -1;
+                    if (!aSiri && bSiri) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
                 enVoices.forEach((voice) => {
                     const option = document.createElement('option');
-                    // Exibe nome exato para achar "Siri"
-                    option.textContent = `${voice.name} (${voice.lang})`;
+                    // Exibe o nome completo para o usuário achar a Siri
+                    option.textContent = (voice.name.includes('Siri') || voice.name.includes('Aaron')) 
+                        ? `⭐ ${voice.name} (${voice.lang})` 
+                        : `${voice.name} (${voice.lang})`;
+                    
                     option.value = voice.name;
                     
                     if (voice.name === savedVoiceName) {
@@ -277,16 +285,17 @@
                 });
                 
                 if(enVoices.length === 0) {
-                     voiceSelect.innerHTML = '<option value="">Nenhuma voz em inglês detectada</option>';
+                     voiceSelect.innerHTML = '<option value="">Nenhuma voz encontrada</option>';
                 }
             }
         }
 
-        // Tenta carregar no início e no evento
-        populateVoiceList();
+        // Tenta carregar no início
         if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
+        // Tenta forçar logo de cara
+        setTimeout(populateVoiceList, 1000);
 
         function saveGlobalVoice() {
             const select = document.getElementById('global-voice-select');
@@ -294,22 +303,45 @@
         }
 
         function speakText(text, index) {
+            // Limpa o texto antes de falar
+            const clean = cleanTextForAudio(text);
+
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const rate = document.getElementById(`speed-${index}`).value;
-                const u = new SpeechSynthesisUtterance(text);
+                const u = new SpeechSynthesisUtterance(clean);
                 
+                // Pega a voz selecionada
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
                 const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
                 if (selectedVoice) {
                     u.voice = selectedVoice;
                     u.lang = selectedVoice.lang;
+                } else {
+                    // Auto-detecta Siri se nada selecionado
+                    const siri = voices.find(v => v.name.includes('Siri') && v.lang.startsWith('en'));
+                    const aaron = voices.find(v => v.name.includes('Aaron') && v.lang.startsWith('en'));
+                    if (siri) u.voice = siri;
+                    else if (aaron) u.voice = aaron;
                 }
 
                 u.rate = parseFloat(rate);
                 window.speechSynthesis.speak(u);
             }
+        }
+
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove etiquetas comuns
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
+            return c.trim();
+        }
+
+        function speakAll(index) {
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -410,24 +442,17 @@
             }
         }
 
-        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
         function normalizeFormatting(text) {
             if (!text) return '';
             let lines = text.split('\n');
             lines = lines.map((line, index) => {
                 let l = line;
-                // Markdown Básico
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                // Lógica Posicional para ==
-                if (index === 1) { // Linha 2 -> Blue
-                    l = l.replace(/==(.*?)==/g, '*$1*');
-                } else if (index >= 2) { // Linha 3+ -> Red
-                    l = l.replace(/==(.*?)==/g, '#$1#');
-                } else { // Linha 1 -> Bold
-                    l = l.replace(/==(.*?)==/g, '^$1^');
-                }
+                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
+                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
+                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
                 return l;
             });
             return lines.join('\n');
@@ -440,7 +465,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV30'); // Mantém retrocompatibilidade
+            const savedOld = localStorage.getItem('englishCardsFinalV30'); 
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -474,7 +499,6 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
-                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -540,14 +564,7 @@
         }
 
         // Removido updateCardSettings individual pois a voz é global
-        function updateCardSettings(index) {
-             // Mantido vazio para compatibilidade se algo chamar, mas a voz vem do select global
-        }
-
-        function speakAll(index) {
-            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
-            speakText(clean, index);
-        }
+        function updateCardSettings(index) { }
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
