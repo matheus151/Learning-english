@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V35 OpenAI</title>
+    <title>English Pro - V35.1 iOS Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,15 +29,14 @@
             font-weight: 400;
         }
 
-        /* ÁREA DE CONFIGURAÇÃO DA API */
+        /* CONFIG API */
         #api-config-area {
-            display: none; /* Escondido por padrão */
+            display: none;
             background: #f0fdf4;
             border: 1px solid #bbf7d0;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
-            animation: slideUp 0.3s ease-out;
         }
         #api-key-input {
             width: 100%;
@@ -150,6 +149,8 @@
 </head>
 <body>
 
+    <audio id="hidden-player" style="display:none;"></audio>
+
     <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeExampleModal()">×</button>
@@ -175,10 +176,10 @@
     </div>
 
     <div id="api-config-area">
-        <label style="display:block; margin-bottom:5px; color:#166534; font-weight:bold;">Sua Chave da OpenAI (API Key):</label>
+        <label style="display:block; margin-bottom:5px; color:#166534; font-weight:bold;">Chave API OpenAI:</label>
         <input type="password" id="api-key-input" placeholder="sk-..." onchange="saveApiKey()">
         <div style="font-size: 0.8rem; color: #64748b;">
-            Cole sua chave aqui. Se deixar em branco, usará a voz do sistema/Siri.
+            Obrigatório para voz realista.
         </div>
     </div>
 
@@ -217,13 +218,11 @@
         let cards = [];
         let voices = [];
         let currentFontSize = 1.15; 
+        let openaiApiKey = localStorage.getItem('englishPro_openai_key') || '';
+        document.getElementById('api-key-input').value = openaiApiKey;
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
         const STORAGE_KEY = 'englishCardsFinalV34';
-
-        // CARREGAR API KEY
-        let openaiApiKey = localStorage.getItem('englishPro_openai_key') || '';
-        document.getElementById('api-key-input').value = openaiApiKey;
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -234,9 +233,6 @@
             });
         }, { threshold: 0.6 });
 
-        window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
-
-        // --- FUNÇÕES DA API ---
         function toggleApiConfig() {
             const area = document.getElementById('api-config-area');
             area.style.display = area.style.display === 'block' ? 'none' : 'block';
@@ -246,30 +242,21 @@
             const key = document.getElementById('api-key-input').value.trim();
             localStorage.setItem('englishPro_openai_key', key);
             openaiApiKey = key;
-            alert("Chave salva!");
+            alert("Chave Salva!");
         }
 
-        // --- ÁUDIO HÍBRIDO (OPENAI + SISTEMA) ---
+        // --- SISTEMA DE ÁUDIO COM CORREÇÃO PARA IOS ---
         async function speakText(text, index) {
-            // 1. Limpeza Rigorosa (Remove example labels)
+            // Limpeza
             const cleanText = cleanTextForAudio(text);
             if (!cleanText) return;
 
-            // Se houver áudio tocando, para
-            if (window.currentAudio) {
-                window.currentAudio.pause();
-                window.currentAudio = null;
-            }
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-
             const rate = document.getElementById(`speed-${index}`).value;
-
-            // 2. TENTA OPENAI SE TIVER CHAVE
+            const btn = document.activeElement; 
+            
+            // 1. TENTA OPENAI
             if (openaiApiKey && openaiApiKey.startsWith('sk-')) {
-                const btn = document.activeElement; 
-                const originalIcon = btn ? btn.innerText : '🔈';
-                if(btn) btn.innerText = "⏳"; // Feedback visual
-
+                if(btn) btn.innerText = "⏳";
                 try {
                     const response = await fetch("https://api.openai.com/v1/audio/speech", {
                         method: "POST",
@@ -280,62 +267,52 @@
                         body: JSON.stringify({
                             model: "tts-1",
                             input: cleanText,
-                            voice: "alloy", // Voz padrão (pode mudar para echo, fable, onyx, nova, shimmer)
+                            voice: "alloy",
                             speed: parseFloat(rate)
                         })
                     });
 
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.error?.message || "Erro API");
-                    }
+                    if (!response.ok) throw new Error("Erro API");
 
                     const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    window.currentAudio = new Audio(url);
+                    const audioUrl = URL.createObjectURL(blob);
                     
-                    // Restaura ícone quando terminar
-                    window.currentAudio.onended = () => { if(btn) btn.innerText = "🔈"; };
+                    // TRUQUE PARA IOS: Usar elemento HTMLAudioElement fixo
+                    const player = document.getElementById('hidden-player');
+                    player.src = audioUrl;
+                    player.playbackRate = parseFloat(rate); // OpenAI já ajusta, mas garantindo
                     
-                    await window.currentAudio.play();
+                    // Restaura ícone quando terminar ou der erro
+                    player.onended = () => { if(btn) btn.innerText = "🔈"; };
+                    player.onerror = () => { if(btn) btn.innerText = "🔈"; };
+                    
+                    await player.play();
+                    
                     if(btn) btn.innerText = "🔈";
-                    return; // Sucesso, sai da função
+                    return; // Sucesso
 
                 } catch (e) {
-                    console.error("Erro OpenAI:", e);
-                    // Se der erro, continua para o fallback abaixo
+                    console.error(e);
                     if(btn) btn.innerText = "🔈";
+                    // Se falhar, cai para o fallback
                 }
             }
 
-            // 3. FALLBACK: VOZ DO SISTEMA (CÓDIGO ORIGINAL)
-            // Se não tiver chave ou se a API falhar
+            // 2. FALLBACK (Siri/Sistema)
             if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(cleanText);
-                u.lang = 'en-US'; // Padrão
-                
-                // Tenta achar Siri/Enhanced
-                if (voices.length === 0) voices = window.speechSynthesis.getVoices();
-                let bestVoice = voices.find(v => v.lang.includes('en') && v.name.includes("Siri"));
-                if(!bestVoice) bestVoice = voices.find(v => v.lang.includes('en') && v.name.includes("Enhanced"));
-                if(bestVoice) u.voice = bestVoice;
-
+                u.lang = 'en-US'; 
                 u.rate = parseFloat(rate);
                 window.speechSynthesis.speak(u);
             }
         }
 
-        // --- FILTRO DE ÁUDIO RIGOROSO (Constraint do Usuário) ---
         function cleanTextForAudio(t) {
             if(!t) return '';
-            // Remove símbolos de marcação
             let c = t.replace(/[*#~^]/g, '');
-            
-            // Regex para remover labels de exemplo (Case insensitive)
-            // Remove "Example:", "Exemple:", "Another example:", "Ex:", "Exemplo:"
-            // E qualquer coisa antes dos dois pontos ou ponto final se for esses labels
+            // Regex ajustada para remover rótulos de exemplo
             c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            
             return c.trim();
         }
 
@@ -344,7 +321,6 @@
             speakText(clean, index);
         }
 
-        // --- FUNÇÕES DE INTERFACE (MANTIDAS) ---
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
@@ -522,10 +498,6 @@
                         <div class="phrases-area">${phrasesHtml}</div>
                         <div class="card-footer">
                             <div class="controls-group">
-                                <select id="accent-${index}" class="control-select" onchange="updateCardSettings(${index})">
-                                    <option value="US" ${card.accent === 'US' ? 'selected' : ''}>🇺🇸 US</option>
-                                    <option value="UK" ${card.accent === 'UK' ? 'selected' : ''}>🇬🇧 UK</option>
-                                </select>
                                 <select id="speed-${index}" class="control-select">
                                     <option value="0.8">0.8x</option>
                                     <option value="1" selected>1.0x</option>
@@ -568,10 +540,8 @@
             });
         }
 
-        function updateCardSettings(index) {
-            cards[index].accent = document.getElementById(`accent-${index}`).value;
-            saveCards();
-        }
+        // Removido updateCardSettings
+        function updateCardSettings(index) { }
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
