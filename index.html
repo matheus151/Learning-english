@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Pro - V34.5 Siri Focus</title>
+    <title>English Pro - V34.7 System Voice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,28 +29,28 @@
             font-weight: 400;
         }
 
-        /* SELETOR DE VOZ DESTAQUE */
+        /* SELETOR DE VOZ (Estilo iOS) */
         .voice-config-area {
-            background: #f0fdf4; /* Verde claro para destacar */
-            border: 1px solid #86efac;
-            padding: 12px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
         }
-        .voice-row {
+        .voice-label-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .voice-config-area label {
-            color: #166534;
+            color: #334155;
             font-weight: 700;
+            font-size: 0.9rem;
             margin: 0;
-            font-size: 0.95rem;
         }
-        .refresh-btn {
-            background: #16a34a;
+        .refresh-voice-btn {
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 6px;
@@ -63,11 +63,11 @@
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid #bbf7d0;
+            border: 1px solid #94a3b8;
             font-size: 1rem;
-            color: #14532d;
+            color: #0f172a;
             background: white;
-            -webkit-appearance: none;
+            -webkit-appearance: none; /* Visual Nativo */
         }
 
         /* MODAL */
@@ -182,15 +182,16 @@
     </div>
 
     <div class="voice-config-area">
-        <div class="voice-row">
-            <label>📢 Selecionar Voz:</label>
-            <button class="refresh-btn" onclick="populateVoiceList()">🔄 Carregar Vozes</button>
+        <div class="voice-label-row">
+            <label>📢 Sua Voz:</label>
+            <button class="refresh-voice-btn" onclick="populateVoiceList()">🔄 Carregar Vozes</button>
         </div>
         <select id="global-voice-select" onchange="saveGlobalVoice()">
             <option value="">Toque em "Carregar" ↗</option>
         </select>
-        <div style="font-size:0.75rem; color:#15803d; margin-top:5px;">
-            ⚠️ <strong>Dica:</strong> A "Siri 1" pode aparecer como <strong>"Aaron"</strong>, <strong>"Siri"</strong> ou <strong>"English (US)"</strong> nesta lista.
+        <div style="font-size:0.75rem; color:#64748b; margin-top:8px; line-height:1.4;">
+            <strong>Dica Siri:</strong> Se a Siri 1 não aparecer, escolha "Aaron" (Masculino) ou "Nicky" (Feminino) na lista.<br>
+            Ou tente a opção "💎 Padrão do iPhone" para usar a configuração do sistema.
         </div>
     </div>
 
@@ -249,33 +250,32 @@
                 const voiceSelect = document.getElementById('global-voice-select');
                 
                 if (voices.length === 0) {
-                    voiceSelect.innerHTML = '<option value="">Toque em Recarregar...</option>';
+                    voiceSelect.innerHTML = '<option value="">Toque no botão Recarregar...</option>';
                     return;
                 }
 
                 const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
                 voiceSelect.innerHTML = '';
+
+                // 1. OPÇÃO PADRÃO (Tenta forçar o sistema)
+                const defaultOption = document.createElement('option');
+                defaultOption.textContent = "💎 Padrão do iPhone (Tentar Siri)";
+                defaultOption.value = "system_default";
+                voiceSelect.appendChild(defaultOption);
                 
-                // 1. TENTA ENCONTRAR SIRI/AARON PRIMEIRO
-                let exactSiri = null;
+                // 2. LISTA VOZES EM INGLÊS
                 const enVoices = voices.filter(v => v.lang.startsWith('en'));
                 
-                enVoices.sort((a, b) => {
-                    // Joga Siri/Aaron pro topo da lista
-                    const aSiri = a.name.includes('Siri') || a.name.includes('Aaron');
-                    const bSiri = b.name.includes('Siri') || b.name.includes('Aaron');
-                    if (aSiri && !bSiri) return -1;
-                    if (!aSiri && bSiri) return 1;
-                    return a.name.localeCompare(b.name);
-                });
+                // Ordena para facilitar (Aaron geralmente é a primeira)
+                enVoices.sort((a, b) => a.name.localeCompare(b.name));
 
                 enVoices.forEach((voice) => {
                     const option = document.createElement('option');
-                    // Exibe o nome completo para o usuário achar a Siri
-                    option.textContent = (voice.name.includes('Siri') || voice.name.includes('Aaron')) 
-                        ? `⭐ ${voice.name} (${voice.lang})` 
-                        : `${voice.name} (${voice.lang})`;
+                    // Marca nomes suspeitos de serem Siri
+                    let marker = "";
+                    if(voice.name.includes("Aaron") || voice.name.includes("Nicky") || voice.name.includes("Samantha")) marker = "⭐ ";
                     
+                    option.textContent = `${marker}${voice.name} (${voice.lang})`;
                     option.value = voice.name;
                     
                     if (voice.name === savedVoiceName) {
@@ -284,9 +284,7 @@
                     voiceSelect.appendChild(option);
                 });
                 
-                if(enVoices.length === 0) {
-                     voiceSelect.innerHTML = '<option value="">Nenhuma voz encontrada</option>';
-                }
+                if(savedVoiceName === "system_default") defaultOption.selected = true;
             }
         }
 
@@ -294,16 +292,16 @@
         if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = populateVoiceList;
         }
-        // Tenta forçar logo de cara
-        setTimeout(populateVoiceList, 1000);
+        setTimeout(populateVoiceList, 500); // Tenta um pouco depois também
 
         function saveGlobalVoice() {
             const select = document.getElementById('global-voice-select');
             localStorage.setItem('englishAppGlobalVoiceName', select.value);
         }
 
+        // --- FUNÇÃO DE FALA ---
         function speakText(text, index) {
-            // Limpa o texto antes de falar
+            // Limpa o texto (remove Example, etc)
             const clean = cleanTextForAudio(text);
 
             if ('speechSynthesis' in window) {
@@ -311,19 +309,19 @@
                 const rate = document.getElementById(`speed-${index}`).value;
                 const u = new SpeechSynthesisUtterance(clean);
                 
-                // Pega a voz selecionada
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
-                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
-                if (selectedVoice) {
-                    u.voice = selectedVoice;
-                    u.lang = selectedVoice.lang;
+                if (selectedVoiceName === "system_default") {
+                    // Mágica: Não define voice, apenas o idioma. O iOS deve assumir a padrão.
+                    u.lang = 'en-US';
+                    u.voice = null;
                 } else {
-                    // Auto-detecta Siri se nada selecionado
-                    const siri = voices.find(v => v.name.includes('Siri') && v.lang.startsWith('en'));
-                    const aaron = voices.find(v => v.name.includes('Aaron') && v.lang.startsWith('en'));
-                    if (siri) u.voice = siri;
-                    else if (aaron) u.voice = aaron;
+                    // Busca a voz específica (ex: Aaron)
+                    const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+                    if (selectedVoice) {
+                        u.voice = selectedVoice;
+                        u.lang = selectedVoice.lang;
+                    }
                 }
 
                 u.rate = parseFloat(rate);
@@ -331,6 +329,7 @@
             }
         }
 
+        // --- FILTRO DE AUDIO OTIMIZADO ---
         function cleanTextForAudio(t) {
             if(!t) return '';
             let c = t.replace(/[*#~^]/g, '');
@@ -442,6 +441,7 @@
             }
         }
 
+        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
         function normalizeFormatting(text) {
             if (!text) return '';
             let lines = text.split('\n');
@@ -563,7 +563,7 @@
             });
         }
 
-        // Removido updateCardSettings individual pois a voz é global
+        // Removido updateCardSettings
         function updateCardSettings(index) { }
 
         function enableEditMode(i) {
@@ -649,10 +649,8 @@
         // --- FILTRO DE AUDIO OTIMIZADO ---
         function cleanTextForAudio(t) {
             if(!t) return '';
-            // Remove símbolos
             let c = t.replace(/[*#~^]/g, '');
-            // Remove etiquetas comuns
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
             return c.trim();
         }
 
