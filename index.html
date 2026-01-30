@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V36 AudioContext</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Pro - V34.3 Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -29,35 +29,47 @@
             font-weight: 400;
         }
 
-        /* CONFIG API */
-        #api-config-area {
-            display: none;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+        /* --- SELETOR DE VOZ (CORRIGIDO) --- */
+        .voice-config-area {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        #api-key-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #86efac;
-            border-radius: 8px;
-            font-family: monospace;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            font-size: 1rem;
+        .voice-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .config-toggle-btn {
-            background: #334155;
+        .voice-config-area label {
+            color: #0369a1;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .refresh-voice-btn {
+            background: #0ea5e9;
             color: white;
             border: none;
-            padding: 8px 12px;
             border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-bottom: 10px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
             font-weight: 600;
+            cursor: pointer;
+        }
+        #global-voice-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #7dd3fc;
+            font-size: 1rem;
+            color: #0c4a6e;
+            background: white;
+            -webkit-appearance: none; /* Estilo nativo iOS */
         }
 
         /* MODAL */
@@ -171,15 +183,16 @@
         </div>
     </div>
 
-    <div style="text-align: right; margin-bottom: 10px;">
-        <button class="config-toggle-btn" onclick="toggleApiConfig()">🔑 Configurar OpenAI</button>
-    </div>
-
-    <div id="api-config-area">
-        <label style="display:block; margin-bottom:5px; color:#166534; font-weight:bold;">Chave API OpenAI:</label>
-        <input type="password" id="api-key-input" placeholder="sk-..." onchange="saveApiKey()">
-        <div style="font-size: 0.8rem; color: #64748b;">
-            Cole aqui sua chave (sk-...). Se não tiver, o app usará a voz robótica do iPhone.
+    <div class="voice-config-area">
+        <div class="voice-label-row">
+            <label>📢 Sua Voz Preferida:</label>
+            <button class="refresh-voice-btn" onclick="populateVoiceList()">🔄 Recarregar Vozes</button>
+        </div>
+        <select id="global-voice-select" onchange="saveGlobalVoice()">
+            <option value="">Carregando lista...</option>
+        </select>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:5px;">
+            Dica: Se a voz "Siri" não aparecer, toque em "Recarregar".
         </div>
     </div>
 
@@ -216,15 +229,9 @@
 
     <script>
         let cards = [];
+        let voices = [];
         let currentFontSize = 1.15; 
         
-        // RECUPERA CHAVE
-        let openaiApiKey = localStorage.getItem('englishPro_openai_key') || '';
-        document.getElementById('api-key-input').value = openaiApiKey;
-
-        // INICIALIZA CONTEXTO DE AUDIO (Fix para iOS)
-        let audioCtx = null;
-
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
         const STORAGE_KEY = 'englishCardsFinalV34';
 
@@ -237,103 +244,74 @@
             });
         }, { threshold: 0.6 });
 
-        // --- API CONFIG ---
-        function toggleApiConfig() {
-            const area = document.getElementById('api-config-area');
-            area.style.display = area.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            localStorage.setItem('englishPro_openai_key', key);
-            openaiApiKey = key;
-            alert("Chave Salva!");
-        }
-
-        // --- SISTEMA DE ÁUDIO REVOLUCIONÁRIO (AudioContext) ---
-        // Isso impede que o iPhone abra o player de vídeo/arquivo.
-        async function speakText(text, index) {
-            // 1. Limpeza
-            const cleanText = cleanTextForAudio(text);
-            if (!cleanText) return;
-
-            // 2. Inicializa AudioContext (necessário interação do usuário no iOS)
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                await audioCtx.resume();
-            }
-
-            const btn = document.activeElement; 
-            const rate = document.getElementById(`speed-${index}`).value;
-
-            // 3. TENTA OPENAI (Se tiver chave)
-            if (openaiApiKey && openaiApiKey.startsWith('sk-')) {
-                if(btn) btn.innerText = "⏳";
+        // --- SISTEMA DE VOZ MANUAL COM REFRESH ---
+        function populateVoiceList() {
+            if ('speechSynthesis' in window) {
+                voices = window.speechSynthesis.getVoices();
+                const voiceSelect = document.getElementById('global-voice-select');
                 
-                try {
-                    const response = await fetch("https://api.openai.com/v1/audio/speech", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${openaiApiKey}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: "tts-1",
-                            input: cleanText,
-                            voice: "alloy",
-                            speed: parseFloat(rate) // OpenAI suporta 0.25 a 4.0
-                        })
-                    });
-
-                    if (!response.ok) throw new Error("Erro OpenAI");
-
-                    const arrayBuffer = await response.arrayBuffer();
-                    
-                    // Decodifica e Toca SEM criar elemento HTML (Segredo do Sucesso)
-                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                    const source = audioCtx.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(audioCtx.destination);
-                    source.start(0);
-
-                    // Feedback Visual (simula duração)
-                    if(btn) btn.innerText = "🔊";
-                    setTimeout(() => { if(btn) btn.innerText = "🔈"; }, (audioBuffer.duration * 1000));
+                // Se a lista estiver vazia, avisa para tentar de novo
+                if (voices.length === 0) {
+                    voiceSelect.innerHTML = '<option value="">Toque em Recarregar Vozes...</option>';
                     return;
+                }
 
-                } catch (e) {
-                    console.error("Falha OpenAI:", e);
-                    // Cai para o fallback
+                const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
+                voiceSelect.innerHTML = '';
+                
+                // Filtra vozes inglesas e ordena
+                // REMOVIDO FILTRO RESTRITO PARA GARANTIR QUE SIRI APAREÇA
+                // Agora mostra todas as vozes em inglês (EN)
+                const enVoices = voices.filter(v => v.lang.includes('en'));
+                
+                enVoices.forEach((voice) => {
+                    const option = document.createElement('option');
+                    // Exibe nome exato para achar "Siri"
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    
+                    if (voice.name === savedVoiceName) {
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+                
+                if(enVoices.length === 0) {
+                     voiceSelect.innerHTML = '<option value="">Nenhuma voz em inglês detectada</option>';
                 }
             }
+        }
 
-            // 4. FALLBACK (Siri/Sistema)
+        // Tenta carregar no início e no evento
+        populateVoiceList();
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function saveGlobalVoice() {
+            const select = document.getElementById('global-voice-select');
+            localStorage.setItem('englishAppGlobalVoiceName', select.value);
+        }
+
+        function speakText(text, index) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Para anterior
-                const u = new SpeechSynthesisUtterance(cleanText);
-                u.lang = 'en-US';
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const u = new SpeechSynthesisUtterance(text);
+                
+                const selectedVoiceName = document.getElementById('global-voice-select').value;
+                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+
+                if (selectedVoice) {
+                    u.voice = selectedVoice;
+                    u.lang = selectedVoice.lang;
+                }
+
                 u.rate = parseFloat(rate);
                 window.speechSynthesis.speak(u);
-                if(btn) btn.innerText = "🔈";
             }
         }
 
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            // Remove Example labels
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
-        }
-
-        function speakAll(index) {
-            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
-            speakText(clean, index);
-        }
-
-        // --- UI UTILS ---
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
@@ -432,17 +410,24 @@
             }
         }
 
+        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
         function normalizeFormatting(text) {
             if (!text) return '';
             let lines = text.split('\n');
             lines = lines.map((line, index) => {
                 let l = line;
+                // Markdown Básico
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
-                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
-                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
+                // Lógica Posicional para ==
+                if (index === 1) { // Linha 2 -> Blue
+                    l = l.replace(/==(.*?)==/g, '*$1*');
+                } else if (index >= 2) { // Linha 3+ -> Red
+                    l = l.replace(/==(.*?)==/g, '#$1#');
+                } else { // Linha 1 -> Bold
+                    l = l.replace(/==(.*?)==/g, '^$1^');
+                }
                 return l;
             });
             return lines.join('\n');
@@ -455,7 +440,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV30'); 
+            const savedOld = localStorage.getItem('englishCardsFinalV30'); // Mantém retrocompatibilidade
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -489,6 +474,7 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
+                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -553,8 +539,15 @@
             });
         }
 
-        // Removido updateCardSettings
-        function updateCardSettings(index) { }
+        // Removido updateCardSettings individual pois a voz é global
+        function updateCardSettings(index) {
+             // Mantido vazio para compatibilidade se algo chamar, mas a voz vem do select global
+        }
+
+        function speakAll(index) {
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
+        }
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
@@ -634,6 +627,16 @@
             const start = t.selectionStart; const end = t.selectionEnd;
             if (start === end) return alert("Selecione texto!");
             t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
+        }
+
+        // --- FILTRO DE AUDIO OTIMIZADO ---
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            // Remove símbolos
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove etiquetas comuns
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
+            return c.trim();
         }
 
         async function fetchTranslation(text) {
