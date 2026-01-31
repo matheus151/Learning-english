@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V37 Google Voice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Pro - V34.2 Manual Voice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -11,6 +11,7 @@
     <style>
         :root {
             --primary: #2563eb;
+            --primary-hover: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #334155;
@@ -26,6 +27,30 @@
             padding: 15px 12px;
             padding-bottom: 150px;
             font-weight: 400;
+        }
+
+        /* SELETOR DE VOZ GLOBAL (NOVO) */
+        .voice-config-area {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .voice-config-area label {
+            color: #0369a1;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: block;
+        }
+        #global-voice-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #7dd3fc;
+            font-size: 0.9rem;
+            color: #0c4a6e;
+            background: white;
         }
 
         /* MODAL */
@@ -139,6 +164,13 @@
         </div>
     </div>
 
+    <div class="voice-config-area">
+        <label>📢 Escolher Voz do Sistema:</label>
+        <select id="global-voice-select" onchange="saveGlobalVoice()">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
+
     <div class="input-group">
         <h3>Nova Entrada</h3>
         <div class="input-row">
@@ -172,6 +204,7 @@
 
     <script>
         let cards = [];
+        let voices = [];
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
@@ -186,65 +219,79 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE ÁUDIO GOOGLE NEURAL (PLAYER INVISÍVEL) ---
+        // --- SISTEMA DE VOZ MANUAL ---
+        function populateVoiceList() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('global-voice-select');
+            
+            // Se as vozes ainda não carregaram, sai
+            if (voices.length === 0) return;
+
+            // Salva a seleção atual (se houver)
+            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
+            
+            voiceSelect.innerHTML = '';
+            
+            // Filtra e ordena vozes (prioriza inglês)
+            voices.sort((a, b) => {
+                const aname = a.name.toUpperCase();
+                const bname = b.name.toUpperCase();
+                if (aname < bname) return -1;
+                else if (aname == bname) return 0;
+                else return +1;
+            });
+
+            voices.forEach((voice) => {
+                // Mostra apenas vozes em inglês (ou todas se preferir, mas inglês é o foco)
+                if(voice.lang.includes('en')) {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    
+                    if (voice.name === savedVoiceName) {
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Tenta carregar vozes em momentos diferentes para garantir compatibilidade com iOS
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+        function saveGlobalVoice() {
+            const select = document.getElementById('global-voice-select');
+            localStorage.setItem('englishAppGlobalVoiceName', select.value);
+        }
+
+        // Função de fala modificada para usar a voz global selecionada
         function speakText(text, index) {
-            // 1. Limpeza do texto (suas regras)
-            const cleanText = cleanTextForAudio(text);
-            if(!cleanText) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const u = new SpeechSynthesisUtterance(text);
+                
+                // Pega a voz selecionada no dropdown
+                const selectedVoiceName = document.getElementById('global-voice-select').value;
+                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
-            // 2. Parar qualquer áudio anterior
-            if (window.currentAudio) {
-                window.currentAudio.pause();
-                window.currentAudio.currentTime = 0;
+                if (selectedVoice) {
+                    u.voice = selectedVoice;
+                    u.lang = selectedVoice.lang;
+                } else {
+                    // Fallback se nada selecionado (tenta achar a primeira em inglês)
+                    const fallback = voices.find(v => v.lang.startsWith('en'));
+                    if(fallback) u.voice = fallback;
+                }
+
+                u.rate = parseFloat(rate);
+                window.speechSynthesis.speak(u);
             }
-
-            // 3. Feedback Visual (ícone vira ampulheta)
-            const btn = document.activeElement; 
-            const originalIcon = btn ? btn.innerText : '🔈';
-            if(btn) btn.innerText = "⏳";
-
-            // 4. Configurar Velocidade
-            const rate = document.getElementById(`speed-${index}`).value;
-            // O Google TTS não aceita 'rate' direto na URL facilmente, mas a qualidade nativa é ótima.
-            // Para mudar a velocidade no Google, seria complexo.
-            // Vamos usar o player HTML5 para ajustar a velocidade do áudio recebido.
-
-            // 5. URL Mágica do Google (GTX) - Voz Americana
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=en-US&client=gtx`;
-
-            // 6. Criar Player Invisível na Memória
-            const audio = new Audio(url);
-            audio.playbackRate = parseFloat(rate); // Aplica a velocidade escolhida
-            window.currentAudio = audio; // Guarda referência para poder parar depois
-
-            // 7. Tocar
-            audio.play()
-                .then(() => {
-                    // Sucesso: Voltar ícone ao normal quando terminar ou se der play
-                    if(btn) btn.innerText = "🔊"; // Falando
-                    audio.onended = () => { if(btn) btn.innerText = "🔈"; };
-                })
-                .catch(err => {
-                    console.error("Erro ao tocar:", err);
-                    alert("Erro ao reproduzir. Verifique sua internet.");
-                    if(btn) btn.innerText = "🔈";
-                });
         }
 
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            // Filtro Rigoroso: Remove "Example:", "Exemplo", etc.
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
-        }
-
-        function speakAll(index) {
-            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
-            speakText(clean, index);
-        }
-
-        // --- RESTO DAS FUNÇÕES UI (IGUAIS V34.2) ---
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
 
@@ -343,17 +390,24 @@
             }
         }
 
+        // --- FORMATAÇÃO INTELIGENTE POR LINHA (==) ---
         function normalizeFormatting(text) {
             if (!text) return '';
             let lines = text.split('\n');
             lines = lines.map((line, index) => {
                 let l = line;
+                // Markdown Básico
                 l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
                 l = l.replace(/__(.*?)__/g, '^$1^');
                 l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
-                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
-                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
+                // Lógica Posicional para ==
+                if (index === 1) { // Linha 2 -> Blue
+                    l = l.replace(/==(.*?)==/g, '*$1*');
+                } else if (index >= 2) { // Linha 3+ -> Red
+                    l = l.replace(/==(.*?)==/g, '#$1#');
+                } else { // Linha 1 -> Bold
+                    l = l.replace(/==(.*?)==/g, '^$1^');
+                }
                 return l;
             });
             return lines.join('\n');
@@ -366,7 +420,7 @@
                 document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
             }
             const saved = localStorage.getItem(STORAGE_KEY);
-            const savedOld = localStorage.getItem('englishCardsFinalV30'); 
+            const savedOld = localStorage.getItem('englishCardsFinalV30'); // Mantém retrocompatibilidade
             if (saved) { cards = JSON.parse(saved); } 
             else if (savedOld) { cards = JSON.parse(savedOld); saveCards(); }
             else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
@@ -400,6 +454,7 @@
                 lines.forEach(line => {
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
+                    // Aqui usamos cleanTextForAudio no onClick
                     const clean = cleanTextForAudio(line);
                     phrasesHtml += `
                         <div class="line-item">
@@ -427,6 +482,7 @@
                                     <option value="1" selected>1.0x</option>
                                     <option value="1.1">1.1x</option>
                                     <option value="1.2">1.2x</option>
+                                    <option value="1.5">1.5x</option>
                                 </select>
                                 <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir</button>
                             </div>
@@ -463,7 +519,13 @@
             });
         }
 
-        function updateCardSettings(index) { }
+        // Removido updateCardSettings pois agora a voz é global
+        // function updateCardSettings(index) { ... }
+
+        function speakAll(index) {
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
+        }
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
@@ -543,6 +605,17 @@
             const start = t.selectionStart; const end = t.selectionEnd;
             if (start === end) return alert("Selecione texto!");
             t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
+        }
+
+        // --- FILTRO DE AUDIO OTIMIZADO ---
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            // Remove símbolos
+            let c = t.replace(/[*#~^]/g, '');
+            // Remove etiquetas comuns (Example:, Exemple, Exemplo, Another example)
+            // Regex ajustada para pegar variações e "Ex" curto
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)[:.-]?\s*/gi, '');
+            return c.trim();
         }
 
         async function fetchTranslation(text) {
