@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.6 Bug Fixes</title>
+    <title>English Pro - V38.7 Final Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -233,7 +233,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_6';
+        const STORAGE_KEY = 'englishCardsFinalV38_7';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -378,7 +378,7 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI (COM CONTEXTO E BOTÕES CORRIGIDOS) ---
+        // --- GERADOR DE EXEMPLOS GEMINI (CORREÇÃO DE BOTÕES E 1 EXEMPLO) ---
         let currentExampleTerm = "";
         let currentExampleContext = ""; 
 
@@ -399,7 +399,7 @@
                 return;
             }
 
-            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos para: <b>"${term}"</b>...</div>`;
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplo para: <b>"${term}"</b>...</div>`;
             await fetchAndRenderGeminiExamples(term, currentExampleContext, content, false);
         }
 
@@ -410,13 +410,13 @@
                     if(btn) { btn.innerText = "⏳ Gerando..."; btn.disabled = true; }
                 }
 
-                const prompt = `Gere 3 exemplos curtos e práticos de frases em inglês aplicando a expressão "${term}". 
-                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar exemplos que se encaixem nesse MESMO sentido ou contexto de uso.
+                // SOLICITA APENAS 1 EXEMPLO AGORA
+                const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a expressão "${term}". 
+                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido ou contexto de uso.
                 Diretriz de Simplicidade: não busque apenas termos básicos demais. Quero, ao invés disso, termos úteis. Quero o equilíbrio.
                 Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
                 [
-                    {"en": "frase em ingles 1", "pt": "traducao 1"},
-                    {"en": "frase em ingles 2", "pt": "traducao 2"}
+                    {"en": "frase em ingles 1", "pt": "traducao 1"}
                 ]`;
 
                 const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
@@ -458,16 +458,16 @@
                 examples.forEach(ex => {
                     baseId++;
                     const transId = `ex-trans-${baseId}`;
-                    // Proteção contra quebra de aspas no HTML
-                    const safeEnText = ex.en.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // Proteção extra para garantir que o texto gerado não quebre o HTML do botão no iOS
+                    const safeEnText = ex.en.replace(/"/g, '&quot;');
                     
                     html += `
                         <div class="example-item">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                                 <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
                                 <div style="display:flex; gap:5px; margin-left:10px;">
-                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
-                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
+                                    <button type="button" data-text="${safeEnText}" onclick="speakExampleAudio(event, this)" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
+                                    <button type="button" onclick="toggleExTrans(event, '${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
                                 </div>
                             </div>
                             <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
@@ -494,16 +494,24 @@
             }
         }
 
-        function loadMoreExamples() {
-            const content = document.getElementById('modal-body');
-            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
+        // Funções externas seguras para os botões dos exemplos
+        function speakExampleAudio(e, btn) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const text = btn.getAttribute('data-text');
+            if(text) speakText(text, 'modal');
         }
 
-        function toggleExTrans(id) {
+        function toggleExTrans(e, id) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
             const el = document.getElementById(id);
             if(el) {
                 el.style.display = el.style.display === 'none' ? 'block' : 'none';
             }
+        }
+
+        function loadMoreExamples() {
+            const content = document.getElementById('modal-body');
+            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
         }
 
         function closeExampleModal(e) {
