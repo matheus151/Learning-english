@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.3 Ultimate</title>
+    <title>English Pro - V38.5 Multi-word Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             --primary-hover: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
-            --custom-card-bg: #ffffff; /* Cor escolhida pelo usuário */
+            --custom-card-bg: #ffffff; 
             --text: #334155;
             --text-muted: #64748b;
             --border: #e2e8f0;
@@ -34,7 +34,7 @@
             --primary: #3b82f6;
             --bg: #0f172a;
             --card-bg: #1e293b;
-            --custom-card-bg: #1e293b; /* Mantém escuro para legibilidade */
+            --custom-card-bg: #1e293b; 
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --border: #334155;
@@ -97,10 +97,10 @@
         .color-picker-wrapper { position: relative; width: 30px; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
         .color-picker-wrapper input[type="color"] { position: absolute; right: -8px; top: -8px; width: 50px; height: 50px; cursor: pointer; border: none; }
 
-        /* Destaques */
-        .hl-base { padding: 0 2px; border-radius: 3px; display: inline-block; }
-        .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 1px dotted transparent; }
-        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); display:inline-block; }
+        /* Destaques (Atualizado para expressões inteiras) */
+        .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
+        .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
+        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); }
         .hl-blue { background-color: var(--hl-blue-bg); color: var(--hl-blue-text); font-weight: 700; }
         .hl-red { background-color: var(--hl-red-bg); color: var(--hl-red-text); font-weight: 700; }
         .hl-lilac { background-color: var(--hl-lilac-bg); color: var(--hl-lilac-text); font-weight: 700; }
@@ -138,7 +138,7 @@
         .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
         .play-all-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer;}
         
-        /* Novos Botões Rodapé (Lápis e Lixeira) */
+        /* Botões Rodapé */
         .footer-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
         .action-btn-small.delete { color: #ef4444; }
@@ -233,7 +233,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_3';
+        const STORAGE_KEY = 'englishCardsFinalV38_5';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -289,7 +289,7 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ MANUAL RESTAURADO (V34.2) ---
+        // --- SISTEMA DE VOZ MANUAL RESTAURADO ---
         function populateVoiceList() {
             voices = window.speechSynthesis.getVoices();
             const voiceSelect = document.getElementById('global-voice-select');
@@ -344,7 +344,9 @@
 
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const rate = document.getElementById(`speed-${index}`).value;
+                const rateElement = document.getElementById(`speed-${index}`);
+                const rate = rateElement ? rateElement.value : "1.0";
+
                 const u = new SpeechSynthesisUtterance(clean);
                 
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
@@ -359,6 +361,14 @@
                 }
 
                 u.rate = parseFloat(rate);
+                
+                const btn = document.activeElement;
+                if(btn && index === 'modal') {
+                    btn.innerText = "⏳";
+                    u.onend = () => { btn.innerText = "🔈"; };
+                    u.onerror = () => { btn.innerText = "🔈"; };
+                }
+
                 window.speechSynthesis.speak(u);
             }
         }
@@ -368,45 +378,50 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI (CÓDIGO EXATO DO SEU APP INFINITO) ---
+        // --- GERADOR DE EXEMPLOS GEMINI (CONTEXTO E BOTÕES) ---
         let currentExampleTerm = "";
+        let currentExampleContext = ""; 
+
         async function openExampleModal(element) {
             const rawText = element.innerText;
             const term = rawText.replace(/[.,!?;:]/g, '').trim();
             currentExampleTerm = term;
+            
+            const parentLine = element.closest('.line-text');
+            currentExampleContext = parentLine ? parentLine.innerText.replace(/🔈|🌐|👁️/g, '').trim() : "";
             
             const modal = document.getElementById('example-modal');
             const content = document.getElementById('modal-body');
             modal.style.display = 'flex';
             
             if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos inteligentes.</div>`;
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
                 return;
             }
 
-            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos úteis para: <b>"${term}"</b>...</div>`;
-            await fetchAndRenderGeminiExamples(term, content, false);
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos para: <b>"${term}"</b>...</div>`;
+            await fetchAndRenderGeminiExamples(term, currentExampleContext, content, false);
         }
 
-        async function fetchAndRenderGeminiExamples(term, container, isAppending) {
+        async function fetchAndRenderGeminiExamples(term, contextText, container, isAppending) {
             try {
                 if(isAppending) {
                     const btn = document.getElementById('load-more-btn');
                     if(btn) { btn.innerText = "⏳ Gerando..."; btn.disabled = true; }
                 }
 
-                const prompt = `Gere 3 exemplos curtos e práticos de frases em inglês aplicando a palavra/expressão "${term}". 
-                Diretriz de Simplicidade: nao necessariamente busque apenas termos basicos demais. Quero, ao inves disso, termos uteis (mesmo que alguns deles nao sejam tao simples). Quero o equilibrio.
+                const prompt = `Gere 3 exemplos curtos e práticos de frases em inglês aplicando a expressão "${term}". 
+                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar exemplos que se encaixem nesse MESMO sentido ou contexto de uso.
+                Diretriz de Simplicidade: não busque apenas termos básicos demais. Quero, ao invés disso, termos úteis. Quero o equilíbrio.
                 Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
                 [
                     {"en": "frase em ingles 1", "pt": "traducao 1"},
                     {"en": "frase em ingles 2", "pt": "traducao 2"}
                 ]`;
 
-                // URL exata copiada do seu App Infinito que estava funcionando!
                 const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
                 
-                const response = await fetch(fetchUrl, {
+                let response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -415,23 +430,45 @@
                     })
                 });
 
-                const data = await response.json();
+                let data = await response.json();
+
+                if (data.error && data.error.code === 404) {
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+                    response = await fetch(fallbackUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        })
+                    });
+                    data = await response.json();
+                }
 
                 if (data.error) throw new Error(data.error.message);
 
                 let jsonStr = data.candidates[0].content.parts[0].text;
-                // Prevenção caso o Gemini devolva blocos de código
                 jsonStr = jsonStr.replace(/```json/gi, '').replace(/```/gi, '').trim();
                 
                 const examples = JSON.parse(jsonStr);
 
                 let html = isAppending ? "" : `<div class="modal-header">Exemplos: "${term}"</div><div id="examples-list">`;
                 
+                let baseId = Date.now() + Math.floor(Math.random() * 1000);
+
                 examples.forEach(ex => {
+                    baseId++;
+                    const transId = `ex-trans-${baseId}`;
+                    
                     html += `
                         <div class="example-item">
-                            <div style="font-weight:600; margin-bottom:4px; line-height: 1.4;">🇺🇸 ${ex.en}</div>
-                            <div style="color:#16a34a; font-size:0.9rem; line-height: 1.4;">🇧🇷 ${ex.pt}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
+                                <div style="display:flex; gap:5px; margin-left:10px;">
+                                    <button onclick="speakText('${ex.en.replace(/'/g, "\\'")}', 'modal')" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
+                                    <button onclick="toggleExTrans('${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
+                                </div>
+                            </div>
+                            <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
                         </div>
                     `;
                 });
@@ -457,7 +494,14 @@
 
         function loadMoreExamples() {
             const content = document.getElementById('modal-body');
-            fetchAndRenderGeminiExamples(currentExampleTerm, content, true);
+            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
+        }
+
+        function toggleExTrans(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
         function closeExampleModal(e) {
@@ -482,17 +526,14 @@
             }
         }
 
-        // --- UI E FUNÇÕES BASE ---
+        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA (MODIFICADA) ---
         function formatHighlight(t) {
             if(!t) return '';
-            const granularWrap = (text) => {
-                const parts = text.split(/(\s+)/);
-                return parts.map(part => {
-                    if (part.match(/^\s+$/)) return part; 
-                    return `<span class="word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${part}</span>`;
-                }).join('');
-            };
-            const wrap = (txt, cls) => `<span class="hl-base ${cls}">${granularWrap(txt)}</span>`;
+            
+            // O segredo está aqui: envolve a string *inteira* no span clicável,
+            // ao invés de usar o 'granularWrap' que quebrava palavra por palavra.
+            const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
+            
             let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
             h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
             h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
@@ -741,6 +782,13 @@
                 return word;
             });
             return processed.join('');
+        }
+
+        function applyHighlight(i, s) {
+            const t = document.getElementById(`edit-phrase-${i}`);
+            const start = t.selectionStart; const end = t.selectionEnd;
+            if (start === end) return alert("Selecione texto!");
+            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
         async function fetchTranslation(text) {
