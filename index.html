@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.1 Fixed Voice & Gemini</title>
+    <title>English Pro - V38.3 Ultimate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             --primary-hover: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
-            --custom-card-bg: #ffffff;
+            --custom-card-bg: #ffffff; /* Cor escolhida pelo usuário */
             --text: #334155;
             --text-muted: #64748b;
             --border: #e2e8f0;
@@ -34,7 +34,7 @@
             --primary: #3b82f6;
             --bg: #0f172a;
             --card-bg: #1e293b;
-            --custom-card-bg: #1e293b;
+            --custom-card-bg: #1e293b; /* Mantém escuro para legibilidade */
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --border: #334155;
@@ -138,7 +138,7 @@
         .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
         .play-all-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer;}
         
-        /* Botões Rodapé */
+        /* Novos Botões Rodapé (Lápis e Lixeira) */
         .footer-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
         .action-btn-small.delete { color: #ef4444; }
@@ -233,7 +233,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_1';
+        const STORAGE_KEY = 'englishCardsFinalV38_3';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -368,7 +368,7 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI FIX ---
+        // --- GERADOR DE EXEMPLOS GEMINI (CÓDIGO EXATO DO SEU APP INFINITO) ---
         let currentExampleTerm = "";
         async function openExampleModal(element) {
             const rawText = element.innerText;
@@ -380,11 +380,11 @@
             modal.style.display = 'flex';
             
             if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos inteligentes.</div>`;
                 return;
             }
 
-            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos para: <b>"${term}"</b>...</div>`;
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos úteis para: <b>"${term}"</b>...</div>`;
             await fetchAndRenderGeminiExamples(term, content, false);
         }
 
@@ -396,26 +396,31 @@
                 }
 
                 const prompt = `Gere 3 exemplos curtos e práticos de frases em inglês aplicando a palavra/expressão "${term}". 
-                Diretriz de Simplicidade: não busque apenas frases básicas demais. Quero, ao invés disso, frases úteis para comunicação no dia a dia ou profissional (mesmo que algumas tenham vocabulário médio/avançado). Quero o equilíbrio.
-                Responda APENAS com um array JSON válido, sem markdown, contendo chaves "en" (inglês) e "pt" (tradução). Exemplo de formato: [{"en": "frase 1", "pt": "traducao 1"}]`;
+                Diretriz de Simplicidade: nao necessariamente busque apenas termos basicos demais. Quero, ao inves disso, termos uteis (mesmo que alguns deles nao sejam tao simples). Quero o equilibrio.
+                Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
+                [
+                    {"en": "frase em ingles 1", "pt": "traducao 1"},
+                    {"en": "frase em ingles 2", "pt": "traducao 2"}
+                ]`;
 
-                // URL CORRIGIDA: Forçando gemini-1.5-flash (Mais estável e rápido)
-                let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+                // URL exata copiada do seu App Infinito que estava funcionando!
+                const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
                 
-                let response = await fetch(fetchUrl, {
+                const response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { response_mime_type: "application/json" }
+                        generationConfig: { temperature: 0.9 }
                     })
                 });
 
-                let data = await response.json();
+                const data = await response.json();
 
                 if (data.error) throw new Error(data.error.message);
 
                 let jsonStr = data.candidates[0].content.parts[0].text;
+                // Prevenção caso o Gemini devolva blocos de código
                 jsonStr = jsonStr.replace(/```json/gi, '').replace(/```/gi, '').trim();
                 
                 const examples = JSON.parse(jsonStr);
@@ -467,14 +472,15 @@
                 transDiv.style.display = 'none';
                 return;
             }
+            
             transDiv.style.display = 'block'; 
+            
             if (transDiv.innerText === "") {
                 transDiv.innerText = "⏳ Traduzindo linha...";
                 const res = await fetchTranslation(text);
                 transDiv.innerText = res;
             }
         }
-
 
         // --- UI E FUNÇÕES BASE ---
         function formatHighlight(t) {
