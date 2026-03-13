@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.7 Final Fix</title>
+    <title>English Pro - V38.8 Audio Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -233,7 +233,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_7';
+        const STORAGE_KEY = 'englishCardsFinalV38_8';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -344,6 +344,8 @@
 
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
+                
+                // Se o índice for 'modal', assume taxa padrão de 1.0 (evita null pointer)
                 const rateElement = document.getElementById(`speed-${index}`);
                 const rate = rateElement ? rateElement.value : "1.0";
 
@@ -361,14 +363,8 @@
                 }
 
                 u.rate = parseFloat(rate);
-                
-                const btn = document.activeElement;
-                if(btn && index === 'modal') {
-                    btn.innerText = "⏳";
-                    u.onend = () => { btn.innerText = "🔈"; };
-                    u.onerror = () => { btn.innerText = "🔈"; };
-                }
 
+                // Removida manipulação de innerText (ampulheta) para evitar crash no iOS
                 window.speechSynthesis.speak(u);
             }
         }
@@ -378,7 +374,7 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI (CORREÇÃO DE BOTÕES E 1 EXEMPLO) ---
+        // --- GERADOR DE EXEMPLOS GEMINI ---
         let currentExampleTerm = "";
         let currentExampleContext = ""; 
 
@@ -458,16 +454,17 @@
                 examples.forEach(ex => {
                     baseId++;
                     const transId = `ex-trans-${baseId}`;
-                    // Proteção extra para garantir que o texto gerado não quebre o HTML do botão no iOS
-                    const safeEnText = ex.en.replace(/"/g, '&quot;');
+                    
+                    // ESCAPE BLINDADO PARA INLINE ONCLICK (Impede Safari de abrir tela em branco)
+                    const safeEnText = ex.en.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                     
                     html += `
                         <div class="example-item">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                                 <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
                                 <div style="display:flex; gap:5px; margin-left:10px;">
-                                    <button type="button" data-text="${safeEnText}" onclick="speakExampleAudio(event, this)" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
-                                    <button type="button" onclick="toggleExTrans(event, '${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
+                                    <button type="button" class="play-mini" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" title="Ouvir">🔈</button>
+                                    <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" title="Ocultar/Mostrar Tradução">👁️</button>
                                 </div>
                             </div>
                             <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
@@ -494,24 +491,16 @@
             }
         }
 
-        // Funções externas seguras para os botões dos exemplos
-        function speakExampleAudio(e, btn) {
-            if(e) { e.preventDefault(); e.stopPropagation(); }
-            const text = btn.getAttribute('data-text');
-            if(text) speakText(text, 'modal');
+        function loadMoreExamples() {
+            const content = document.getElementById('modal-body');
+            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
         }
 
-        function toggleExTrans(e, id) {
-            if(e) { e.preventDefault(); e.stopPropagation(); }
+        function toggleExTrans(id) {
             const el = document.getElementById(id);
             if(el) {
                 el.style.display = el.style.display === 'none' ? 'block' : 'none';
             }
-        }
-
-        function loadMoreExamples() {
-            const content = document.getElementById('modal-body');
-            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
         }
 
         function closeExampleModal(e) {
@@ -651,8 +640,7 @@
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
                     const clean = cleanTextForAudio(line);
-                    // Proteção de aspas na chamada inline
-                    const safeCleanText = clean.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeCleanText = clean.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                     
                     phrasesHtml += `
                         <div class="line-container">
