@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38 Improvements</title>
+    <title>English Pro - V38.1 Fixed Voice & Gemini</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             --primary-hover: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
-            --custom-card-bg: #ffffff; /* Cor escolhida pelo usuário */
+            --custom-card-bg: #ffffff;
             --text: #334155;
             --text-muted: #64748b;
             --border: #e2e8f0;
@@ -34,13 +34,13 @@
             --primary: #3b82f6;
             --bg: #0f172a;
             --card-bg: #1e293b;
-            --custom-card-bg: #1e293b; /* No modo escuro, mantemos escuro para n doer o olho */
+            --custom-card-bg: #1e293b;
             --text: #f1f5f9;
             --text-muted: #94a3b8;
             --border: #334155;
             --input-bg: #0f172a;
 
-            /* Cores de Destaque (Escuras - Contraste Ajustado) */
+            /* Cores de Destaque (Escuras) */
             --hl-blue-bg: rgba(2, 132, 199, 0.2); --hl-blue-text: #7dd3fc;
             --hl-red-bg: rgba(220, 38, 38, 0.2); --hl-red-text: #fca5a5;
             --hl-lilac-bg: rgba(147, 51, 234, 0.2); --hl-lilac-text: #d8b4fe;
@@ -138,7 +138,7 @@
         .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
         .play-all-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer;}
         
-        /* Novos Botões Rodapé */
+        /* Botões Rodapé */
         .footer-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
         .action-btn-small.delete { color: #ef4444; }
@@ -184,6 +184,13 @@
         </div>
     </div>
 
+    <div class="voice-config-area">
+        <label>📢 Escolher Voz do Sistema:</label>
+        <select id="global-voice-select" onchange="saveGlobalVoice()">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
+
     <div class="gemini-config-area">
         <label>✨ Chave API Gemini (Exemplos):</label>
         <input type="password" id="gemini-key-input" placeholder="Cole sua chave sk-..." onchange="saveGeminiKey()">
@@ -222,11 +229,11 @@
 
     <script>
         let cards = [];
+        let voices = [];
         let currentFontSize = 1.15; 
-        let audioCtx = null; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38';
+        const STORAGE_KEY = 'englishCardsFinalV38_1';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -241,7 +248,6 @@
             localStorage.setItem('englishAppDarkMode', isDarkMode);
             document.getElementById('theme-toggle-btn').innerText = isDarkMode ? '☀️' : '🌙';
             
-            // Se ativar modo escuro, ignora a cor customizada temporariamente para legibilidade
             if(isDarkMode) {
                 document.documentElement.style.setProperty('--custom-card-bg', 'var(--card-bg)');
             } else {
@@ -258,7 +264,6 @@
 
         function changeCardBg(color) {
             localStorage.setItem('englishAppCardBg', color);
-            // No modo escuro, mantemos bloqueado para não estragar a leitura
             if(!isDarkMode) {
                 document.documentElement.style.setProperty('--custom-card-bg', color);
             } else {
@@ -284,41 +289,77 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE ÁUDIO INVISÍVEL (GOOGLE) ---
-        async function speakText(text, index) {
-            const cleanText = cleanTextForAudio(text);
-            if (!cleanText) return;
+        // --- SISTEMA DE VOZ MANUAL RESTAURADO (V34.2) ---
+        function populateVoiceList() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('global-voice-select');
+            
+            if (voices.length === 0) return;
 
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
+            voiceSelect.innerHTML = '';
+            
+            voices.sort((a, b) => {
+                const aname = a.name.toUpperCase();
+                const bname = b.name.toUpperCase();
+                if (aname < bname) return -1;
+                else if (aname == bname) return 0;
+                else return +1;
+            });
 
-            const btn = document.activeElement; 
-            if(btn && btn.classList.contains('play-mini')) btn.innerText = "⏳"; 
+            voices.forEach((voice) => {
+                if(voice.lang.includes('en')) {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    
+                    if (voice.name === savedVoiceName) {
+                        option.selected = true;
+                    }
+                    voiceSelect.appendChild(option);
+                }
+            });
+        }
 
-            const rate = document.getElementById(`speed-${index}`) ? document.getElementById(`speed-${index}`).value : "1.0";
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanText)}&tl=en-US&client=gtx`;
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Erro Rede");
-                const arrayBuffer = await response.arrayBuffer();
+        function saveGlobalVoice() {
+            const select = document.getElementById('global-voice-select');
+            localStorage.setItem('englishAppGlobalVoiceName', select.value);
+        }
 
-                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                const source = audioCtx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.playbackRate.value = parseFloat(rate);
-                source.connect(audioCtx.destination);
-                source.start(0);
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            let c = t.replace(/[*#~^]/g, '');
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
+            return c.trim();
+        }
 
-                const duration = audioBuffer.duration / source.playbackRate.value;
-                if(btn && btn.classList.contains('play-mini')) btn.innerText = "🔊";
-                setTimeout(() => { if(btn && btn.classList.contains('play-mini')) btn.innerText = "🔈"; }, duration * 1000);
+        function speakText(text, index) {
+            const clean = cleanTextForAudio(text);
+            if (!clean) return;
 
-            } catch (e) {
-                const audio = new Audio(url);
-                audio.playbackRate = parseFloat(rate);
-                audio.play();
-                if(btn && btn.classList.contains('play-mini')) btn.innerText = "🔈";
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const rate = document.getElementById(`speed-${index}`).value;
+                const u = new SpeechSynthesisUtterance(clean);
+                
+                const selectedVoiceName = document.getElementById('global-voice-select').value;
+                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+
+                if (selectedVoice) {
+                    u.voice = selectedVoice;
+                    u.lang = selectedVoice.lang;
+                } else {
+                    const fallback = voices.find(v => v.lang.startsWith('en'));
+                    if(fallback) u.voice = fallback;
+                }
+
+                u.rate = parseFloat(rate);
+                window.speechSynthesis.speak(u);
             }
         }
 
@@ -327,7 +368,7 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI (CORRIGIDO) ---
+        // --- GERADOR DE EXEMPLOS GEMINI FIX ---
         let currentExampleTerm = "";
         async function openExampleModal(element) {
             const rawText = element.innerText;
@@ -339,11 +380,11 @@
             modal.style.display = 'flex';
             
             if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos inteligentes.</div>`;
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
                 return;
             }
 
-            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos úteis para: <b>"${term}"</b>...</div>`;
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplos para: <b>"${term}"</b>...</div>`;
             await fetchAndRenderGeminiExamples(term, content, false);
         }
 
@@ -358,8 +399,8 @@
                 Diretriz de Simplicidade: não busque apenas frases básicas demais. Quero, ao invés disso, frases úteis para comunicação no dia a dia ou profissional (mesmo que algumas tenham vocabulário médio/avançado). Quero o equilíbrio.
                 Responda APENAS com um array JSON válido, sem markdown, contendo chaves "en" (inglês) e "pt" (tradução). Exemplo de formato: [{"en": "frase 1", "pt": "traducao 1"}]`;
 
-                // URL CORRIGIDA PARA GARANTIR FUNCIONAMENTO (1.5 Flash Latest)
-                let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;
+                // URL CORRIGIDA: Forçando gemini-1.5-flash (Mais estável e rápido)
+                let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
                 
                 let response = await fetch(fetchUrl, {
                     method: 'POST',
@@ -371,19 +412,6 @@
                 });
 
                 let data = await response.json();
-                
-                // Fallback de Segurança se a API bloquear o "latest" na região
-                if (data.error && data.error.code === 404) {
-                    fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
-                    response = await fetch(fetchUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    });
-                    data = await response.json();
-                }
 
                 if (data.error) throw new Error(data.error.message);
 
@@ -439,9 +467,7 @@
                 transDiv.style.display = 'none';
                 return;
             }
-            
             transDiv.style.display = 'block'; 
-            
             if (transDiv.innerText === "") {
                 transDiv.innerText = "⏳ Traduzindo linha...";
                 const res = await fetchTranslation(text);
@@ -466,13 +492,6 @@
             h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
             h = h.replace(/\^(.*?)\^/g, (m,p1) => wrap(p1, 'hl-bold'));
             return h;
-        }
-
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -601,7 +620,7 @@
                         <div class="phrases-area">${phrasesHtml}</div>
                         <div class="card-footer">
                             <div class="controls-group">
-                                <select id="speed-${index}" style="width:auto; padding: 4px; height: 30px; font-size:0.8rem;">
+                                <select id="speed-${index}" style="width:auto; padding: 4px; height: 30px; font-size:0.8rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); border-radius: 5px;">
                                     <option value="0.8">0.8x</option>
                                     <option value="1" selected>1.0x</option>
                                     <option value="1.1">1.1x</option>
@@ -716,13 +735,6 @@
                 return word;
             });
             return processed.join('');
-        }
-
-        function applyHighlight(i, s) {
-            const t = document.getElementById(`edit-phrase-${i}`);
-            const start = t.selectionStart; const end = t.selectionEnd;
-            if (start === end) return alert("Selecione texto!");
-            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
         async function fetchTranslation(text) {
