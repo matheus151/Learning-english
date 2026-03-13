@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.5 Multi-word Fix</title>
+    <title>English Pro - V38.6 Bug Fixes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -97,7 +97,7 @@
         .color-picker-wrapper { position: relative; width: 30px; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
         .color-picker-wrapper input[type="color"] { position: absolute; right: -8px; top: -8px; width: 50px; height: 50px; cursor: pointer; border: none; }
 
-        /* Destaques (Atualizado para expressões inteiras) */
+        /* Destaques */
         .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
         .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); }
@@ -162,14 +162,14 @@
 
     <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeExampleModal()">×</button>
+            <button type="button" class="modal-close" onclick="closeExampleModal()">×</button>
             <div id="modal-body"></div>
         </div>
     </div>
 
     <div class="nav-float">
-        <button class="nav-btn" onclick="scrollToTop()">⬆</button>
-        <button class="nav-btn" onclick="scrollToBottom()">⬇</button>
+        <button type="button" class="nav-btn" onclick="scrollToTop()">⬆</button>
+        <button type="button" class="nav-btn" onclick="scrollToBottom()">⬇</button>
     </div>
 
     <div class="header-container">
@@ -178,9 +178,9 @@
             <div class="color-picker-wrapper" title="Mudar Cor dos Cards">
                 <input type="color" id="card-bg-picker" onchange="changeCardBg(this.value)" value="#ffffff">
             </div>
-            <button class="font-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Modo Noturno">🌙</button>
-            <button class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
-            <button class="font-btn" onclick="changeFontSize(0.1)">A+</button>
+            <button type="button" class="font-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Modo Noturno">🌙</button>
+            <button type="button" class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
+            <button type="button" class="font-btn" onclick="changeFontSize(0.1)">A+</button>
         </div>
     </div>
 
@@ -206,23 +206,23 @@
             <label>Tradução</label>
             <textarea id="input-translation" rows="4" placeholder="..."></textarea>
         </div>
-        <button class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
-        <button id="add-btn" onclick="addCard()">Salvar Cartão</button>
+        <button type="button" class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
+        <button type="button" id="add-btn" onclick="addCard()">Salvar Cartão</button>
     </div>
 
     <div class="data-controls">
-        <button class="data-btn" onclick="downloadBackup()">💾 Backup</button>
-        <button class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
-        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
+        <button type="button" class="data-btn" onclick="downloadBackup()">💾 Backup</button>
+        <button type="button" class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
+        <button type="button" class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
         <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
     <div class="import-toggle">
-        <button class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+        <button type="button" class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
     </div>
     <div id="import-section">
         <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
-        <button id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
+        <button type="button" id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
     </div>
 
     <div id="card-container"></div>
@@ -233,7 +233,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_5';
+        const STORAGE_KEY = 'englishCardsFinalV38_6';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -378,7 +378,7 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI (CONTEXTO E BOTÕES) ---
+        // --- GERADOR DE EXEMPLOS GEMINI (COM CONTEXTO E BOTÕES CORRIGIDOS) ---
         let currentExampleTerm = "";
         let currentExampleContext = ""; 
 
@@ -451,21 +451,23 @@
                 
                 const examples = JSON.parse(jsonStr);
 
-                let html = isAppending ? "" : `<div class="modal-header">Exemplos: "${term}"</div><div id="examples-list">`;
+                let html = isAppending ? "" : `<div class="modal-header">Exemplos Contextuais: "${term}"</div><div id="examples-list">`;
                 
                 let baseId = Date.now() + Math.floor(Math.random() * 1000);
 
                 examples.forEach(ex => {
                     baseId++;
                     const transId = `ex-trans-${baseId}`;
+                    // Proteção contra quebra de aspas no HTML
+                    const safeEnText = ex.en.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
                     html += `
                         <div class="example-item">
                             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                                 <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
                                 <div style="display:flex; gap:5px; margin-left:10px;">
-                                    <button onclick="speakText('${ex.en.replace(/'/g, "\\'")}', 'modal')" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
-                                    <button onclick="toggleExTrans('${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
+                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
+                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
                                 </div>
                             </div>
                             <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
@@ -479,7 +481,7 @@
                     const btn = document.getElementById('load-more-btn');
                     if(btn){ btn.innerText = "➕ Gerar Mais"; btn.disabled = false; }
                 } else {
-                    html += `</div><button id="load-more-btn" onclick="loadMoreExamples()" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:8px; color:var(--text); font-weight:bold; margin-top:10px; cursor:pointer;">➕ Gerar Mais</button>`;
+                    html += `</div><button type="button" id="load-more-btn" onclick="event.preventDefault(); loadMoreExamples()" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:8px; color:var(--text); font-weight:bold; margin-top:10px; cursor:pointer;">➕ Gerar Mais</button>`;
                     container.innerHTML = html;
                 }
             } catch (e) {
@@ -526,13 +528,11 @@
             }
         }
 
-        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA (MODIFICADA) ---
+        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA ---
         function formatHighlight(t) {
             if(!t) return '';
             
-            // O segredo está aqui: envolve a string *inteira* no span clicável,
-            // ao invés de usar o 'granularWrap' que quebrava palavra por palavra.
-            const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
+            const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
             
             let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
             h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
@@ -643,13 +643,15 @@
                     if(line.trim() === "") return;
                     const display = formatHighlight(line);
                     const clean = cleanTextForAudio(line);
+                    // Proteção de aspas na chamada inline
+                    const safeCleanText = clean.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
                     phrasesHtml += `
                         <div class="line-container">
                             <div class="line-item">
-                                <button class="play-mini" onclick="speakText('${clean.replace(/'/g, "\\'")}', ${index})">🔈</button>
+                                <button type="button" class="play-mini" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeCleanText}', ${index})">🔈</button>
                                 <div class="line-text">${display}</div>
-                                <button class="trans-mini-btn" onclick="toggleLineTrans(${index}, ${lineIndex}, '${clean.replace(/'/g, "\\'")}')" title="Traduzir Linha">🌐</button>
+                                <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleLineTrans(${index}, ${lineIndex}, '${safeCleanText}')" title="Traduzir Linha">🌐</button>
                             </div>
                             <div id="line-trans-${index}-${lineIndex}" class="line-trans-area"></div>
                         </div>
@@ -658,7 +660,7 @@
 
                 let transContent = card.translation 
                     ? `<div class="translation-text">${card.translation}</div>`
-                    : `<button class="translate-action-btn" onclick="translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
+                    : `<button type="button" class="translate-action-btn" onclick="event.preventDefault(); translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
 
                 el.innerHTML = `
                     <div class="card-number">#${index + 1}</div>
@@ -674,37 +676,37 @@
                                     <option value="1.2">1.2x</option>
                                     <option value="1.5">1.5x</option>
                                 </select>
-                                <button class="play-all-btn" onclick="speakAll(${index})">▶ Ouvir</button>
+                                <button type="button" class="play-all-btn" onclick="event.preventDefault(); speakAll(${index})">▶ Ouvir</button>
                             </div>
                             <div class="footer-actions">
-                                <button class="action-btn-small" onclick="enableEditMode(${index})" title="Editar">✏️</button>
-                                <button class="action-btn-small delete" onclick="deleteCard(${index})" title="Excluir">🗑️</button>
+                                <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar">✏️</button>
+                                <button type="button" class="action-btn-small delete" onclick="event.preventDefault(); deleteCard(${index})" title="Excluir">🗑️</button>
                             </div>
                         </div>
-                        <button class="toggle-btn" onclick="toggleDetails(this)">👁️ Ver Tradução Geral</button>
+                        <button type="button" class="toggle-btn" onclick="event.preventDefault(); toggleDetails(this)">👁️ Ver Tradução Geral</button>
                         <div class="details-area">${transContent}</div>
                     </div>
 
                     <div id="edit-mode-${index}" style="display:none;">
                         <div class="edit-toolbar">
-                            <button class="color-btn btn-smart" id="btn-smart-${index}" onclick="autoSmartMark(${index})">🔗 Auto Smart</button>
+                            <button type="button" class="color-btn btn-smart" id="btn-smart-${index}" onclick="event.preventDefault(); autoSmartMark(${index})">🔗 Auto Smart</button>
                             <span style="color:var(--border)">|</span>
-                            <button class="color-btn btn-blue" onclick="applyHighlight(${index}, '*')">Blue</button>
-                            <button class="color-btn btn-red" onclick="applyHighlight(${index}, '#')">Red</button>
-                            <button class="color-btn btn-lilac" onclick="applyHighlight(${index}, '~')">Lilac</button>
-                            <button class="color-btn btn-bold" onclick="applyHighlight(${index}, '^')">Bold</button>
+                            <button type="button" class="color-btn btn-blue" onclick="event.preventDefault(); applyHighlight(${index}, '*')">Blue</button>
+                            <button type="button" class="color-btn btn-red" onclick="event.preventDefault(); applyHighlight(${index}, '#')">Red</button>
+                            <button type="button" class="color-btn btn-lilac" onclick="event.preventDefault(); applyHighlight(${index}, '~')">Lilac</button>
+                            <button type="button" class="color-btn btn-bold" onclick="event.preventDefault(); applyHighlight(${index}, '^')">Bold</button>
                         </div>
                         <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <button class="color-btn btn-secondary" onclick="toggleTransEdit(${index})" style="flex:1;">📝 Ver Tradução</button>
-                            <button class="color-btn btn-secondary" onclick="updateTranslationInEdit(${index})" style="flex:1;">✨ Auto Traduzir</button>
+                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Ver Tradução</button>
+                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); updateTranslationInEdit(${index})" style="flex:1;">✨ Auto Traduzir</button>
                         </div>
                         <div id="edit-trans-wrapper-${index}" style="display:none;">
                             <textarea id="edit-trans-${index}" rows="5" class="edit-mode-area"></textarea>
                         </div>
                         <div style="display:flex; gap:10px; margin-top:10px;">
-                            <button class="save-btn" onclick="saveEdit(${index})">Salvar</button>
-                            <button class="cancel-btn" onclick="cancelEdit(${index})">Cancelar</button>
+                            <button type="button" class="save-btn" onclick="event.preventDefault(); saveEdit(${index})">Salvar</button>
+                            <button type="button" class="cancel-btn" onclick="event.preventDefault(); cancelEdit(${index})">Cancelar</button>
                         </div>
                     </div>
                 `;
