@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V39.0 Enhanced</title>
+    <title>English Pro - V39.2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -97,6 +97,11 @@
         .color-picker-wrapper { position: relative; width: 30px; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
         .color-picker-wrapper input[type="color"] { position: absolute; right: -8px; top: -8px; width: 50px; height: 50px; cursor: pointer; border: none; }
 
+        /* Barra de Pesquisa */
+        .search-bar-wrapper { margin-bottom: 15px; }
+        .search-bar-wrapper input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-family: inherit;}
+        .search-bar-wrapper input:focus { border-color: var(--primary); outline: none; }
+
         /* Destaques */
         .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
@@ -111,7 +116,7 @@
         .input-group h3 { margin-top: 0; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; }
         .input-row { margin-bottom: 12px; }
         button#add-btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; width: 100%; font-size: 1rem; margin-top: 5px; cursor: pointer;}
-        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; cursor: pointer; }
+        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; flex: 1; }
         
         .data-controls { display: flex; gap: 5px; margin-bottom: 20px; background: #334155; padding: 8px; border-radius: 8px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
         .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer;}
@@ -121,36 +126,9 @@
         .import-link { color: var(--text-muted); font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
         #import-section { display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px dashed var(--border); margin-bottom: 25px; }
 
-        /* Search Bar */
-        .search-bar-container { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
-        .search-input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.95rem; }
-        .search-input::placeholder { color: var(--text-muted); }
-        .search-clear-btn { background: var(--bg); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--text); font-weight: 600; }
-        .no-results { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-
-        /* Audio Recording */
-        .audio-recording-section { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
-        .audio-recording-section h3 { margin-top: 0; color: var(--text); font-size: 1rem; margin-bottom: 10px; }
-        .audio-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-        .record-btn, .stop-record-btn, .save-audio-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-        .stop-record-btn { background: #ef4444; }
-        .save-audio-btn { background: #10b981; }
-        .audio-status { color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; }
-        .recording-indicator { display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; margin-right: 5px; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        /* AI Examples Generation */
-        .generate-examples-btn { background: #f59e0b; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; margin-top: 10px; width: 100%; }
-        .examples-container { background: var(--bg); padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border); }
-        .generated-example { background: var(--card-bg); padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #f59e0b; color: var(--text); }
-        .generated-example-text { margin-bottom: 8px; font-size: 0.95rem; line-height: 1.4; }
-        .example-save-btn { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
-
         /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 15px; }
         .card { background: var(--custom-card-bg); padding: 20px 15px; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); border-left-width: 5px; border-left-style: solid; animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; padding-top: 30px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);}
-        .card.highlight-search { box-shadow: 0 0 0 3px var(--primary), 0 1px 5px rgba(0,0,0,0.1); animation: highlightPulse 0.6s ease-out; }
-        @keyframes highlightPulse { 0% { box-shadow: 0 0 0 5px var(--primary), 0 1px 5px rgba(0,0,0,0.1); } 100% { box-shadow: 0 0 0 3px var(--primary), 0 1px 5px rgba(0,0,0,0.1); } }
         .card-number { position: absolute; top: 8px; left: 10px; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; background: var(--bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);}
         
         .line-container { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
@@ -169,504 +147,482 @@
         .footer-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
         .action-btn-small.delete { color: #ef4444; }
-        .action-btn-small.generate-ai { color: #f59e0b; }
+        .action-btn-small.add-example { color: #10b981; }
         
-        .toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; width: 100%; padding: 8px; font-size: 0.9rem; text-align: left; }
-        .toggle-btn:hover { color: var(--text); }
-        .details-area { display: none; }
+        .toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
+        .details-area { display: none; background-color: var(--trans-bg); padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--trans-border); }
         .details-area.visible { display: block; }
-        .translation-text { background: var(--bg); padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary); color: var(--text); font-style: italic; font-size: 0.95rem; line-height: 1.5; }
+        .translation-text { color: #16a34a; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
 
-        /* Edit Mode */
-        #edit-mode-0 { display: none; }
-        .edit-toolbar { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-        .color-btn { background: var(--bg); border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; color: var(--text); }
-        .btn-smart { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); color: var(--primary); }
-        .btn-blue { background: rgba(2, 132, 199, 0.1); border-color: #0284c7; color: #0284c7; }
-        .btn-red { background: rgba(220, 38, 38, 0.1); border-color: #dc2626; color: #dc2626; }
-        .btn-lilac { background: rgba(147, 51, 234, 0.1); border-color: #9333ea; color: #9333ea; }
-        .btn-bold { background: rgba(0, 0, 0, 0.1); border-color: #000; color: #000; }
-        .btn-secondary { background: rgba(100, 116, 139, 0.1); border-color: #64748b; color: #64748b; }
-        .edit-mode-area { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 0.95rem; resize: vertical; }
-        .save-btn { background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; flex: 1; }
-        .cancel-btn { background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; flex: 1; }
+        .edit-mode-area { background: var(--input-bg); color: var(--text); padding: 10px; border-radius: 8px; border: 2px solid var(--border); margin-bottom: 10px; line-height: 1.6; font-size: 16px; width: 100%; box-sizing: border-box; }
+        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+        .color-btn { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: var(--bg); color: var(--text); }
+        .btn-smart { background: var(--text); color: var(--bg); border: none; }
+        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
+        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
 
-        /* Dark Mode Toggle */
-        .dark-mode-toggle { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-
-        /* Responsivo */
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            h1 { font-size: 1.2rem; }
-            .header-container { flex-direction: column; gap: 10px; }
-            .font-controls { width: 100%; }
-            .data-controls { flex-direction: column; }
-            .data-btn { width: 100%; justify-content: center; }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
+    <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
+        <div class="modal-content">
+            <button type="button" class="modal-close" onclick="closeExampleModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div class="nav-float">
+        <button type="button" class="nav-btn" onclick="scrollToTop()">⬆</button>
+        <button type="button" class="nav-btn" onclick="scrollToBottom()">⬇</button>
+    </div>
+
     <div class="header-container">
-        <h1>English Pro</h1>
-        <div style="display:flex; gap:8px; align-items:center;">
-            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
-            <div class="font-controls">
-                <button class="font-btn" onclick="changeFontSize(-0.1)">A−</button>
-                <button class="font-btn" onclick="changeFontSize(0.1)">A+</button>
+        <h1>🇬🇧 English Pro</h1>
+        <div class="font-controls">
+            <div class="color-picker-wrapper" title="Mudar Cor dos Cards">
+                <input type="color" id="card-bg-picker" onchange="changeCardBg(this.value)" value="#ffffff">
             </div>
+            <button type="button" class="font-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Modo Noturno">🌙</button>
+            <button type="button" class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
+            <button type="button" class="font-btn" onclick="changeFontSize(0.1)">A+</button>
         </div>
     </div>
 
-    <!-- SEARCH BAR -->
-    <div class="search-bar-container">
-        <input type="text" class="search-input" id="search-input" placeholder="🔍 Pesquisar termo..." onkeyup="handleSearch()">
-        <button class="search-clear-btn" onclick="clearSearch()">Limpar</button>
-    </div>
-
-    <!-- AUDIO RECORDING SECTION -->
-    <div class="audio-recording-section">
-        <h3>🎙️ Gravar Termo em Português</h3>
-        <div class="audio-controls">
-            <button class="record-btn" id="record-btn" onclick="startRecording()">● Gravar</button>
-            <button class="stop-record-btn" id="stop-btn" onclick="stopRecording()" style="display:none;">⏹ Parar</button>
-            <button class="save-audio-btn" id="save-audio-btn" onclick="saveAudioTerm()" style="display:none;">✓ Salvar Termo</button>
-        </div>
-        <div class="audio-status" id="audio-status"></div>
-    </div>
-
-    <!-- CONFIGURAÇÕES GEMINI -->
-    <div class="gemini-config-area">
-        <label for="gemini-api-key">🔑 Chave API Gemini (para gerar exemplos):</label>
-        <input type="password" id="gemini-api-key" placeholder="Cole sua chave API do Gemini aqui" value="">
-        <small style="color: var(--text-muted); display: block; margin-top: 5px;">A chave será salva localmente no seu navegador.</small>
-    </div>
-
-    <!-- SELETOR DE VOZ -->
     <div class="voice-config-area">
-        <label for="voice-select">🗣️ Voz para Pronúncia:</label>
-        <select id="voice-select">
-            <option value="">Voz padrão do sistema</option>
+        <label>📢 Escolher Voz do Sistema:</label>
+        <select id="global-voice-select" onchange="saveGlobalVoice()">
+            <option value="">Carregando vozes...</option>
         </select>
     </div>
 
-    <!-- FORMULÁRIO DE ADIÇÃO -->
+    <div class="gemini-config-area">
+        <label>✨ Chave API Gemini (Exemplos Mágicos):</label>
+        <input type="password" id="gemini-key-input" placeholder="Cole sua chave sk-..." onchange="saveGeminiKey()">
+    </div>
+
     <div class="input-group">
-        <h3>✏️ Adicionar Novo Termo</h3>
-        <div class="input-row">
-            <label style="color: var(--text); font-weight: 600; margin-bottom: 5px; display: block;">Termo em Inglês:</label>
-            <textarea id="input-phrase" rows="4" placeholder="Exemplo:&#10;^to break down^&#10;Example: The company decided to *break down* the project into smaller tasks.&#10;Another example: We need to #break down# the complex problem into manageable parts."></textarea>
+        <h3>Nova Entrada</h3>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <button type="button" id="mic-btn" onclick="startDictation()" style="background-color: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; flex: 1;">🎤 Áudio (PT)</button>
+            <button type="button" class="translate-action-btn" onclick="translateForm()" style="margin-bottom: 0;">🪄 Traduzir</button>
         </div>
         <div class="input-row">
-            <label style="color: var(--text); font-weight: 600; margin-bottom: 5px; display: block;">Tradução (opcional):</label>
-            <textarea id="input-translation" rows="3" placeholder="Tradução em português..."></textarea>
+            <label>Frases em Inglês</label>
+            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto... Use ==texto== para destacar"></textarea>
         </div>
-        <button id="add-btn" onclick="addCard()">➕ Adicionar Cartão</button>
-        <button class="generate-examples-btn" onclick="generateExamplesFromInput()">✨ Gerar Exemplos com IA</button>
+        <div class="input-row">
+            <label>Tradução</label>
+            <textarea id="input-translation" rows="4" placeholder="..."></textarea>
+        </div>
+        <button type="button" id="add-btn" onclick="addCard()">Salvar Cartão</button>
     </div>
 
-    <!-- CONTROLES DE DADOS -->
     <div class="data-controls">
-        <button class="data-btn" onclick="downloadBackup()">⬇️ Backup</button>
-        <button class="data-btn" onclick="document.getElementById('file-input').click()">⬆️ Restaurar</button>
-        <input type="file" id="file-input" onchange="restoreBackup(this)">
-        <button class="data-btn" onclick="toggleImportArea()">📥 Importar</button>
-        <button class="data-btn btn-danger" onclick="clearAllData()">🗑️ Limpar Tudo</button>
+        <button type="button" class="data-btn" onclick="downloadBackup()">💾 Backup</button>
+        <button type="button" class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
+        <button type="button" class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
+        <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
-    <!-- ÁREA DE IMPORTAÇÃO -->
+    <div class="import-toggle">
+        <button type="button" class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+    </div>
     <div id="import-section">
-        <h3 style="margin-top: 0; color: var(--text);">Importar Cartões em Lote</h3>
-        <textarea id="import-area" rows="8" placeholder="Cole os cartões aqui (separados por linhas em branco)..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-family: inherit; box-sizing: border-box;"></textarea>
-        <button class="save-btn" onclick="processBulkImport()" style="width: 100%; margin-top: 10px;">Importar</button>
+        <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
+        <button type="button" id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
     </div>
 
-    <!-- CONTAINER DE CARTÕES -->
+    <div class="search-bar-wrapper">
+        <input type="text" id="search-input" placeholder="🔍 Pesquisar cartões (inglês ou tradução)..." oninput="renderCards()">
+    </div>
+
     <div id="card-container"></div>
 
-    <!-- MODAL DE EXEMPLOS -->
-    <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeExampleModal()">✕</button>
-            <div class="modal-header">Exemplos de Uso</div>
-            <div id="example-modal-body"></div>
-        </div>
-    </div>
-
-    <!-- BOTÕES FLUTUANTES DE NAVEGAÇÃO -->
-    <div class="nav-float">
-        <button class="nav-btn" onclick="scrollToTop()" title="Topo">⬆️</button>
-        <button class="nav-btn" onclick="scrollToBottom()" title="Fim">⬇️</button>
-    </div>
-
     <script>
-        const STORAGE_KEY = 'englishAppCards';
         let cards = [];
-        let currentFontSize = 1.15;
-        let mediaRecorder;
-        let audioChunks = [];
-        let recordedAudioBlob = null;
-        let recordedAudioTranscription = null;
+        let voices = [];
+        let currentFontSize = 1.15; 
         
-        const borderColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+        const STORAGE_KEY = 'englishCardsFinalV39_2';
 
-        // --- INICIALIZAÇÃO ---
-        window.addEventListener('load', () => {
-            loadCards();
-            populateVoices();
-            loadGeminiApiKey();
-            window.speechSynthesis.onvoiceschanged = populateVoices;
-        });
-
-        // --- DARK MODE ---
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        }
-        
-        if (localStorage.getItem('darkMode') === 'true') {
+        // --- SISTEMA DE TEMAS E CORES ---
+        let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
+        if(isDarkMode) {
             document.body.classList.add('dark-mode');
+            document.getElementById('theme-toggle-btn').innerText = '☀️';
         }
 
-        // --- GEMINI API KEY ---
-        function loadGeminiApiKey() {
-            const saved = localStorage.getItem('geminiApiKey');
-            if (saved) document.getElementById('gemini-api-key').value = saved;
-        }
-
-        function saveGeminiApiKey() {
-            const key = document.getElementById('gemini-api-key').value.trim();
-            if (key) localStorage.setItem('geminiApiKey', key);
-        }
-
-        document.getElementById('gemini-api-key').addEventListener('blur', saveGeminiApiKey);
-
-        // --- GRAVAÇÃO DE ÁUDIO ---
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                
-                mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-                mediaRecorder.onstop = () => {
-                    recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                };
-                
-                mediaRecorder.start();
-                document.getElementById('record-btn').style.display = 'none';
-                document.getElementById('stop-btn').style.display = 'inline-block';
-                document.getElementById('audio-status').innerHTML = '<span class="recording-indicator"></span>Gravando...';
-            } catch (error) {
-                alert('Erro ao acessar microfone: ' + error.message);
-            }
-        }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                document.getElementById('stop-btn').style.display = 'none';
-                document.getElementById('save-audio-btn').style.display = 'inline-block';
-                document.getElementById('audio-status').innerHTML = '✓ Áudio gravado. Clique em "Salvar Termo" para processar.';
-            }
-        }
-
-        async function saveAudioTerm() {
-            if (!recordedAudioBlob) {
-                alert('Nenhum áudio gravado.');
-                return;
-            }
-
-            document.getElementById('audio-status').innerHTML = '⏳ Transcrevendo áudio...';
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('englishAppDarkMode', isDarkMode);
+            document.getElementById('theme-toggle-btn').innerText = isDarkMode ? '☀️' : '🌙';
             
-            try {
-                // Usar Web Speech API para transcrição (português)
-                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.lang = 'pt-BR';
-                
-                const audioUrl = URL.createObjectURL(recordedAudioBlob);
-                const audio = new Audio(audioUrl);
-                
-                // Alternativa: usar manus-speech-to-text se disponível
-                // Por enquanto, vamos usar uma abordagem simplificada
-                
-                // Simular transcrição (em produção, usar API real)
-                recordedAudioTranscription = prompt('Digite o termo em português que foi gravado:');
-                
-                if (!recordedAudioTranscription) {
-                    document.getElementById('audio-status').innerHTML = 'Cancelado.';
-                    return;
-                }
-
-                document.getElementById('audio-status').innerHTML = '⏳ Traduzindo para inglês...';
-                
-                // Traduzir para inglês
-                const translatedTerm = await fetchTranslation(recordedAudioTranscription);
-                
-                document.getElementById('input-phrase').value = `^${translatedTerm}^`;
-                document.getElementById('audio-status').innerHTML = `✓ Traduzido: "${translatedTerm}". Agora adicione exemplos e salve.`;
-                
-                // Limpar
-                document.getElementById('record-btn').style.display = 'inline-block';
-                document.getElementById('save-audio-btn').style.display = 'none';
-                recordedAudioBlob = null;
-                
-            } catch (error) {
-                document.getElementById('audio-status').innerHTML = '✗ Erro ao processar áudio: ' + error.message;
+            if(isDarkMode) {
+                document.documentElement.style.setProperty('--custom-card-bg', 'var(--card-bg)');
+            } else {
+                const savedColor = localStorage.getItem('englishAppCardBg');
+                if(savedColor) document.documentElement.style.setProperty('--custom-card-bg', savedColor);
             }
         }
 
-        // --- GERAÇÃO DE EXEMPLOS COM GEMINI ---
-        async function generateExamplesFromInput() {
-            const phraseText = document.getElementById('input-phrase').value.trim();
-            if (!phraseText) {
-                alert('Digite um termo primeiro.');
-                return;
+        let customCardBg = localStorage.getItem('englishAppCardBg');
+        if (customCardBg) {
+            document.getElementById('card-bg-picker').value = customCardBg;
+            if(!isDarkMode) document.documentElement.style.setProperty('--custom-card-bg', customCardBg);
+        }
+
+        function changeCardBg(color) {
+            localStorage.setItem('englishAppCardBg', color);
+            if(!isDarkMode) {
+                document.documentElement.style.setProperty('--custom-card-bg', color);
+            } else {
+                alert("Cor salva! Ela será aplicada quando você voltar ao Modo Claro.");
             }
+        }
 
-            const apiKey = document.getElementById('gemini-api-key').value.trim();
-            if (!apiKey) {
-                alert('Configure sua chave API do Gemini primeiro.');
-                return;
-            }
+        // --- GEMINI API KEY SETUP ---
+        let geminiApiKey = localStorage.getItem('englishAppGeminiKey') || '';
+        document.getElementById('gemini-key-input').value = geminiApiKey;
 
-            const btn = event.target;
-            btn.disabled = true;
-            btn.innerText = '⏳ Gerando exemplos...';
+        function saveGeminiKey() {
+            geminiApiKey = document.getElementById('gemini-key-input').value.trim();
+            localStorage.setItem('englishAppGeminiKey', geminiApiKey);
+        }
 
-            try {
-                const mainTerm = phraseText.replace(/[\^*#~]/g, '').split('\n')[0].trim();
-                
-                const prompt = `Você é um especialista em ensino de inglês. Analise o termo em inglês: "${mainTerm}"
-
-Se for um verbo frasal (phrasal verb), gere 2 exemplos com significados semelhantes em inglês, com a estrutura:
-- Exemplo: [frase em inglês]
-- Outro exemplo: [frase em inglês]
-
-Se for um verbo comum, gere 2 exemplos com significados semelhantes.
-
-Se for outro tipo de palavra, gere 2 exemplos de uso em contexto.
-
-Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exato acima.`;
-
-                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: prompt }]
-                        }]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro na API Gemini: ' + response.statusText);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = entry.target.id.replace('card-', '');
+                    localStorage.setItem('englishAppLastPos', index);
                 }
+            });
+        }, { threshold: 0.6 });
 
-                const data = await response.json();
-                const generatedText = data.contents[0].parts[0].text;
-                
-                // Processar exemplos gerados
-                const lines = generatedText.split('\n').filter(l => l.trim());
-                let examplesFormatted = '';
-                
-                lines.forEach(line => {
-                    if (line.includes('Exemplo:') || line.includes('Outro exemplo:')) {
-                        examplesFormatted += line.replace('Exemplo:', '==').replace('Outro exemplo:', '==') + '\n';
+        // --- SISTEMA DE VOZ MANUAL RESTAURADO ---
+        function populateVoiceList() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('global-voice-select');
+            
+            if (voices.length === 0) return;
+
+            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
+            voiceSelect.innerHTML = '';
+            
+            voices.sort((a, b) => {
+                const aname = a.name.toUpperCase();
+                const bname = b.name.toUpperCase();
+                if (aname < bname) return -1;
+                else if (aname == bname) return 0;
+                else return +1;
+            });
+
+            voices.forEach((voice) => {
+                if(voice.lang.includes('en')) {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    
+                    if (voice.name === savedVoiceName) {
+                        option.selected = true;
                     }
-                });
-
-                if (examplesFormatted) {
-                    const currentPhrase = document.getElementById('input-phrase').value;
-                    document.getElementById('input-phrase').value = currentPhrase + '\n' + examplesFormatted;
-                    alert('✓ Exemplos gerados com sucesso!');
-                } else {
-                    alert('Não foi possível gerar exemplos. Tente novamente.');
-                }
-
-            } catch (error) {
-                alert('Erro ao gerar exemplos: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = '✨ Gerar Exemplos com IA';
-            }
-        }
-
-        // --- GERAÇÃO DE EXEMPLOS PARA CARD INDIVIDUAL ---
-        async function generateExamplesForCard(cardIndex) {
-            const apiKey = document.getElementById('gemini-api-key').value.trim();
-            if (!apiKey) {
-                alert('Configure sua chave API do Gemini primeiro.');
-                return;
-            }
-
-            const card = cards[cardIndex];
-            const phraseText = card.phrase;
-            const mainTerm = phraseText.replace(/[\^*#~]/g, '').split('\n')[0].trim();
-
-            if (!mainTerm) {
-                alert('Termo inválido.');
-                return;
-            }
-
-            // Encontrar o botão e mostrar status
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = '⏳';
-
-            try {
-                const prompt = `Você é um especialista em ensino de inglês. Analise o termo em inglês: "${mainTerm}"
-
-Se for um verbo frasal (phrasal verb), gere 2 exemplos com significados semelhantes em inglês, com a estrutura:
-- Exemplo: [frase em inglês]
-- Outro exemplo: [frase em inglês]
-
-Se for um verbo comum, gere 2 exemplos com significados semelhantes.
-
-Se for outro tipo de palavra, gere 2 exemplos de uso em contexto.
-
-Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exato acima.`;
-
-                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: prompt }]
-                        }]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro na API Gemini: ' + response.statusText);
-                }
-
-                const data = await response.json();
-                const generatedText = data.contents[0].parts[0].text;
-                
-                // Processar exemplos gerados
-                const lines = generatedText.split('\n').filter(l => l.trim());
-                let examplesFormatted = '';
-                
-                lines.forEach(line => {
-                    if (line.includes('Exemplo:') || line.includes('Outro exemplo:')) {
-                        examplesFormatted += line.replace('Exemplo:', '==').replace('Outro exemplo:', '==') + '\n';
-                    }
-                });
-
-                if (examplesFormatted) {
-                    // Adicionar exemplos ao card
-                    cards[cardIndex].phrase = phraseText + '\n' + examplesFormatted;
-                    saveCards();
-                    renderCards();
-                    alert('✓ Exemplos adicionados com sucesso!');
-                } else {
-                    alert('Não foi possível gerar exemplos. Tente novamente.');
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }
-
-            } catch (error) {
-                alert('Erro ao gerar exemplos: ' + error.message);
-                btn.disabled = false;
-                btn.innerText = originalText;
-            }
-        }
-
-        // --- BUSCA E LOCALIZAÇÃO ---
-        let currentSearchResults = [];
-        let currentSearchIndex = 0;
-
-        function handleSearch() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
-            const container = document.getElementById('card-container');
-            const cards = container.querySelectorAll('.card');
-            
-            currentSearchResults = [];
-            
-            if (!searchTerm) {
-                cards.forEach(card => card.classList.remove('highlight-search'));
-                return;
-            }
-
-            cards.forEach((card, index) => {
-                const text = card.innerText.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    currentSearchResults.push(card);
-                    card.classList.add('highlight-search');
-                } else {
-                    card.classList.remove('highlight-search');
+                    voiceSelect.appendChild(option);
                 }
             });
-
-            if (currentSearchResults.length > 0) {
-                currentSearchResults[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
         }
 
-        function clearSearch() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('card-container').querySelectorAll('.card').forEach(card => {
-                card.classList.remove('highlight-search');
-            });
-            currentSearchResults = [];
+        populateVoiceList();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
-        // --- VOZES ---
-        function populateVoices() {
-            const voices = window.speechSynthesis.getVoices();
-            const select = document.getElementById('voice-select');
-            select.innerHTML = '<option value="">Voz padrão do sistema</option>';
-            voices.forEach((voice, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.text = voice.name + (voice.default ? ' (padrão)' : '');
-                select.appendChild(option);
-            });
+        function saveGlobalVoice() {
+            const select = document.getElementById('global-voice-select');
+            localStorage.setItem('englishAppGlobalVoiceName', select.value);
         }
 
-        function cleanTextForAudio(text) {
-            return text.replace(/[\*#~\^]/g, '').replace(/==/g, '').trim();
+        function cleanTextForAudio(t) {
+            if(!t) return '';
+            let c = t.replace(/[*#~^]/g, '');
+            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
+            return c.trim();
         }
 
         function speakText(text, index) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voiceSelect = document.getElementById('voice-select');
-            const voiceIndex = voiceSelect.value;
-            
-            if (voiceIndex) {
-                const voices = window.speechSynthesis.getVoices();
-                utterance.voice = voices[voiceIndex];
+            const clean = cleanTextForAudio(text);
+            if (!clean) return;
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const rateElement = document.getElementById(`speed-${index}`);
+                const rate = rateElement ? rateElement.value : "1.0";
+
+                const u = new SpeechSynthesisUtterance(clean);
+                
+                const selectedVoiceName = document.getElementById('global-voice-select').value;
+                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+
+                if (selectedVoice) {
+                    u.voice = selectedVoice;
+                    u.lang = selectedVoice.lang;
+                } else {
+                    const fallback = voices.find(v => v.lang.startsWith('en'));
+                    if(fallback) u.voice = fallback;
+                }
+
+                u.rate = parseFloat(rate);
+                
+                // Feedback visual para modais (proteção iOS tela branca)
+                const btn = document.activeElement;
+                if(btn && index === 'modal') {
+                    // Sem alteração de innerText no iOS para evitar bugs, mas mantemos as callbacks por segurança
+                    u.onend = () => {};
+                    u.onerror = () => {};
+                }
+
+                window.speechSynthesis.speak(u);
             }
-            
-            const speedSelect = document.getElementById(`speed-${index}`);
-            if (speedSelect) {
-                utterance.rate = parseFloat(speedSelect.value);
-            }
-            
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
         }
 
         function speakAll(index) {
-            const card = cards[index];
-            const lines = card.phrase.split('\n').filter(l => l.trim());
-            let allText = lines.map(l => cleanTextForAudio(l)).join(' ');
-            speakText(allText, index);
+            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
+            speakText(clean, index);
         }
 
-        // --- MODAIS ---
-        function openExampleModal(element) {
-            const modalBody = document.getElementById('example-modal-body');
-            const text = element.innerText;
-            modalBody.innerHTML = `<div class="example-item">${text}</div>`;
-            document.getElementById('example-modal').style.display = 'flex';
+        // --- MICROFONE (ÁUDIO PT -> TEXTO EN) ---
+        async function startDictation() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Seu navegador não suporta gravação de áudio (Tente Safari/Chrome).");
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.innerText = "🔴 Gravando (Fale)...";
+
+            recognition.start();
+
+            recognition.onresult = async function(event) {
+                const ptText = event.results[0][0].transcript;
+                micBtn.innerText = "⏳ Traduzindo...";
+                
+                document.getElementById('input-translation').value = ptText; 
+                
+                try {
+                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(ptText)}&langpair=pt-BR|en-US`);
+                    const data = await res.json();
+                    if(data && data.responseData && data.responseData.translatedText) {
+                        document.getElementById('input-phrase').value = data.responseData.translatedText;
+                    }
+                } catch (e) {
+                    alert("Erro ao traduzir. O texto em PT foi salvo.");
+                }
+                micBtn.innerText = "🎤 Áudio (PT)";
+            };
+
+            recognition.onerror = function(event) {
+                alert("Erro no microfone: " + event.error);
+                micBtn.innerText = "🎤 Áudio (PT)";
+            };
+        }
+
+        // --- GERADOR DE EXEMPLOS GEMINI (MODAL) ---
+        let currentExampleTerm = "";
+        let currentExampleContext = ""; 
+
+        async function openExampleModal(element) {
+            const rawText = element.innerText;
+            const term = rawText.replace(/[.,!?;:]/g, '').trim();
+            currentExampleTerm = term;
+            
+            const parentLine = element.closest('.line-text');
+            currentExampleContext = parentLine ? parentLine.innerText.replace(/🔈|🌐|👁️/g, '').trim() : "";
+            
+            const modal = document.getElementById('example-modal');
+            const content = document.getElementById('modal-body');
+            modal.style.display = 'flex';
+            
+            if (!geminiApiKey) {
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
+                return;
+            }
+
+            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplo para: <b>"${term}"</b>...</div>`;
+            await fetchAndRenderGeminiExamples(term, currentExampleContext, content, false);
+        }
+
+        async function fetchAndRenderGeminiExamples(term, contextText, container, isAppending) {
+            try {
+                if(isAppending) {
+                    const btn = document.getElementById('load-more-btn');
+                    if(btn) { btn.innerText = "⏳ Gerando..."; btn.disabled = true; }
+                }
+
+                const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a expressão "${term}". 
+                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido ou contexto de uso.
+                Diretriz de Simplicidade: não busque apenas termos básicos demais. Quero o equilíbrio.
+                Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
+                [
+                    {"en": "frase em ingles 1", "pt": "traducao 1"}
+                ]`;
+
+                const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+                
+                let response = await fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.9 }
+                    })
+                });
+
+                let data = await response.json();
+
+                if (data.error && data.error.code === 404) {
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+                    response = await fetch(fallbackUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        })
+                    });
+                    data = await response.json();
+                }
+
+                if (data.error) throw new Error(data.error.message);
+
+                let jsonStr = data.candidates[0].content.parts[0].text;
+                jsonStr = jsonStr.replace(/```json/gi, '').replace(/```/gi, '').trim();
+                
+                const examples = JSON.parse(jsonStr);
+
+                let html = isAppending ? "" : `<div class="modal-header">Exemplos Contextuais: "${term}"</div><div id="examples-list">`;
+                let baseId = Date.now() + Math.floor(Math.random() * 1000);
+
+                examples.forEach(ex => {
+                    baseId++;
+                    const transId = `ex-trans-${baseId}`;
+                    const safeEnText = ex.en.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                    
+                    html += `
+                        <div class="example-item">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
+                                <div style="display:flex; gap:5px; margin-left:10px;">
+                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" style="background:var(--play-bg); color:var(--primary); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ouvir">🔈</button>
+                                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" style="background:var(--trans-bg); color:#16a34a; border:1px solid var(--trans-border); border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8rem;" title="Ocultar/Mostrar Tradução">👁️</button>
+                                </div>
+                            </div>
+                            <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
+                        </div>
+                    `;
+                });
+
+                if (isAppending) {
+                    const list = document.getElementById('examples-list');
+                    list.insertAdjacentHTML('beforeend', html);
+                    const btn = document.getElementById('load-more-btn');
+                    if(btn){ btn.innerText = "➕ Gerar Mais"; btn.disabled = false; }
+                } else {
+                    html += `</div><button type="button" id="load-more-btn" onclick="event.preventDefault(); loadMoreExamples()" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:8px; color:var(--text); font-weight:bold; margin-top:10px; cursor:pointer;">➕ Gerar Mais</button>`;
+                    container.innerHTML = html;
+                }
+            } catch (e) {
+                if (isAppending) {
+                     const btn = document.getElementById('load-more-btn');
+                     if(btn){ btn.innerText = "❌ Erro. Tentar de novo"; btn.disabled = false; }
+                } else {
+                     container.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Erro ao gerar exemplos: ${e.message}</div>`;
+                }
+            }
+        }
+
+        function loadMoreExamples() {
+            const content = document.getElementById('modal-body');
+            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
+        }
+
+        function toggleExTrans(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
         function closeExampleModal(e) {
             if (e && e.target !== document.getElementById('example-modal') && e.target !== document.querySelector('.modal-close')) return;
             document.getElementById('example-modal').style.display = 'none';
+        }
+
+        // --- GERAR EXEMPLOS EXTRAS DENTRO DO CARD (NOVO BOTÃO +) ---
+        async function generateCardExamples(index) {
+            if (!geminiApiKey) {
+                alert("Configure a Chave API do Gemini no topo primeiro.");
+                return;
+            }
+            
+            const card = cards[index];
+            const originalPhrase = card.phrase;
+            
+            const btn = document.querySelector(`#card-${index} .action-btn-small.add-example`);
+            if (btn) btn.innerText = "⏳";
+
+            // Prompt focado em obter significados equivalentes com base no termo central
+            const prompt = `Analise as frases a seguir: "${originalPhrase}". Identifique a expressão ou vocabulário central usado.
+            Gere 2 NOVAS frases curtas em inglês de exemplo que apliquem a mesma expressão central (ou que tenham um significado muito equivalente/semelhante).
+            Retorne APENAS as 2 frases em inglês geradas, separadas por uma quebra de linha. Nenhuma outra palavra, sem traduções e sem markdown.`;
+
+            try {
+                let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+                let response = await fetch(fetchUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.8 }
+                    })
+                });
+
+                let data = await response.json();
+
+                if (data.error && data.error.code === 404) {
+                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+                    response = await fetch(fallbackUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    data = await response.json();
+                }
+
+                if (data.error) throw new Error(data.error.message);
+
+                let newExamplesEn = data.candidates[0].content.parts[0].text.replace(/```/gi, '').trim();
+
+                // Pega a tradução para os novos exemplos gerados
+                let translatedExamples = await fetchTranslation(newExamplesEn);
+
+                // Concatena no card
+                cards[index].phrase += "\n\n" + newExamplesEn;
+                cards[index].translation += "\n\n" + translatedExamples;
+                
+                saveCards();
+                renderCards(); // Atualiza a visualização
+                
+            } catch (e) {
+                alert("Erro ao gerar novos exemplos no card.");
+                if (btn) btn.innerText = "➕";
+            }
         }
 
         // --- TRADUÇÃO DE LINHA ---
@@ -686,7 +642,7 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
             }
         }
 
-        // --- FORMATAÇÃO DE DESTAQUE ---
+        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA ---
         function formatHighlight(t) {
             if(!t) return '';
             
@@ -769,7 +725,7 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
             }
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) { cards = JSON.parse(saved); } 
-            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
+            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.", translation: "Exemplo", accent: 'US' }]; }
             renderCards();
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
@@ -781,25 +737,28 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
         }
         function saveCards() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const cardId = entry.target.id.replace('card-', '');
-                    localStorage.setItem('englishAppLastPos', cardId);
-                }
-            });
-        }, { threshold: 0.5 });
-
+        // --- RENDERIZAÇÃO COM FILTRO DE PESQUISA ---
         function renderCards() {
             const container = document.getElementById('card-container');
             container.innerHTML = '';
             
-            if (cards.length === 0) {
-                container.innerHTML = '<div class="no-results">Nenhum cartão adicionado ainda. Comece a adicionar termos!</div>';
-                return;
-            }
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+            let foundCount = 0;
             
             cards.forEach((card, index) => {
+                
+                // Aplica o filtro de pesquisa
+                if (searchTerm) {
+                    const phraseText = card.phrase.toLowerCase();
+                    const transText = card.translation.toLowerCase();
+                    if (!phraseText.includes(searchTerm) && !transText.includes(searchTerm)) {
+                        return; // Oculta se não bater com a busca
+                    }
+                }
+                
+                foundCount++;
+
                 const el = document.createElement('div');
                 el.className = 'card';
                 el.id = `card-${index}`;
@@ -850,7 +809,7 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
                                 <button type="button" class="play-all-btn" onclick="event.preventDefault(); speakAll(${index})">▶ Ouvir</button>
                             </div>
                             <div class="footer-actions">
-                                <button type="button" class="action-btn-small generate-ai" onclick="event.preventDefault(); generateExamplesForCard(${index})" title="Gerar Exemplos com IA">+</button>
+                                <button type="button" class="action-btn-small add-example" onclick="event.preventDefault(); generateCardExamples(${index})" title="Gerar Exemplos Semelhantes no Card">➕</button>
                                 <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar">✏️</button>
                                 <button type="button" class="action-btn-small delete" onclick="event.preventDefault(); deleteCard(${index})" title="Excluir">🗑️</button>
                             </div>
@@ -860,14 +819,6 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
                     </div>
 
                     <div id="edit-mode-${index}" style="display:none;">
-                        <div class="edit-toolbar">
-                            <button type="button" class="color-btn btn-smart" id="btn-smart-${index}" onclick="event.preventDefault(); autoSmartMark(${index})">🔗 Auto Smart</button>
-                            <span style="color:var(--border)">|</span>
-                            <button type="button" class="color-btn btn-blue" onclick="event.preventDefault(); applyHighlight(${index}, '*')">Blue</button>
-                            <button type="button" class="color-btn btn-red" onclick="event.preventDefault(); applyHighlight(${index}, '#')">Red</button>
-                            <button type="button" class="color-btn btn-lilac" onclick="event.preventDefault(); applyHighlight(${index}, '~')">Lilac</button>
-                            <button type="button" class="color-btn btn-bold" onclick="event.preventDefault(); applyHighlight(${index}, '^')">Bold</button>
-                        </div>
                         <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
                             <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Ver Tradução</button>
@@ -884,6 +835,10 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
                 `;
                 container.appendChild(el);
             });
+            
+            if (foundCount === 0 && cards.length > 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight: 600;">Nenhum cartão encontrado para "${searchTerm}".</div>`;
+            }
         }
 
         function enableEditMode(i) {
@@ -892,8 +847,8 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
             const pArea = document.getElementById(`edit-phrase-${i}`);
             const tArea = document.getElementById(`edit-trans-${i}`);
             document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
-            pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
-            tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
+            pArea.value = cards[i].phrase; 
+            tArea.value = cards[i].translation; 
         }
 
         function toggleTransEdit(index) {
@@ -911,58 +866,9 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
 
         function cancelEdit(i) { renderCards(); }
         function saveEdit(i) {
-            cards[i].phrase = normalizeFormatting(document.getElementById(`edit-phrase-${i}`).value); 
+            cards[i].phrase = document.getElementById(`edit-phrase-${i}`).value; 
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
-        }
-        
-        async function autoSmartMark(index) {
-            const textarea = document.getElementById(`edit-phrase-${index}`);
-            const btn = document.getElementById(`btn-smart-${index}`);
-            let text = textarea.value;
-            let lines = text.split('\n').filter(l => l.trim() !== '');
-            if (lines.length < 1) return;
-            const match = lines[0].match(/\^(.*?)\^/);
-            if (!match) { alert("Marque o termo principal em NEGRITO na linha 1 primeiro."); return; }
-            const term = match[1].replace(/[.,!?;:]/g, ''); 
-            const originalBtnText = btn.innerText;
-            btn.innerText = "⏳ Triangulando...";
-            btn.disabled = true;
-            try {
-                let keywords = [term];
-                const datamuseRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(term)}&max=10`);
-                const dmData = await datamuseRes.json();
-                dmData.forEach(i => keywords.push(i.word));
-                const ptRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(term)}&langpair=en|pt-BR`);
-                const ptData = await ptRes.json();
-                const words = term.split(/\s+/);
-                words.forEach(w => { if(w.length > 3) keywords.push(w); });
-                keywords = [...new Set(keywords.map(k => k.toLowerCase()))];
-                if (lines.length > 1) lines[1] = smartReplace(lines[1], keywords, '*');
-                if (lines.length > 2) lines[2] = smartReplace(lines[2], keywords, '#');
-                textarea.value = lines.join('\n\n');
-            } catch (error) { alert("Erro na análise."); } 
-            finally { btn.innerText = originalBtnText; btn.disabled = false; }
-        }
-
-        function smartReplace(sentence, keywords, symbol) {
-            let clean = sentence.replace(/[*#~]/g, '');
-            keywords.sort((a, b) => b.length - a.length);
-            const phraseWords = clean.split(/(\s+|[.,!?;:])/);
-            const processed = phraseWords.map(word => {
-                const wLow = word.toLowerCase();
-                const isMatch = keywords.some(k => (wLow.includes(k) && k.length>3) || (k.includes(wLow) && wLow.length>3));
-                if (isMatch && word.trim().length > 0) return `${symbol}${word}${symbol}`;
-                return word;
-            });
-            return processed.join('');
-        }
-
-        function applyHighlight(i, s) {
-            const t = document.getElementById(`edit-phrase-${i}`);
-            const start = t.selectionStart; const end = t.selectionEnd;
-            if (start === end) return alert("Selecione texto!");
-            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
         async function fetchTranslation(text) {
@@ -988,14 +894,14 @@ Responda APENAS com os exemplos, sem explicações adicionais. Use o formato exa
             const raw = document.getElementById('input-phrase').value.trim();
             const t = document.getElementById('input-translation').value.trim();
             if(!raw) return alert("Vazio!");
-            cards.unshift({ id: Date.now(), phrase: normalizeFormatting(raw), translation: t, accent: 'US' });
+            cards.unshift({ id: Date.now(), phrase: raw, translation: t, accent: 'US' });
             saveCards(); renderCards();
             document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
         }
 
         function processBulkImport() {
             document.getElementById('import-area').value.split(/\n\s*\n/).forEach(b=>{
-                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:normalizeFormatting(b.trim()), translation:"", accent:'US'});
+                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:b.trim(), translation:"", accent:'US'});
             });
             saveCards(); renderCards(); toggleImportArea();
         }
