@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V41 Ultimate</title>
+    <title>English Pro - V42 Ultimate API Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -102,7 +102,7 @@
         .search-bar-wrapper input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-family: inherit;}
         .search-bar-wrapper input:focus { border-color: var(--primary); outline: none; }
 
-        /* Destaques (Robusto para expressões) */
+        /* Destaques (Robusto para expressões e palavras) */
         .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
         .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); }
@@ -141,25 +141,27 @@
         .trans-mini-btn { background: var(--trans-bg); border: 1px solid var(--trans-border); color: #16a34a; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
         .line-trans-area { display: none; margin-left: 36px; margin-top: 5px; color: #16a34a; font-size: 0.95rem; font-style: italic; background: var(--trans-bg); padding: 8px 12px; border-radius: 8px; border: 1px dashed var(--trans-border); margin-right: 36px;}
 
-        /* Botões Rodapé */
+        /* Quick Format Toolbar */
+        .quick-toolbar { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: var(--bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
+        .quick-toolbar-title { font-size: 0.75rem; color: var(--text-muted); font-weight: bold; margin-right: 5px; }
+
         .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); gap: 5px; }
         .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
         .play-all-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer;}
         
+        /* Botões Rodapé */
         .footer-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
         .action-btn-small.delete { color: #ef4444; }
         .action-btn-small.add-example { color: #10b981; font-weight: bold; }
         
         .toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
-        .details-area { display: none; background: var(--trans-bg); padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--trans-border); }
+        .details-area { display: none; background-color: var(--trans-bg); padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--trans-border); }
         .details-area.visible { display: block; }
         .translation-text { color: #16a34a; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
 
         .edit-mode-area { background: var(--input-bg); color: var(--text); padding: 10px; border-radius: 8px; border: 2px solid var(--border); margin-bottom: 10px; line-height: 1.6; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
         .color-btn { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: var(--bg); color: var(--text); }
-        .btn-smart { background: var(--text); color: var(--bg); border: none; }
         .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
         .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
 
@@ -228,6 +230,14 @@
         <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
     </div>
 
+    <div class="import-toggle">
+        <button type="button" class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
+    </div>
+    <div id="import-section">
+        <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
+        <button type="button" id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
+    </div>
+
     <div class="search-bar-wrapper">
         <input type="text" id="search-input" placeholder="🔍 Pesquisar cartões (inglês ou tradução)..." oninput="renderCards()">
     </div>
@@ -240,7 +250,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV41';
+        const STORAGE_KEY = 'englishCardsFinalV42';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -296,33 +306,21 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ MANUAL RESTAURADO (BASE V38.8) ---
+        // --- SISTEMA DE VOZ MANUAL RESTAURADO ---
         function populateVoiceList() {
             voices = window.speechSynthesis.getVoices();
             const voiceSelect = document.getElementById('global-voice-select');
-            
             if (voices.length === 0) return;
-
             const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
             voiceSelect.innerHTML = '';
-            
-            voices.sort((a, b) => {
-                const aname = a.name.toUpperCase();
-                const bname = b.name.toUpperCase();
-                if (aname < bname) return -1;
-                else if (aname == bname) return 0;
-                else return +1;
-            });
+            voices.sort((a, b) => a.name.localeCompare(b.name));
 
             voices.forEach((voice) => {
                 if(voice.lang.includes('en')) {
                     const option = document.createElement('option');
                     option.textContent = `${voice.name} (${voice.lang})`;
                     option.value = voice.name;
-                    
-                    if (voice.name === savedVoiceName) {
-                        option.selected = true;
-                    }
+                    if (voice.name === savedVoiceName) option.selected = true;
                     voiceSelect.appendChild(option);
                 }
             });
@@ -351,12 +349,10 @@
 
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                
                 const rateElement = document.getElementById(`speed-${index}`);
                 const rate = rateElement ? rateElement.value : "1.0";
 
                 const u = new SpeechSynthesisUtterance(clean);
-                
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
                 const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
@@ -375,7 +371,6 @@
                     u.onend = () => {};
                     u.onerror = () => {};
                 }
-
                 window.speechSynthesis.speak(u);
             }
         }
@@ -389,7 +384,7 @@
         async function startDictation() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("Seu navegador não suporta gravação de áudio (Tente Safari/Chrome recentes).");
+                alert("Seu navegador não suporta gravação de áudio (Tente Safari/Chrome).");
                 return;
             }
             
@@ -399,7 +394,7 @@
             recognition.maxAlternatives = 1;
 
             const micBtn = document.getElementById('mic-btn');
-            micBtn.innerText = "🔴 Gravando (Fale)...";
+            micBtn.innerText = "🔴 Gravando...";
 
             recognition.start();
 
@@ -416,7 +411,7 @@
                         document.getElementById('input-phrase').value = data.responseData.translatedText;
                     }
                 } catch (e) {
-                    alert("Erro ao traduzir. Texto em PT foi salvo.");
+                    alert("Erro ao traduzir. Texto em PT salvo.");
                 }
                 micBtn.innerText = "🎤 Áudio (PT)";
             };
@@ -427,54 +422,41 @@
             };
         }
 
-        // --- CALL GEMINI UNIVERSAL ---
-        // Usa o payload exato que você provou que funciona na sua conta (gemini-2.5-flash / gemini-pro)
-        async function fetchGeminiAPI(promptText) {
-            let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+        // --- FUNÇÃO ÚNICA E BLINDADA DA API GEMINI (FIM DOS ERROS 404) ---
+        async function fetchGeminiAPI(promptText, temp = 0.8) {
+            if (!geminiApiKey) throw new Error("Chave API não configurada no topo da tela.");
+            
             let payload = {
                 contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.9 }
+                generationConfig: { temperature: temp }
             };
 
-            try {
-                let response = await fetch(fetchUrl, {
+            // Tenta primeiro o 1.5 flash (padrão mais estável atualmente)
+            let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+            let response = await fetch(fetchUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            let data = await response.json();
+
+            // Se der erro (ex: não suportado), cai para o 2.5 flash que você testou e funciona
+            if (data.error) {
+                fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+                response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
-                let data = await response.json();
-
-                // Fallbacks se o 2.5 não estiver liberado na sua chave
-                if (data.error) {
-                    fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-                    response = await fetch(fetchUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    data = await response.json();
-                    
-                    if(data.error) {
-                        fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
-                        response = await fetch(fetchUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                        });
-                        data = await response.json();
-                    }
-                }
-
-                if (data.error) throw new Error(data.error.message);
-                return data.candidates[0].content.parts[0].text;
-            } catch(e) {
-                throw e;
+                data = await response.json();
             }
+
+            if (data.error) throw new Error(data.error.message);
+            
+            return data.candidates[0].content.parts[0].text;
         }
 
-
-        // --- GERADOR DE EXEMPLOS GEMINI NO MODAL (AO CLICAR NA PALAVRA) ---
+        // --- GERADOR DE EXEMPLOS GEMINI NO MODAL (CLIQUE NA PALAVRA) ---
         let currentExampleTerm = "";
         let currentExampleContext = ""; 
 
@@ -491,7 +473,7 @@
             modal.style.display = 'flex';
             
             if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Insira a chave da API do Gemini no topo da tela.</div>`;
                 return;
             }
 
@@ -509,9 +491,9 @@
                 const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a palavra/expressão "${term}". 
                 Importante: O contexto original onde o usuário a encontrou foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido.
                 Retorne APENAS um JSON válido neste formato: [{"en": "frase em ingles 1", "pt": "traducao 1"}]
-                NÃO use blocos de código markdown (\`\`\`). Retorne apenas o JSON bruto.`;
+                NÃO use blocos de código markdown. Retorne apenas o JSON bruto.`;
 
-                let textResponse = await fetchGeminiAPI(prompt);
+                let textResponse = await fetchGeminiAPI(prompt, 0.9);
                 
                 let jsonStr = textResponse.replace(/```json/gi, '').replace(/```/gi, '').trim();
                 const examples = JSON.parse(jsonStr);
@@ -522,7 +504,7 @@
                 examples.forEach(ex => {
                     baseId++;
                     const transId = `ex-trans-${baseId}`;
-                    // Blindagem pro iOS não abrir tela em branco ao tocar o som
+                    // Blindagem para não quebrar o HTML
                     const safeEnText = ex.en.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                     
                     html += `
@@ -571,7 +553,7 @@
             document.getElementById('example-modal').style.display = 'none';
         }
 
-        // --- GERAR SINÔNIMOS NO CARD (BOTÃO +) ---
+        // --- GERAR EXEMPLOS EXTRAS (SINÔNIMOS) DIRETAMENTE NO CARD (BOTÃO +) ---
         async function generateCardExamples(index) {
             if (!geminiApiKey) {
                 alert("Configure a Chave API do Gemini no topo primeiro.");
@@ -589,10 +571,10 @@
             Aja como um professor nativo: NÃO repita a mesma expressão exata. Ao invés disso, escolha EXPRESSÕES OU TERMOS EQUIVALENTES em inglês que tenham o mesmo significado e sejam altamente comuns no dia a dia.
             Gere 2 NOVAS frases curtas de exemplo usando essas novas expressões equivalentes.
             Retorne APENAS um JSON válido neste formato: [{"en": "frase 1", "pt": "traducao 1"}, {"en": "frase 2", "pt": "traducao 2"}]
-            NÃO use blocos de código markdown.`;
+            NÃO use blocos de código markdown. Retorne apenas o JSON bruto.`;
 
             try {
-                let textResponse = await fetchGeminiAPI(prompt);
+                let textResponse = await fetchGeminiAPI(prompt, 0.8);
                 
                 let jsonStr = textResponse.replace(/```json/gi, '').replace(/```/gi, '').trim();
                 const examples = JSON.parse(jsonStr);
@@ -607,32 +589,50 @@
                 renderCards(); 
                 
             } catch (e) {
-                alert("Erro ao gerar novos exemplos. Detalhe: " + e.message);
+                alert("Erro ao gerar novos exemplos. Verifique a chave ou tente novamente. Detalhe: " + e.message);
                 if (btn) btn.innerText = originalBtnText;
             }
         }
 
-        // --- SOLUÇÃO ROBUSTA: CLICAR NA EXPRESSÃO OU PALAVRA SOLTA ---
+        // --- PINTURA RÁPIDA (QUICK FORMAT) DIRETO NO CARD ---
+        function quickFormat(cardIndex, symbol) {
+            const selection = window.getSelection();
+            const textToFormat = selection.toString().trim();
+            
+            if (!textToFormat) {
+                alert("Selecione uma palavra ou trecho no card primeiro para pintá-lo!");
+                return;
+            }
+            
+            let originalPhrase = cards[cardIndex].phrase;
+            cards[cardIndex].phrase = originalPhrase.replace(textToFormat, `${symbol}${textToFormat}${symbol}`);
+            
+            saveCards();
+            renderCards();
+            
+            if (window.getSelection) window.getSelection().removeAllRanges(); 
+        }
+
+        // --- SISTEMA INTELIGENTE DE DESTAQUE ---
         function formatHighlight(t) {
             if(!t) return '';
             
             const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
             
-            // 1. Envolve os termos que o usuário destacou (isso faz o bloco inteiro ficar clicável)
+            // 1. Cria as spans para os blocos destacados
             let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
             h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
             h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
             h = h.replace(/\^(.*?)\^/g, (m,p1) => wrap(p1, 'hl-bold'));
             
-            // 2. Transforma o resto das palavras soltas em clicáveis, sem quebrar as spans geradas acima
+            // 2. Transforma o resto das palavras soltas em clicáveis, protegendo os blocos gerados acima
             const parts = h.split(/(<span.*?<\/span>)/g);
             let finalHtml = '';
             
             parts.forEach(part => {
                 if (part.startsWith('<span')) {
-                    finalHtml += part; // Mantém o bloco destacado intacto
+                    finalHtml += part; 
                 } else {
-                    // Divide as palavras normais por espaço
                     const words = part.split(/(\s+)/);
                     words.forEach(w => {
                         if (w.match(/^\s+$/)) {
@@ -795,6 +795,14 @@
 
                 el.innerHTML = `
                     <div class="card-number">#${index + 1}</div>
+                    
+                    <div class="quick-toolbar">
+                        <span class="quick-toolbar-title">Selecione e Pinte:</span>
+                        <button type="button" class="color-btn" style="color:var(--hl-blue-text); background:var(--hl-blue-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '*')">Blue</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-red-text); background:var(--hl-red-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '#')">Red</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-lilac-text); background:var(--hl-lilac-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '~')">Lilac</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-bold-text); background:var(--border); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '^')">Bold</button>
+                    </div>
 
                     <div id="view-mode-${index}">
                         <div class="phrases-area">${phrasesHtml}</div>
@@ -810,7 +818,7 @@
                                 <button type="button" class="play-all-btn" onclick="event.preventDefault(); speakAll(${index})">▶ Ouvir</button>
                             </div>
                             <div class="footer-actions">
-                                <button type="button" class="action-btn-small add-example" onclick="event.preventDefault(); generateCardExamples(${index})" title="Gerar Novos Exemplos">➕</button>
+                                <button type="button" class="action-btn-small add-example" onclick="event.preventDefault(); generateCardExamples(${index})" title="Gerar Exemplos Semelhantes">➕</button>
                                 <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar">✏️</button>
                                 <button type="button" class="action-btn-small delete" onclick="event.preventDefault(); deleteCard(${index})" title="Excluir">🗑️</button>
                             </div>
@@ -820,14 +828,6 @@
                     </div>
 
                     <div id="edit-mode-${index}" style="display:none;">
-                        <div class="edit-toolbar">
-                            <button type="button" class="color-btn btn-smart" id="btn-smart-${index}" onclick="event.preventDefault(); autoSmartMark(${index})">🔗 Auto Smart</button>
-                            <span style="color:var(--border)">|</span>
-                            <button type="button" class="color-btn btn-blue" onclick="event.preventDefault(); applyHighlight(${index}, '*')">Blue</button>
-                            <button type="button" class="color-btn btn-red" onclick="event.preventDefault(); applyHighlight(${index}, '#')">Red</button>
-                            <button type="button" class="color-btn btn-lilac" onclick="event.preventDefault(); applyHighlight(${index}, '~')">Lilac</button>
-                            <button type="button" class="color-btn btn-bold" onclick="event.preventDefault(); applyHighlight(${index}, '^')">Bold</button>
-                        </div>
                         <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
                             <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Tradução Manual</button>
@@ -844,7 +844,7 @@
                 `;
                 container.appendChild(el);
             });
-
+            
             if (foundCount === 0 && cards.length > 0) {
                 container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight: 600;">Nenhum cartão encontrado para "${searchTerm}".</div>`;
             }
@@ -852,6 +852,7 @@
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
+            document.querySelector(`#card-${i} .quick-toolbar`).style.display='none'; 
             document.getElementById(`edit-mode-${i}`).style.display='block';
             const pArea = document.getElementById(`edit-phrase-${i}`);
             const tArea = document.getElementById(`edit-trans-${i}`);
@@ -878,56 +879,6 @@
             cards[i].phrase = document.getElementById(`edit-phrase-${i}`).value; 
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
-        }
-
-        // --- SISTEMA DE COR RÁPIDA (RESTAURADO) ---
-        async function autoSmartMark(index) {
-            const textarea = document.getElementById(`edit-phrase-${index}`);
-            const btn = document.getElementById(`btn-smart-${index}`);
-            let text = textarea.value;
-            let lines = text.split('\n').filter(l => l.trim() !== '');
-            if (lines.length < 1) return;
-            const match = lines[0].match(/\^(.*?)\^/);
-            if (!match) { alert("Marque o termo principal em NEGRITO na linha 1 primeiro."); return; }
-            const term = match[1].replace(/[.,!?;:]/g, ''); 
-            const originalBtnText = btn.innerText;
-            btn.innerText = "⏳ Triangulando...";
-            btn.disabled = true;
-            try {
-                let keywords = [term];
-                const datamuseRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(term)}&max=10`);
-                const dmData = await datamuseRes.json();
-                dmData.forEach(i => keywords.push(i.word));
-                const ptRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(term)}&langpair=en|pt-BR`);
-                const ptData = await ptRes.json();
-                const words = term.split(/\s+/);
-                words.forEach(w => { if(w.length > 3) keywords.push(w); });
-                keywords = [...new Set(keywords.map(k => k.toLowerCase()))];
-                if (lines.length > 1) lines[1] = smartReplace(lines[1], keywords, '*');
-                if (lines.length > 2) lines[2] = smartReplace(lines[2], keywords, '#');
-                textarea.value = lines.join('\n\n');
-            } catch (error) { alert("Erro na análise."); } 
-            finally { btn.innerText = originalBtnText; btn.disabled = false; }
-        }
-
-        function smartReplace(sentence, keywords, symbol) {
-            let clean = sentence.replace(/[*#~]/g, '');
-            keywords.sort((a, b) => b.length - a.length);
-            const phraseWords = clean.split(/(\s+|[.,!?;:])/);
-            const processed = phraseWords.map(word => {
-                const wLow = word.toLowerCase();
-                const isMatch = keywords.some(k => (wLow.includes(k) && k.length>3) || (k.includes(wLow) && wLow.length>3));
-                if (isMatch && word.trim().length > 0) return `${symbol}${word}${symbol}`;
-                return word;
-            });
-            return processed.join('');
-        }
-
-        function applyHighlight(i, s) {
-            const t = document.getElementById(`edit-phrase-${i}`);
-            const start = t.selectionStart; const end = t.selectionEnd;
-            if (start === end) return alert("Selecione texto na caixa!");
-            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
         async function fetchTranslation(text) {
