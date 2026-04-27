@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.8 Audio Fix</title>
+    <title>English Pro - V39.1 Search</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -97,7 +97,7 @@
         .color-picker-wrapper { position: relative; width: 30px; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
         .color-picker-wrapper input[type="color"] { position: absolute; right: -8px; top: -8px; width: 50px; height: 50px; cursor: pointer; border: none; }
 
-        /* Destaques */
+        /* Destaques (Agora robusto para frases inteiras) */
         .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
         .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
         .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); }
@@ -110,8 +110,11 @@
         .input-group { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border); }
         .input-group h3 { margin-top: 0; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; }
         .input-row { margin-bottom: 12px; }
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
         button#add-btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; width: 100%; font-size: 1rem; margin-top: 5px; cursor: pointer;}
-        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; cursor: pointer; }
+        .translate-action-btn { background-color: #3b82f6; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; flex: 1;}
+        .magic-btn { background-color: #8b5cf6; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; flex: 1;}
+        .mic-btn { background-color: #ef4444; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; flex: 1;}
         
         .data-controls { display: flex; gap: 5px; margin-bottom: 20px; background: #334155; padding: 8px; border-radius: 8px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
         .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer;}
@@ -120,6 +123,11 @@
         .import-toggle { text-align: center; margin-bottom: 15px; }
         .import-link { color: var(--text-muted); font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
         #import-section { display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px dashed var(--border); margin-bottom: 25px; }
+
+        /* Barra de Pesquisa */
+        .search-bar-wrapper { margin-bottom: 15px; }
+        .search-bar-wrapper input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .search-bar-wrapper input:focus { border-color: var(--primary); outline: none; }
 
         /* Cartões */
         #card-container { display: flex; flex-direction: column; gap: 15px; }
@@ -133,6 +141,10 @@
         .play-mini { background: var(--play-bg); border: none; color: var(--primary); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
         .trans-mini-btn { background: var(--trans-bg); border: 1px solid var(--trans-border); color: #16a34a; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
         .line-trans-area { display: none; margin-left: 36px; margin-top: 5px; color: #16a34a; font-size: 0.95rem; font-style: italic; background: var(--trans-bg); padding: 8px 12px; border-radius: 8px; border: 1px dashed var(--trans-border); margin-right: 36px;}
+
+        /* Quick Format Toolbar (No Card) */
+        .quick-toolbar { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: var(--bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
+        .quick-toolbar-title { font-size: 0.75rem; color: var(--text-muted); font-weight: bold; margin-right: 5px; }
 
         .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); gap: 5px; }
         .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
@@ -149,9 +161,7 @@
         .translation-text { color: #16a34a; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
 
         .edit-mode-area { background: var(--input-bg); color: var(--text); padding: 10px; border-radius: 8px; border: 2px solid var(--border); margin-bottom: 10px; line-height: 1.6; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-        .color-btn { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: var(--bg); color: var(--text); }
-        .btn-smart { background: var(--text); color: var(--bg); border: none; }
+        .color-btn { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: var(--card-bg); color: var(--text); }
         .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
         .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
 
@@ -192,21 +202,27 @@
     </div>
 
     <div class="gemini-config-area">
-        <label>✨ Chave API Gemini (Exemplos):</label>
+        <label>✨ Chave API Gemini (Exemplos Mágicos):</label>
         <input type="password" id="gemini-key-input" placeholder="Cole sua chave sk-..." onchange="saveGeminiKey()">
     </div>
 
     <div class="input-group">
         <h3>Nova Entrada</h3>
+        <div class="flex-row">
+            <button type="button" id="mic-btn" class="mic-btn" onclick="startDictation()">🎤 Áudio (PT)</button>
+            <button type="button" class="translate-action-btn" onclick="translateForm()">🪄 Traduzir</button>
+        </div>
         <div class="input-row">
             <label>Frases em Inglês</label>
-            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto... Use ==texto== para destacar"></textarea>
+            <textarea id="input-phrase" rows="3" placeholder="Cole aqui seu texto em inglês..."></textarea>
+        </div>
+        <div class="flex-row">
+            <button type="button" id="auto-ex-btn" class="magic-btn" onclick="autoGenerateExamples()" style="width:100%">✨ Auto-Gerar Exemplos (Inglês)</button>
         </div>
         <div class="input-row">
-            <label>Tradução</label>
-            <textarea id="input-translation" rows="4" placeholder="..."></textarea>
+            <label>Tradução (PT-BR)</label>
+            <textarea id="input-translation" rows="3" placeholder="..."></textarea>
         </div>
-        <button type="button" class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
         <button type="button" id="add-btn" onclick="addCard()">Salvar Cartão</button>
     </div>
 
@@ -225,6 +241,10 @@
         <button type="button" id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
     </div>
 
+    <div class="search-bar-wrapper">
+        <input type="text" id="search-input" placeholder="🔍 Pesquisar cartões (inglês ou tradução)..." oninput="renderCards()">
+    </div>
+
     <div id="card-container"></div>
 
     <script>
@@ -233,7 +253,7 @@
         let currentFontSize = 1.15; 
         
         const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_8';
+        const STORAGE_KEY = 'englishCardsFinalV39_1';
 
         // --- SISTEMA DE TEMAS E CORES ---
         let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
@@ -289,33 +309,21 @@
             });
         }, { threshold: 0.6 });
 
-        // --- SISTEMA DE VOZ MANUAL RESTAURADO ---
+        // --- SISTEMA DE VOZ DO NAVEGADOR ---
         function populateVoiceList() {
             voices = window.speechSynthesis.getVoices();
             const voiceSelect = document.getElementById('global-voice-select');
-            
             if (voices.length === 0) return;
-
             const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
             voiceSelect.innerHTML = '';
-            
-            voices.sort((a, b) => {
-                const aname = a.name.toUpperCase();
-                const bname = b.name.toUpperCase();
-                if (aname < bname) return -1;
-                else if (aname == bname) return 0;
-                else return +1;
-            });
+            voices.sort((a, b) => a.name.localeCompare(b.name));
 
             voices.forEach((voice) => {
                 if(voice.lang.includes('en')) {
                     const option = document.createElement('option');
                     option.textContent = `${voice.name} (${voice.lang})`;
                     option.value = voice.name;
-                    
-                    if (voice.name === savedVoiceName) {
-                        option.selected = true;
-                    }
+                    if (voice.name === savedVoiceName) option.selected = true;
                     voiceSelect.appendChild(option);
                 }
             });
@@ -344,13 +352,10 @@
 
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                
-                // Se o índice for 'modal', assume taxa padrão de 1.0 (evita null pointer)
                 const rateElement = document.getElementById(`speed-${index}`);
                 const rate = rateElement ? rateElement.value : "1.0";
 
                 const u = new SpeechSynthesisUtterance(clean);
-                
                 const selectedVoiceName = document.getElementById('global-voice-select').value;
                 const selectedVoice = voices.find(v => v.name === selectedVoiceName);
 
@@ -363,8 +368,6 @@
                 }
 
                 u.rate = parseFloat(rate);
-
-                // Removida manipulação de innerText (ampulheta) para evitar crash no iOS
                 window.speechSynthesis.speak(u);
             }
         }
@@ -374,7 +377,105 @@
             speakText(clean, index);
         }
 
-        // --- GERADOR DE EXEMPLOS GEMINI ---
+        // --- MICROFONE (ÁUDIO PT -> TEXTO EN) ---
+        async function startDictation() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Seu navegador não suporta gravação de áudio (Tente Safari/Chrome recentes).");
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.innerText = "🔴 Gravando (Fale)...";
+
+            recognition.start();
+
+            recognition.onresult = async function(event) {
+                const ptText = event.results[0][0].transcript;
+                micBtn.innerText = "⏳ Traduzindo...";
+                
+                document.getElementById('input-translation').value = ptText; 
+                
+                try {
+                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(ptText)}&langpair=pt-BR|en-US`);
+                    const data = await res.json();
+                    if(data && data.responseData && data.responseData.translatedText) {
+                        document.getElementById('input-phrase').value = data.responseData.translatedText;
+                    }
+                } catch (e) {
+                    alert("Erro ao traduzir. Texto em PT foi salvo.");
+                }
+                micBtn.innerText = "🎤 Áudio (PT)";
+            };
+
+            recognition.onerror = function(event) {
+                alert("Erro no microfone: " + event.error);
+                micBtn.innerText = "🎤 Áudio (PT)";
+            };
+        }
+
+        // --- GERADOR AUTOMÁTICO DE EXEMPLOS NA CRIAÇÃO ---
+        async function autoGenerateExamples() {
+            if (!geminiApiKey) {
+                alert("Configure a chave da API Gemini no topo da tela primeiro.");
+                return;
+            }
+            const phraseInput = document.getElementById('input-phrase');
+            let currentText = phraseInput.value.trim();
+            
+            if (!currentText) {
+                alert("Digite ou grave uma expressão em inglês primeiro.");
+                return;
+            }
+
+            const btn = document.getElementById('auto-ex-btn');
+            btn.innerText = "⏳ Criando...";
+            btn.disabled = true;
+
+            const prompt = `Gere 2 frases curtas e muito úteis de exemplo em inglês usando a palavra/expressão contida aqui: "${currentText}".
+            Não use formatação markdown, não traduza. Retorne APENAS o texto das duas frases em inglês, separadas por uma quebra de linha.`;
+
+            try {
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.8 }
+                    })
+                });
+
+                let data = await response.json();
+                
+                if (data.error && data.error.code === 404) {
+                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    data = await response.json();
+                }
+
+                if(data.error) throw new Error(data.error.message);
+                
+                let examplesText = data.candidates[0].content.parts[0].text.replace(/```/gi, '').trim();
+                phraseInput.value = currentText + "\n" + examplesText;
+                
+            } catch (e) {
+                alert("Erro ao gerar exemplos automáticos.");
+            } finally {
+                btn.innerText = "✨ Auto-Gerar Exemplos (Inglês)";
+                btn.disabled = false;
+            }
+        }
+
+
+        // --- MODAL DE EXEMPLOS DO GEMINI ---
         let currentExampleTerm = "";
         let currentExampleContext = ""; 
 
@@ -391,7 +492,7 @@
             modal.style.display = 'flex';
             
             if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
+                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
                 return;
             }
 
@@ -406,17 +507,14 @@
                     if(btn) { btn.innerText = "⏳ Gerando..."; btn.disabled = true; }
                 }
 
-                // SOLICITA APENAS 1 EXEMPLO AGORA
-                const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a expressão "${term}". 
-                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido ou contexto de uso.
-                Diretriz de Simplicidade: não busque apenas termos básicos demais. Quero, ao invés disso, termos úteis. Quero o equilíbrio.
+                const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a palavra/expressão "${term}". 
+                Importante: O contexto original onde o usuário a encontrou foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido.
                 Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
                 [
                     {"en": "frase em ingles 1", "pt": "traducao 1"}
                 ]`;
 
-                const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
-                
+                let fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
                 let response = await fetch(fetchUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -425,7 +523,6 @@
                         generationConfig: { temperature: 0.9 }
                     })
                 });
-
                 let data = await response.json();
 
                 if (data.error && data.error.code === 404) {
@@ -433,29 +530,22 @@
                     response = await fetch(fallbackUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
                     data = await response.json();
                 }
-
                 if (data.error) throw new Error(data.error.message);
 
                 let jsonStr = data.candidates[0].content.parts[0].text;
                 jsonStr = jsonStr.replace(/```json/gi, '').replace(/```/gi, '').trim();
-                
                 const examples = JSON.parse(jsonStr);
 
-                let html = isAppending ? "" : `<div class="modal-header">Exemplos Contextuais: "${term}"</div><div id="examples-list">`;
-                
+                let html = isAppending ? "" : `<div class="modal-header">Exemplos: "${term}"</div><div id="examples-list">`;
                 let baseId = Date.now() + Math.floor(Math.random() * 1000);
 
                 examples.forEach(ex => {
                     baseId++;
                     const transId = `ex-trans-${baseId}`;
-                    
-                    // ESCAPE BLINDADO PARA INLINE ONCLICK (Impede Safari de abrir tela em branco)
                     const safeEnText = ex.en.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
                     
                     html += `
@@ -464,7 +554,7 @@
                                 <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
                                 <div style="display:flex; gap:5px; margin-left:10px;">
                                     <button type="button" class="play-mini" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" title="Ouvir">🔈</button>
-                                    <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" title="Ocultar/Mostrar Tradução">👁️</button>
+                                    <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" title="Ocultar/Mostrar">👁️</button>
                                 </div>
                             </div>
                             <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
@@ -473,8 +563,7 @@
                 });
 
                 if (isAppending) {
-                    const list = document.getElementById('examples-list');
-                    list.insertAdjacentHTML('beforeend', html);
+                    document.getElementById('examples-list').insertAdjacentHTML('beforeend', html);
                     const btn = document.getElementById('load-more-btn');
                     if(btn){ btn.innerText = "➕ Gerar Mais"; btn.disabled = false; }
                 } else {
@@ -484,23 +573,20 @@
             } catch (e) {
                 if (isAppending) {
                      const btn = document.getElementById('load-more-btn');
-                     if(btn){ btn.innerText = "❌ Erro. Tentar de novo"; btn.disabled = false; }
+                     if(btn){ btn.innerText = "❌ Erro"; btn.disabled = false; }
                 } else {
-                     container.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Erro ao gerar exemplos: ${e.message}</div>`;
+                     container.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Erro: ${e.message}</div>`;
                 }
             }
         }
 
         function loadMoreExamples() {
-            const content = document.getElementById('modal-body');
-            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
+            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, document.getElementById('modal-body'), true);
         }
 
         function toggleExTrans(id) {
             const el = document.getElementById(id);
-            if(el) {
-                el.style.display = el.style.display === 'none' ? 'block' : 'none';
-            }
+            if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
         }
 
         function closeExampleModal(e) {
@@ -508,34 +594,71 @@
             document.getElementById('example-modal').style.display = 'none';
         }
 
-        // --- TRADUÇÃO DE LINHA ---
-        async function toggleLineTrans(cardIndex, lineIndex, text) {
-            const transDiv = document.getElementById(`line-trans-${cardIndex}-${lineIndex}`);
-            if (transDiv.style.display === 'block') {
-                transDiv.style.display = 'none';
+
+        // --- PINTURA RÁPIDA (QUICK FORMAT) ---
+        function quickFormat(cardIndex, symbol) {
+            const selection = window.getSelection();
+            const textToFormat = selection.toString().trim();
+            
+            if (!textToFormat) {
+                alert("Selecione uma palavra ou trecho no card primeiro para pintá-lo!");
                 return;
             }
             
-            transDiv.style.display = 'block'; 
+            let originalPhrase = cards[cardIndex].phrase;
+            cards[cardIndex].phrase = originalPhrase.replace(textToFormat, `${symbol}${textToFormat}${symbol}`);
             
-            if (transDiv.innerText === "") {
-                transDiv.innerText = "⏳ Traduzindo linha...";
-                const res = await fetchTranslation(text);
-                transDiv.innerText = res;
+            saveCards();
+            renderCards();
+            
+            if (window.getSelection) {
+              window.getSelection().removeAllRanges(); 
             }
         }
 
-        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA ---
+        // --- SISTEMA INTELIGENTE DE DESTAQUE ---
         function formatHighlight(t) {
             if(!t) return '';
             
-            const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
+            const regex = /(\*.*?\*|#.*?#|~.*?~|\^.*?\^)/g;
+            const parts = t.split(regex);
+            let result = '';
             
-            let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
-            h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
-            h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
-            h = h.replace(/\^(.*?)\^/g, (m,p1) => wrap(p1, 'hl-bold'));
-            return h;
+            parts.forEach(part => {
+                if(!part) return;
+                
+                if(part.startsWith('*') && part.endsWith('*')) {
+                    result += `<span class="hl-base hl-blue word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${part.slice(1, -1)}</span>`;
+                } else if(part.startsWith('#') && part.endsWith('#')) {
+                    result += `<span class="hl-base hl-red word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${part.slice(1, -1)}</span>`;
+                } else if(part.startsWith('~') && part.endsWith('~')) {
+                    result += `<span class="hl-base hl-lilac word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${part.slice(1, -1)}</span>`;
+                } else if(part.startsWith('^') && part.endsWith('^')) {
+                    result += `<span class="hl-base hl-bold word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${part.slice(1, -1)}</span>`;
+                } else {
+                    const words = part.split(/(\s+)/);
+                    words.forEach(w => {
+                        if (w.match(/^\s+$/)) {
+                            result += w; 
+                        } else if(w.trim().length > 0) {
+                            result += `<span class="word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${w}</span>`;
+                        }
+                    });
+                }
+            });
+            
+            return result;
+        }
+
+        // --- UI GERAL ---
+        async function toggleLineTrans(cardIndex, lineIndex, text) {
+            const transDiv = document.getElementById(`line-trans-${cardIndex}-${lineIndex}`);
+            if (transDiv.style.display === 'block') { transDiv.style.display = 'none'; return; }
+            transDiv.style.display = 'block'; 
+            if (transDiv.innerText === "") {
+                transDiv.innerText = "⏳ Traduzindo linha...";
+                transDiv.innerText = await fetchTranslation(text);
+            }
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -551,12 +674,10 @@
 
         function downloadBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "backup_ingles_" + new Date().toISOString().slice(0,10) + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            const a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", "backup_ingles_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(a); a.click(); a.remove();
         }
 
         function restoreBackup(input) {
@@ -570,8 +691,8 @@
                         if(confirm(`Encontrados ${data.length} cartões. Substituir?`)) {
                             cards = data; saveCards(); renderCards(); alert("Restaurado!");
                         }
-                    } else { alert("Arquivo inválido."); }
-                } catch(err) { alert("Erro ao ler arquivo."); }
+                    } else alert("Arquivo inválido.");
+                } catch(err) { alert("Erro ao ler."); }
             };
             reader.readAsText(file);
         }
@@ -584,22 +705,6 @@
             }
         }
 
-        function normalizeFormatting(text) {
-            if (!text) return '';
-            let lines = text.split('\n');
-            lines = lines.map((line, index) => {
-                let l = line;
-                l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
-                l = l.replace(/__(.*?)__/g, '^$1^');
-                l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
-                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
-                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
-                return l;
-            });
-            return lines.join('\n');
-        }
-
         function loadCards() {
             const savedFont = localStorage.getItem('englishAppFontSize');
             if (savedFont) {
@@ -608,7 +713,7 @@
             }
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) { cards = JSON.parse(saved); } 
-            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
+            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.", translation: "Use negrito aqui.\nExemplo: Meu carro é azul.", accent: 'US' }]; }
             renderCards();
             setTimeout(() => {
                 const lastPos = localStorage.getItem('englishAppLastPos');
@@ -620,11 +725,27 @@
         }
         function saveCards() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
 
+        // --- ATUALIZADO: RENDERIZAÇÃO COM PESQUISA ---
         function renderCards() {
             const container = document.getElementById('card-container');
             container.innerHTML = '';
             
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+            let foundCount = 0;
+            
             cards.forEach((card, index) => {
+                // Filtro de Pesquisa Inteligente
+                if (searchTerm) {
+                    const phraseText = card.phrase.toLowerCase();
+                    const transText = card.translation.toLowerCase();
+                    if (!phraseText.includes(searchTerm) && !transText.includes(searchTerm)) {
+                        return; // Pula este cartão se não bater com a busca
+                    }
+                }
+                
+                foundCount++;
+
                 const el = document.createElement('div');
                 el.className = 'card';
                 el.id = `card-${index}`;
@@ -661,8 +782,17 @@
                 el.innerHTML = `
                     <div class="card-number">#${index + 1}</div>
                     
+                    <div class="quick-toolbar">
+                        <span class="quick-toolbar-title">Selecione e Pinte:</span>
+                        <button type="button" class="color-btn" style="color:var(--hl-blue-text); background:var(--hl-blue-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '*')">Blue</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-red-text); background:var(--hl-red-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '#')">Red</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-lilac-text); background:var(--hl-lilac-bg); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '~')">Lilac</button>
+                        <button type="button" class="color-btn" style="color:var(--hl-bold-text); background:var(--border); border:none;" onclick="event.preventDefault(); quickFormat(${index}, '^')">Bold</button>
+                    </div>
+
                     <div id="view-mode-${index}">
                         <div class="phrases-area">${phrasesHtml}</div>
+                        
                         <div class="card-footer">
                             <div class="controls-group">
                                 <select id="speed-${index}" style="width:auto; padding: 4px; height: 30px; font-size:0.8rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); border-radius: 5px;">
@@ -675,7 +805,7 @@
                                 <button type="button" class="play-all-btn" onclick="event.preventDefault(); speakAll(${index})">▶ Ouvir</button>
                             </div>
                             <div class="footer-actions">
-                                <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar">✏️</button>
+                                <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar Manualmente">✏️</button>
                                 <button type="button" class="action-btn-small delete" onclick="event.preventDefault(); deleteCard(${index})" title="Excluir">🗑️</button>
                             </div>
                         </div>
@@ -684,40 +814,38 @@
                     </div>
 
                     <div id="edit-mode-${index}" style="display:none;">
-                        <div class="edit-toolbar">
-                            <button type="button" class="color-btn btn-smart" id="btn-smart-${index}" onclick="event.preventDefault(); autoSmartMark(${index})">🔗 Auto Smart</button>
-                            <span style="color:var(--border)">|</span>
-                            <button type="button" class="color-btn btn-blue" onclick="event.preventDefault(); applyHighlight(${index}, '*')">Blue</button>
-                            <button type="button" class="color-btn btn-red" onclick="event.preventDefault(); applyHighlight(${index}, '#')">Red</button>
-                            <button type="button" class="color-btn btn-lilac" onclick="event.preventDefault(); applyHighlight(${index}, '~')">Lilac</button>
-                            <button type="button" class="color-btn btn-bold" onclick="event.preventDefault(); applyHighlight(${index}, '^')">Bold</button>
-                        </div>
                         <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Ver Tradução</button>
-                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); updateTranslationInEdit(${index})" style="flex:1;">✨ Auto Traduzir</button>
+                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Tradução Manual</button>
+                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); updateTranslationInEdit(${index})" style="flex:1;">✨ Traduzir Auto</button>
                         </div>
                         <div id="edit-trans-wrapper-${index}" style="display:none;">
                             <textarea id="edit-trans-${index}" rows="5" class="edit-mode-area"></textarea>
                         </div>
                         <div style="display:flex; gap:10px; margin-top:10px;">
-                            <button type="button" class="save-btn" onclick="event.preventDefault(); saveEdit(${index})">Salvar</button>
+                            <button type="button" class="save-btn" onclick="event.preventDefault(); saveEdit(${index})">Salvar Edição</button>
                             <button type="button" class="cancel-btn" onclick="event.preventDefault(); cancelEdit(${index})">Cancelar</button>
                         </div>
                     </div>
                 `;
                 container.appendChild(el);
             });
+            
+            // Mensagem caso a busca não retorne nada
+            if (foundCount === 0 && cards.length > 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-weight: 600;">Nenhum cartão encontrado para "${searchTerm}".</div>`;
+            }
         }
 
         function enableEditMode(i) {
             document.getElementById(`view-mode-${i}`).style.display='none';
+            document.querySelector(`#card-${i} .quick-toolbar`).style.display='none'; 
             document.getElementById(`edit-mode-${i}`).style.display='block';
             const pArea = document.getElementById(`edit-phrase-${i}`);
             const tArea = document.getElementById(`edit-trans-${i}`);
             document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
-            pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
-            tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
+            pArea.value = cards[i].phrase; 
+            tArea.value = cards[i].translation;
         }
 
         function toggleTransEdit(index) {
@@ -735,58 +863,9 @@
 
         function cancelEdit(i) { renderCards(); }
         function saveEdit(i) {
-            cards[i].phrase = normalizeFormatting(document.getElementById(`edit-phrase-${i}`).value); 
+            cards[i].phrase = document.getElementById(`edit-phrase-${i}`).value; 
             cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
             saveCards(); renderCards();
-        }
-        
-        async function autoSmartMark(index) {
-            const textarea = document.getElementById(`edit-phrase-${index}`);
-            const btn = document.getElementById(`btn-smart-${index}`);
-            let text = textarea.value;
-            let lines = text.split('\n').filter(l => l.trim() !== '');
-            if (lines.length < 1) return;
-            const match = lines[0].match(/\^(.*?)\^/);
-            if (!match) { alert("Marque o termo principal em NEGRITO na linha 1 primeiro."); return; }
-            const term = match[1].replace(/[.,!?;:]/g, ''); 
-            const originalBtnText = btn.innerText;
-            btn.innerText = "⏳ Triangulando...";
-            btn.disabled = true;
-            try {
-                let keywords = [term];
-                const datamuseRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(term)}&max=10`);
-                const dmData = await datamuseRes.json();
-                dmData.forEach(i => keywords.push(i.word));
-                const ptRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(term)}&langpair=en|pt-BR`);
-                const ptData = await ptRes.json();
-                const words = term.split(/\s+/);
-                words.forEach(w => { if(w.length > 3) keywords.push(w); });
-                keywords = [...new Set(keywords.map(k => k.toLowerCase()))];
-                if (lines.length > 1) lines[1] = smartReplace(lines[1], keywords, '*');
-                if (lines.length > 2) lines[2] = smartReplace(lines[2], keywords, '#');
-                textarea.value = lines.join('\n\n');
-            } catch (error) { alert("Erro na análise."); } 
-            finally { btn.innerText = originalBtnText; btn.disabled = false; }
-        }
-
-        function smartReplace(sentence, keywords, symbol) {
-            let clean = sentence.replace(/[*#~]/g, '');
-            keywords.sort((a, b) => b.length - a.length);
-            const phraseWords = clean.split(/(\s+|[.,!?;:])/);
-            const processed = phraseWords.map(word => {
-                const wLow = word.toLowerCase();
-                const isMatch = keywords.some(k => (wLow.includes(k) && k.length>3) || (k.includes(wLow) && wLow.length>3));
-                if (isMatch && word.trim().length > 0) return `${symbol}${word}${symbol}`;
-                return word;
-            });
-            return processed.join('');
-        }
-
-        function applyHighlight(i, s) {
-            const t = document.getElementById(`edit-phrase-${i}`);
-            const start = t.selectionStart; const end = t.selectionEnd;
-            if (start === end) return alert("Selecione texto!");
-            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
         }
 
         async function fetchTranslation(text) {
@@ -802,7 +881,14 @@
                 return tr.join('\n');
             } catch (e) { return "Erro conexão"; }
         }
-        async function translateForm() { document.getElementById('input-translation').value = await fetchTranslation(document.getElementById('input-phrase').value); }
+
+        async function translateForm() { 
+            const btn = document.querySelector('.translate-action-btn');
+            btn.innerText = "⏳...";
+            document.getElementById('input-translation').value = await fetchTranslation(document.getElementById('input-phrase').value); 
+            btn.innerText = "🪄 Traduzir";
+        }
+
         async function translateCardNow(i) {
             const res = await fetchTranslation(cards[i].phrase);
             cards[i].translation = res; saveCards(); renderCards();
@@ -812,14 +898,15 @@
             const raw = document.getElementById('input-phrase').value.trim();
             const t = document.getElementById('input-translation').value.trim();
             if(!raw) return alert("Vazio!");
-            cards.unshift({ id: Date.now(), phrase: normalizeFormatting(raw), translation: t, accent: 'US' });
+            
+            cards.unshift({ id: Date.now(), phrase: raw, translation: t, accent: 'US' });
             saveCards(); renderCards();
             document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
         }
 
         function processBulkImport() {
             document.getElementById('import-area').value.split(/\n\s*\n/).forEach(b=>{
-                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:normalizeFormatting(b.trim()), translation:"", accent:'US'});
+                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:b.trim(), translation:"", accent:'US'});
             });
             saveCards(); renderCards(); toggleImportArea();
         }
