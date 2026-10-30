@@ -1,834 +1,1466 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Pro - V38.8 Audio Fix</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>English Pro</title>
+<meta name="description" content="Cards de inglês do dia a dia: ouvir, traduzir, destacar, gerar exemplos e revisar.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="English Pro">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<style>
+:root{
+  --bg:#f2f2f7; --card:#ffffff; --card2:#f7f7fa; --text:#1c1c1e; --strong:#000; --muted:#6e6e73;
+  --line:rgba(60,60,67,.14); --accent:#2563eb; --accent-soft:rgba(37,99,235,.12); --on-accent:#fff;
+  --tr:#15803d; --tr-bg:#f0fdf4; --tr-line:#bbf7d0; --hl:rgba(250,204,21,.55); --danger:#e5484d;
+  --sel:rgba(37,99,235,.22); --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04);
+  --fs:19px; --radius:18px;
+  --top:env(safe-area-inset-top,0px); --bot:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="dark"]{
+  --bg:#000; --card:#1c1c1e; --card2:#26262a; --text:#f2f2f7; --strong:#fff; --muted:#98989f;
+  --line:rgba(84,84,88,.55); --tr:#4ade80; --tr-bg:rgba(34,197,94,.10); --tr-line:rgba(34,197,94,.28);
+  --hl:rgba(250,204,21,.32); --shadow:none;
+}
+:root[data-theme="sepia"]{
+  --bg:#efe6d2; --card:#fbf5e6; --card2:#f3ead6; --text:#3b2f20; --strong:#1f170c; --muted:#7a6a55;
+  --line:rgba(94,72,40,.18); --tr:#4d6b1f; --tr-bg:#eef0d9; --tr-line:#d4d9a8; --hl:rgba(232,165,52,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;min-height:100dvh;overscroll-behavior-y:none}
+body.noscroll{overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
+input,textarea,select{font:inherit;font-size:16px;color:var(--text)}
+svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+[hidden]{display:none!important}
+a{color:var(--accent)}
 
-    <style>
-        /* VARIÁVEIS INTELIGENTES PARA LUZ E MODO NOTURNO */
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --custom-card-bg: #ffffff; 
-            --text: #334155;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --input-bg: #ffffff;
-            --line-font-size: 1.15rem; 
-            
-            /* Cores de Destaque (Claras) */
-            --hl-blue-bg: #e0f2fe; --hl-blue-text: #0284c7;
-            --hl-red-bg: #fee2e2; --hl-red-text: #dc2626;
-            --hl-lilac-bg: #f3e8ff; --hl-lilac-text: #9333ea;
-            --hl-bold-text: #000000;
-            --play-bg: #eff6ff; --trans-bg: #f0fdf4; --trans-border: #bbf7d0;
-        }
+/* ---------- Top bar ---------- */
+.topbar{position:sticky;top:0;z-index:20;padding:calc(var(--top) + 6px) 16px 8px;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-bottom:.5px solid transparent;transition:border-color .2s}
+.topbar.scrolled{border-bottom-color:var(--line)}
+@supports not (background:color-mix(in srgb,red 50%,blue)){.topbar{background:var(--bg)}}
+.top-row{display:flex;align-items:center;gap:8px;max-width:720px;margin:0 auto;min-height:44px}
+.top-title{flex:1;min-width:0}
+.top-title h1{margin:0;font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-.02em}
+.top-title .sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.top-actions{display:flex;gap:6px}
+.tb{width:40px;height:40px;border-radius:999px;display:grid;place-items:center;background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.tb.on{background:var(--accent-soft);color:var(--accent)}
+.tb.primary{background:var(--accent);color:var(--on-accent)}
+.searchbar{max-width:720px;margin:8px auto 0;position:relative}
+.searchbar input{width:100%;height:40px;border-radius:12px;border:0;background:var(--card);padding:0 36px 0 38px;box-shadow:var(--shadow);outline:none}
+.searchbar svg{position:absolute;left:11px;top:10px;color:var(--muted);width:18px;height:18px}
+.searchbar .clear{position:absolute;right:6px;top:6px;width:28px;height:28px;display:grid;place-items:center;color:var(--muted)}
 
-        body.dark-mode {
-            --primary: #3b82f6;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --custom-card-bg: #1e293b; 
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --input-bg: #0f172a;
+main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
+.view{animation:fade .2s ease-out}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
 
-            /* Cores de Destaque (Escuras) */
-            --hl-blue-bg: rgba(2, 132, 199, 0.2); --hl-blue-text: #7dd3fc;
-            --hl-red-bg: rgba(220, 38, 38, 0.2); --hl-red-text: #fca5a5;
-            --hl-lilac-bg: rgba(147, 51, 234, 0.2); --hl-lilac-text: #d8b4fe;
-            --hl-bold-text: #ffffff;
-            --play-bg: rgba(59, 130, 246, 0.15); --trans-bg: rgba(34, 197, 94, 0.1); --trans-border: #166534;
-        }
+/* ---------- Cards ---------- */
+#cards{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border-radius:var(--radius);padding:14px 16px 12px;box-shadow:var(--shadow);position:relative;scroll-margin-top:calc(var(--top) + 76px)}
+.card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:4px;border-radius:0 4px 4px 0;background:var(--stripe,var(--accent));opacity:.85}
+.card.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--accent-soft)}100%{box-shadow:var(--shadow)}}
+.card-head{display:flex;align-items:center;gap:8px;margin:-4px -6px 4px 0;min-height:30px}
+.num{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.badge{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge.gray{color:var(--muted);background:var(--card2)}
+.card-head .grow{flex:1;min-width:0;display:flex;gap:6px;overflow:hidden}
+.ib{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;color:var(--muted);flex:none}
+.ib:active{background:var(--card2)}
+.ib.on{color:var(--accent);background:var(--accent-soft)}
+.ib.del{color:var(--muted)}
+.ib svg{width:18px;height:18px}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 15px 12px;
-            padding-bottom: 150px;
-            font-weight: 400;
-            transition: background-color 0.3s, color 0.3s;
-        }
+.sent{position:relative}
+.en{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;word-wrap:break-word;overflow-wrap:anywhere}
+.main .en{font-size:calc(var(--fs) * 1.12);line-height:1.42;font-weight:500;color:var(--strong);padding:2px 0 8px}
+.w{border-radius:3px;transition:background-color .12s}
+.w.b,.sp.b{font-weight:800;color:var(--strong);background:linear-gradient(transparent 58%,var(--hl) 58%)}
+.main .w.b{font-weight:800}
+.w.sel,.sp.sel{background:var(--sel)!important}
+.sent.speaking .en{color:var(--accent)}
+.sent.speaking .w.b{color:var(--accent)}
+.main-tools{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:999px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
+.pill svg{width:17px;height:17px}
+.pill.on{background:var(--accent-soft);color:var(--accent)}
+.pill.accent{background:var(--accent);color:var(--on-accent)}
+.pill.ghost{background:transparent;color:var(--accent);padding:0 8px}
+.pill.danger{color:var(--danger)}
+.pill:disabled{opacity:.55}
+.tr{margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--tr-bg);color:var(--tr);font-size:calc(var(--fs) * .84);line-height:1.4;border:1px dashed var(--tr-line)}
+.tr .muted,.muted{color:var(--muted)}
+.tr .err{color:var(--danger)}
+.ex-wrap{margin-top:12px;border-top:1px solid var(--line)}
+.ex-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 0 2px;display:flex;gap:6px}
+.ex-label span{font-weight:600;opacity:.7}
+.sent.ex{padding:7px 0;border-bottom:1px solid var(--line)}
+.sent.ex:last-child{border-bottom:0}
+.sent-row{display:flex;gap:4px;align-items:flex-start}
+.sent.ex .en{flex:1;font-size:var(--fs);line-height:1.45;padding-top:5px}
+.sent.ex .tools{display:flex;margin-right:-8px}
+.sent.ex .tr{margin-top:4px;margin-right:0}
+.sent.ex.new{animation:newex 1.6s ease-out}
+@keyframes newex{0%{background:var(--accent-soft)}100%{background:transparent}}
+.card-foot{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.card-foot .sp-auto{flex:1}
+details.note{margin-top:10px;font-size:14px;color:var(--muted)}
+details.note summary{cursor:pointer;font-weight:600;list-style:none}
+details.note summary::-webkit-details-marker{display:none}
+details.note div{white-space:pre-line;margin-top:6px;padding:8px 10px;background:var(--card2);border-radius:10px}
 
-        /* SELETOR DE VOZ E GEMINI */
-        .voice-config-area, .gemini-config-area {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-        .voice-config-area label, .gemini-config-area label { color: var(--text); font-weight: 700; margin-bottom: 5px; display: block; }
-        select, input[type="password"], textarea, input[type="text"] { 
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); 
-            font-size: 16px; color: var(--text); background: var(--input-bg); box-sizing: border-box; font-family: inherit;
-        }
-        textarea:focus, input:focus, select:focus { outline: none; border-color: var(--primary); }
+.tip{background:var(--accent-soft);color:var(--text);border-radius:14px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.tip b{color:var(--accent)}
+.tip .ib{margin:-6px -8px -6px 0}
+.empty{text-align:center;color:var(--muted);padding:48px 16px}
+.empty h3{color:var(--text);margin:0 0 6px;font-size:20px}
+.empty .pill{margin-top:16px}
 
-        /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background: var(--card-bg); color: var(--text); padding: 25px; border-radius: 16px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; animation: slideUp 0.3s ease-out; border: 1px solid var(--border); }
-        .modal-header { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); border: none; background: none; }
-        .example-item { background: var(--bg); padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid var(--border); color: var(--text); }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+/* ---------- Tab bar ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;padding:6px 8px calc(var(--bot) + 4px);background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-top:.5px solid var(--line)}
+@supports not (background:color-mix(in srgb,red 50%,blue)){.tabbar{background:var(--card)}}
+.tabbar-in{display:flex;width:100%;max-width:520px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:10.5px;font-weight:600;color:var(--muted);position:relative}
+.tab svg{width:24px;height:24px}
+.tab.active{color:var(--accent)}
+.tab .dot{position:absolute;top:0;left:calc(50% + 8px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;font-weight:700}
 
-        /* Nav */
-        .nav-float { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
-        .nav-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
-        
-        /* Header */
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        h1 { margin: 0; color: var(--text); font-weight: 800; font-size: 1.5rem; }
-        .font-controls { display: flex; gap: 5px; background: var(--card-bg); padding: 4px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
-        .font-btn { background: var(--bg); border: 1px solid var(--border); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; color: var(--text); font-size: 0.9rem; display: flex; align-items: center; justify-content: center;}
-        
-        /* Seletor de Cor */
-        .color-picker-wrapper { position: relative; width: 30px; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; }
-        .color-picker-wrapper input[type="color"] { position: absolute; right: -8px; top: -8px; width: 50px; height: 50px; cursor: pointer; border: none; }
+/* ---------- Sheets ---------- */
+.sheet-ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0);transition:background .25s;display:flex;align-items:flex-end;justify-content:center}
+.sheet-ov.open{background:rgba(0,0,0,.38)}
+.sheet{width:100%;max-width:720px;max-height:calc(100% - var(--top) - 24px);background:var(--bg);border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;position:relative}
+.sheet-ov.open .sheet{transform:none}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:8px auto 2px;flex:none}
+.sheet-x{position:absolute;right:10px;top:10px;background:var(--card)}
+.sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 16px calc(var(--bot) + 20px)}
+.sheet-title{font-size:20px;font-weight:800;margin:4px 44px 12px 0}
+.hint{font-size:13.5px;color:var(--muted);margin:6px 0 10px}
+.field{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+textarea,.input{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px 12px;outline:none;resize:vertical}
+textarea:focus,.input:focus{border-color:var(--accent)}
+.btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:14px;background:var(--card);font-weight:700;font-size:16px;margin-top:12px}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.55}
+.menu{background:var(--card);border-radius:14px;overflow:hidden}
+.menu button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;text-align:left;font-size:16px;border-bottom:1px solid var(--line)}
+.menu button:last-child{border-bottom:0}
+.menu button svg{color:var(--accent)}
+.menu button.danger,.menu button.danger svg{color:var(--danger)}
+.menu-head{font-size:14px;color:var(--muted);margin:2px 44px 12px 2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
-        /* Destaques */
-        .hl-base { padding: 0 4px; border-radius: 4px; display: inline; line-height: 1.5; }
-        .word-interactive { cursor: pointer; transition: 0.2s; border-bottom: 2px dotted transparent; }
-        .word-interactive:hover { border-bottom-color: currentColor; filter: brightness(0.8); }
-        .hl-blue { background-color: var(--hl-blue-bg); color: var(--hl-blue-text); font-weight: 700; }
-        .hl-red { background-color: var(--hl-red-bg); color: var(--hl-red-text); font-weight: 700; }
-        .hl-lilac { background-color: var(--hl-lilac-bg); color: var(--hl-lilac-text); font-weight: 700; }
-        .hl-bold { font-weight: 900; color: var(--hl-bold-text); border-bottom: 2px solid var(--border); }
+.edit-ex{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px}
+.edit-ex textarea{flex:1}
 
-        /* Form & Data */
-        .input-group { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border); }
-        .input-group h3 { margin-top: 0; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; }
-        .input-row { margin-bottom: 12px; }
-        button#add-btn { background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; width: 100%; font-size: 1rem; margin-top: 5px; cursor: pointer;}
-        .translate-action-btn { background-color: #8b5cf6; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; cursor: pointer; }
-        
-        .data-controls { display: flex; gap: 5px; margin-bottom: 20px; background: #334155; padding: 8px; border-radius: 8px; color: white; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .data-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer;}
-        .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
-        #file-input { display: none; }
-        .import-toggle { text-align: center; margin-bottom: 15px; }
-        .import-link { color: var(--text-muted); font-size: 0.85rem; text-decoration: underline; background: none; border: none; cursor: pointer; }
-        #import-section { display: none; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 2px dashed var(--border); margin-bottom: 25px; }
+/* Context sheet */
+.term-form{display:flex;gap:8px}
+.term-form .input{flex:1}
+.ctx-sent{margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:var(--card);font-size:15px;line-height:1.45;color:var(--muted)}
+.ctx-sent mark{background:var(--hl);color:var(--strong);font-weight:700;border-radius:3px;padding:0 1px}
+.ctx-sent.small{font-size:14px;margin:8px 0}
+.ctx-card{background:var(--card);border-radius:16px;padding:14px 16px;margin-top:12px}
+.ctx-term{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctx-term h3{margin:0;font-size:24px;font-weight:800;color:var(--strong)}
+.ctx-mean{font-size:19px;font-weight:700;color:var(--tr);margin:6px 0 4px}
+.ctx-expl{font-size:15.5px;line-height:1.5}
+.ctx-other{font-size:14px;color:var(--muted);margin-top:8px}
+.def{padding:8px 0;border-bottom:1px solid var(--line)}
+.def:last-child{border-bottom:0}
+.def .pos{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.loading{display:flex;align-items:center;gap:10px;color:var(--muted);padding:20px 4px}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
-        /* Cartões */
-        #card-container { display: flex; flex-direction: column; gap: 15px; }
-        .card { background: var(--custom-card-bg); padding: 20px 15px; border-radius: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); border-left-width: 5px; border-left-style: solid; animation: fadeIn 0.4s ease-out; position: relative; scroll-margin-top: 15px; padding-top: 30px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);}
-        .card-number { position: absolute; top: 8px; left: 10px; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; background: var(--bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);}
-        
-        .line-container { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
-        .line-container:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .line-item { display: flex; align-items: flex-start; gap: 8px; }
-        .line-text { font-size: var(--line-font-size); color: var(--text); flex-grow: 1; line-height: 1.4; word-wrap: break-word; margin-top: 2px; }
-        .play-mini { background: var(--play-bg); border: none; color: var(--primary); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
-        .trans-mini-btn { background: var(--trans-bg); border: 1px solid var(--trans-border); color: #16a34a; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 0.8rem; margin-top: 3px; }
-        .line-trans-area { display: none; margin-left: 36px; margin-top: 5px; color: #16a34a; font-size: 0.95rem; font-style: italic; background: var(--trans-bg); padding: 8px 12px; border-radius: 8px; border: 1px dashed var(--trans-border); margin-right: 36px;}
+/* Terms */
+.term-head{display:flex;gap:8px;align-items:flex-start}
+.term-head .grow{flex:1;min-width:0}
+.term-name{font-size:calc(var(--fs) * 1.15);font-weight:800;color:var(--strong);line-height:1.25}
+.term-mean{font-size:calc(var(--fs) * .95);color:var(--tr);font-weight:600;margin-top:4px}
+.term-expl{font-size:15px;line-height:1.5;margin-top:6px}
 
-        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border); gap: 5px; }
-        .controls-group { display: flex; align-items: center; gap: 6px; flex: 1; }
-        .play-all-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 28px; font-size: 0.75rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 4px; cursor: pointer;}
-        
-        /* Botões Rodapé */
-        .footer-actions { display: flex; gap: 8px; align-items: center; }
-        .action-btn-small { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
-        .action-btn-small.delete { color: #ef4444; }
-        
-        .toggle-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; width: 100%; padding: 8px; margin-top: 5px; font-size: 0.8rem; font-weight: 600; }
-        .details-area { display: none; background-color: var(--trans-bg); padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--trans-border); }
-        .details-area.visible { display: block; }
-        .translation-text { color: #16a34a; white-space: pre-line; line-height: 1.5; font-size: 0.95rem; }
+/* Review */
+.seg{display:flex;background:var(--card2);border-radius:10px;padding:2px;gap:2px}
+.seg button{flex:1;height:32px;border-radius:8px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--card);border-radius:14px;padding:12px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);font-weight:600}
+.group{background:var(--card);border-radius:16px;padding:4px 16px;box-shadow:var(--shadow);margin-bottom:16px}
+.group-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:22px 4px 8px}
+.set-row{display:flex;align-items:center;gap:12px;min-height:50px;padding:8px 0;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:0}
+.set-row .lbl{flex:1;min-width:0}
+.set-row .lbl small{display:block;color:var(--muted);font-size:13px}
+.set-row select,.set-row .input{max-width:58%;border:1px solid var(--line);border-radius:10px;background:var(--card2);height:38px;padding:0 10px}
+.set-row .input{max-width:none;flex:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.switch{position:relative;width:51px;height:31px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch span{position:absolute;inset:0;border-radius:999px;background:var(--line);transition:.2s}
+.switch span::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:.2s}
+.switch input:checked+span{background:#34c759}
+.switch input:checked+span::after{transform:translateX(20px)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{width:30px;height:30px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08)}
+.swatch.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+.rv-card{background:var(--card);border-radius:22px;padding:22px 18px;box-shadow:var(--shadow);min-height:260px;display:flex;flex-direction:column}
+.rv-progress{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:4px 0 14px}
+.rv-progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.rv-front{font-size:calc(var(--fs) * 1.2);line-height:1.4;font-weight:600;color:var(--strong)}
+.rv-front.pt{color:var(--tr)}
+.rv-back{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.rv-rate{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.rv-rate button{background:var(--card);border-radius:14px;padding:10px 4px;font-weight:700;font-size:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:2px}
+.rv-rate button small{font-weight:600;font-size:11.5px;color:var(--muted)}
+.rv-rate .g0{color:var(--danger)}.rv-rate .g1{color:#d97706}.rv-rate .g2{color:#16a34a}.rv-rate .g3{color:var(--accent)}
+.rv-meta{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;justify-content:space-between}
 
-        .edit-mode-area { background: var(--input-bg); color: var(--text); padding: 10px; border-radius: 8px; border: 2px solid var(--border); margin-bottom: 10px; line-height: 1.6; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .edit-toolbar { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-        .color-btn { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 3px; background: var(--bg); color: var(--text); }
-        .btn-smart { background: var(--text); color: var(--bg); border: none; }
-        .save-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
-        .cancel-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; flex:1;}
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+/* Toast & stop */
+#toast{position:fixed;left:50%;bottom:calc(var(--bot) + 78px);transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:60;background:#1c1c1e;color:#fff;border-radius:14px;padding:11px 14px;font-size:14.5px;display:flex;gap:14px;align-items:center;transition:.25s;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+:root[data-theme="dark"] #toast{background:#3a3a3c}
+#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{color:#7cb4ff;font-weight:700}
+#stopSpeak{position:fixed;right:16px;bottom:calc(var(--bot) + 78px);z-index:40;display:flex;align-items:center;gap:6px;height:42px;padding:0 16px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#stopSpeak svg{width:16px;height:16px;fill:currentColor}
+.fs-preview{font-size:var(--fs);padding:10px 0 4px;color:var(--strong)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:.9em;background:var(--card2);padding:1px 5px;border-radius:5px}
+</style>
 </head>
 <body>
 
-    <div id="example-modal" class="modal-overlay" onclick="closeExampleModal(event)">
-        <div class="modal-content">
-            <button type="button" class="modal-close" onclick="closeExampleModal()">×</button>
-            <div id="modal-body"></div>
-        </div>
+<header class="topbar" id="topbar">
+  <div class="top-row">
+    <div class="top-title"><h1 id="title">Cards</h1><div class="sub" id="sub"></div></div>
+    <div class="top-actions" id="topActions"></div>
+  </div>
+  <div class="searchbar" id="searchbar" hidden>
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="search" type="search" placeholder="Buscar nos cards" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="clear" data-act="clear-search" aria-label="Limpar"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+</header>
+
+<main>
+  <section id="view-cards" class="view"><div id="cards"></div></section>
+  <section id="view-review" class="view" hidden></section>
+  <section id="view-terms" class="view" hidden></section>
+  <section id="view-settings" class="view" hidden></section>
+</main>
+
+<nav class="tabbar"><div class="tabbar-in" id="tabs"></div></nav>
+<div id="toast" role="status"></div>
+<button id="stopSpeak" data-act="stop" hidden><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Parar</button>
+<input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
+
+<script>
+'use strict';
+/* ================= Utils ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plain = s => String(s || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
+const norm = s => plain(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}' ]/gu, '').trim();
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast('Não foi possível salvar (armazenamento cheio?). Faça um backup.'); return false; } },
+  raw(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  setRaw(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} }
+};
+
+const I = {
+  vol: '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  tr: '<svg viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>',
+  spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.9L19 9.7l-5.2 1.8L12 16.5l-1.8-5L5 9.7l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>',
+  more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  trash: '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  edit: '<svg viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
+  cards: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="M6 3.5h12"/></svg>',
+  review: '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>',
+  book: '<svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+  gear: '<svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  copy: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  share: '<svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
+  down: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>',
+  up: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  bookmarkPlus: '<svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M12 7v6M9 10h6"/></svg>',
+  arrowUp: '<svg viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>',
+  wand: '<svg viewBox="0 0 24 24"><path d="m15 4 5 5"/><path d="M3 21 15.5 8.5"/><path d="M12 3v2M19 10h2M17.5 4.5 19 3"/></svg>',
+  history: '<svg viewBox="0 0 24 24"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>'
+};
+let curView = 'cards', query = '';
+const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
+
+/* ================= Settings ================= */
+const SET_KEY = 'englishPro2Settings';
+const DEF = { theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
+if (LS.raw(SET_KEY) == null) {
+  // herda preferências da versão antiga (V38)
+  const ofs = parseFloat(LS.raw('englishAppFontSize'));
+  if (ofs) S.fs = Math.max(14, Math.min(30, Math.round(ofs * 16)));
+  if (LS.raw('englishAppDarkMode') === 'true') S.theme = 'dark';
+  const ov = LS.raw('englishAppGlobalVoiceName');
+  if (ov) S.voice = ov;
+}
+const saveS = () => LS.set(SET_KEY, S);
+
+/* ================= Data / migration ================= */
+const DB_KEY = 'englishPro2';
+const OLD_KEYS = ['englishCardsFinalV38_8', 'englishCardsFinalV34', 'englishCardsFinalV30', 'englishCardsFinalV29', 'englishCardsFinalV26', 'englishCardsFinalV25'];
+const newSent = (en, tr = '') => ({ id: uid(), en: String(en || '').trim(), tr: tr || '' });
+const newCard = (en, tr = '') => ({ id: uid(), main: newSent(en, tr), ex: [], created: Date.now() });
+
+// Converte marcações antigas (*azul* #vermelho# ~lilás~ ^negrito^ ==x== **x**) em **negrito**
+function convertMarks(s) {
+  return String(s || '')
+    .replace(/\*\*(.+?)\*\*/g, '\u0001$1\u0002')
+    .replace(/==(.+?)==/g, '\u0001$1\u0002')
+    .replace(/<b>(.*?)<\/b>/gi, '\u0001$1\u0002')
+    .replace(/\^(.+?)\^/g, '\u0001$1\u0002')
+    .replace(/#(.+?)#/g, '\u0001$1\u0002')
+    .replace(/~(.+?)~/g, '\u0001$1\u0002')
+    .replace(/\*(.+?)\*/g, '\u0001$1\u0002')
+    .replace(/[\u0001\u0002]/g, '**')
+    .replace(/\*\*\*\*/g, '')
+    .replace(/\*\*\s*\*\*/g, ' ');
+}
+const PREFIX_RE = /^\s*(?:[-•–]\s*|\d+[.)]\s*|🇺🇸\s*|🇬🇧\s*|🇧🇷\s*)?(?:(?:(?:another\s+|other\s+|outro\s+)?ex[ae]mples?|exemplos?)\s*\d*\s*[:.\-–]|ex\.?\s*\d*\s*[:.])\s*/i;
+const stripPrefix = s => String(s || '').replace(PREFIX_RE, '').replace(/^\s*(?:🇺🇸|🇬🇧|🇧🇷)\s*/, '').trim();
+
+function migrateOldCard(o) {
+  if (!o || typeof o.phrase !== 'string') return null;
+  const lines = o.phrase.split('\n').map(l => stripPrefix(convertMarks(l))).filter(l => plain(l));
+  if (!lines.length) return null;
+  const trLines = String(o.translation || '').split('\n').map(l => stripPrefix(l)).filter(l => l.trim());
+  const c = newCard(lines[0]);
+  c.ex = lines.slice(1).map(l => newSent(l));
+  if (trLines.length && trLines.length === lines.length) {
+    c.main.tr = trLines[0];
+    c.ex.forEach((s, i) => s.tr = trLines[i + 1]);
+  } else if (trLines.length) {
+    c.note = String(o.translation).trim();
+  }
+  if (o.id) c.oldId = o.id;
+  if (typeof o.id === 'number' && o.id > 1e12) c.created = Math.floor(o.id);
+  return c;
+}
+function readOldKey(k) { try { const a = JSON.parse(LS.raw(k) || 'null'); return Array.isArray(a) ? a : null; } catch { return null; } }
+function isOldSample(arr) { return arr.length === 1 && /Use (==|\^)bold/.test(arr[0].phrase || ''); }
+
+let db = LS.get(DB_KEY, null);
+let migrationNote = '';
+if (!db || !Array.isArray(db.cards)) {
+  db = { v: 2, cards: [], terms: [], stats: {}, created: Date.now() };
+  for (const k of OLD_KEYS) {
+    const arr = readOldKey(k);
+    if (arr && arr.length && !isOldSample(arr)) {
+      db.cards = arr.map(migrateOldCard).filter(Boolean);
+      db.migratedFrom = k;
+      migrationNote = `${db.cards.length} cards importados da versão anterior. Nada foi apagado.`;
+      break;
+    }
+  }
+  if (!db.cards.length) {
+    db.cards = [
+      ["I'm **running late**, I'll be there in ten minutes.", ['Sorry, **running late** — traffic is crazy today.', "She's always **running late** for work."]],
+      ["**It's up to you**, I'm fine with either place.", ["Pizza or sushi? **It's up to you**.", "Whether you come or not **is up to you**."]],
+      ["We should **hang out** this weekend.", ['Do you want to **hang out** after work?', 'We used to **hang out** at the beach every summer.']]
+    ].map(([m, ex]) => { const c = newCard(m); c.ex = ex.map(e => newSent(e)); return c; });
+  }
+  LS.set(DB_KEY, db);
+}
+db.terms = db.terms || []; db.stats = db.stats || {};
+
+let saveT;
+function save() { clearTimeout(saveT); saveT = setTimeout(() => LS.set(DB_KEY, db), 120); }
+function saveNow() { clearTimeout(saveT); LS.set(DB_KEY, db); }
+addEventListener('pagehide', saveNow);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
+
+const tmpSents = new Map(); // frases temporárias (contexto, revisão)
+function findSent(sid) {
+  for (const c of db.cards) {
+    if (c.main.id === sid) return { s: c.main, card: c, isMain: true };
+    const s = c.ex.find(x => x.id === sid); if (s) return { s, card: c };
+  }
+  for (const t of db.terms) { const s = (t.ex || []).find(x => x.id === sid); if (s) return { s, term: t }; }
+  const s = tmpSents.get(sid); return s ? { s, tmp: true } : null;
+}
+const cardById = id => db.cards.find(c => c.id === id);
+const termById = id => db.terms.find(t => t.id === id);
+
+/* ================= Theme ================= */
+function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+const mq = matchMedia('(prefers-color-scheme: dark)');
+function applyTheme() {
+  const t = S.theme === 'auto' ? (mq.matches ? 'dark' : 'light') : S.theme;
+  const r = document.documentElement;
+  r.dataset.theme = t;
+  r.style.setProperty('--fs', S.fs + 'px');
+  r.style.setProperty('--accent', S.accent);
+  r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
+  r.style.setProperty('--sel', hexA(S.accent, .28));
+  const bg = getComputedStyle(r).getPropertyValue('--bg').trim();
+  $('meta[name=theme-color]').setAttribute('content', bg);
+}
+mq.addEventListener ? mq.addEventListener('change', applyTheme) : mq.addListener(applyTheme);
+applyTheme();
+
+/* ================= Toast / sheets ================= */
+let toastT, undoFn = null;
+function toast(msg, o = {}) {
+  const t = $('#toast');
+  t.innerHTML = `<span>${esc(msg)}</span>${o.undo ? '<button data-act="undo">Desfazer</button>' : ''}`;
+  t.classList.add('show'); undoFn = o.undo || null;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.classList.remove('show'); undoFn = null; }, o.undo ? 6000 : (o.ms || 2800));
+}
+const sheets = [];
+function openSheet(html, o = {}) {
+  const ov = document.createElement('div');
+  ov.className = 'sheet-ov';
+  ov.innerHTML = `<div class="sheet ${o.cls || ''}" role="dialog" aria-modal="true"><div class="grab"></div><button class="ib sheet-x" data-act="close-sheet" aria-label="Fechar">${I.x}</button><div class="sheet-body">${html}</div></div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('open')));
+  ov.addEventListener('click', e => { if (e.target === ov) closeSheet(); });
+  const sh = { ov, body: ov.querySelector('.sheet-body'), onClose: o.onClose };
+  sheets.push(sh); document.body.classList.add('noscroll');
+  return sh;
+}
+function closeSheet() {
+  const sh = sheets.pop(); if (!sh) return;
+  sh.ov.classList.remove('open');
+  setTimeout(() => sh.ov.remove(), 280);
+  sh.onClose && sh.onClose();
+  if (!sheets.length) document.body.classList.remove('noscroll');
+}
+function closeAllSheets() { while (sheets.length) closeSheet(); }
+function busy(btn, on, label) {
+  if (!btn) return;
+  if (on) { btn.dataset.html = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${label ? esc(label) : ''}`; }
+  else if (btn.dataset.html != null) { btn.innerHTML = btn.dataset.html; btn.disabled = false; delete btn.dataset.html; }
+}
+
+/* ================= Words: render / bold ================= */
+function parseSent(text) {
+  const toks = [], re = /\*\*(.+?)\*\*/g; let last = 0, m;
+  const push = (str, b) => str.split(/(\s+)/).forEach(p => { if (p) toks.push({ t: p, b, sp: /^\s+$/.test(p) }); });
+  while ((m = re.exec(text))) { push(text.slice(last, m.index), false); push(m[1], true); last = re.lastIndex; }
+  push(text.slice(last), false);
+  return toks;
+}
+function effBold(toks) {
+  return toks.map((k, i) => {
+    if (!k.sp) return k.b;
+    let p = i - 1, n = i + 1;
+    while (p >= 0 && toks[p].sp) p--;
+    while (n < toks.length && toks[n].sp) n++;
+    return p >= 0 && n < toks.length && toks[p].b && toks[n].b;
+  });
+}
+function serialize(toks) {
+  const e = effBold(toks); let out = '', run = '';
+  toks.forEach((k, i) => {
+    if (e[i]) run += k.t;
+    else { if (run) { out += '**' + run + '**'; run = ''; } out += k.t; }
+  });
+  if (run) out += '**' + run + '**';
+  return out;
+}
+function wordsHTML(text) {
+  const toks = parseSent(text), e = effBold(toks);
+  return toks.map((k, i) => k.sp ? (e[i] ? `<span class="sp b" data-i="${i}">${k.t}</span>` : `<span class="sp" data-i="${i}">${k.t}</span>`)
+    : `<span class="w${k.b ? ' b' : ''}" data-i="${i}">${esc(k.t)}</span>`).join('');
+}
+const boldTerms = text => { const r = [], re = /\*\*(.+?)\*\*/g; let m; while ((m = re.exec(text))) r.push(m[1].trim()); return [...new Set(r)]; };
+const cleanTerm = t => String(t || '').replace(/\*\*/g, '').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim();
+function highlightTerm(sentence, term) {
+  const p = plain(sentence), t = cleanTerm(term);
+  if (!t) return esc(p);
+  const i = p.toLowerCase().indexOf(t.toLowerCase());
+  if (i < 0) return esc(p);
+  return esc(p.slice(0, i)) + '<mark>' + esc(p.slice(i, i + t.length)) + '</mark>' + esc(p.slice(i + t.length));
+}
+
+/* ================= Translation ================= */
+const trCache = new Map();
+async function translate(text, to = 'pt') {
+  const q = plain(text); if (!q) return '';
+  const ck = to + '|' + q; if (trCache.has(ck)) return trCache.get(ck);
+  const from = to === 'pt' ? 'en' : 'pt';
+  let out = '';
+  try {
+    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(q)}`);
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    out = (j[0] || []).map(x => x[0]).join('');
+  } catch {
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(q)}&langpair=${from}|${to === 'pt' ? 'pt-BR' : 'en'}`);
+    const j = await r.json();
+    out = j.responseData?.translatedText || '';
+  }
+  if (!out) throw new Error('sem tradução');
+  trCache.set(ck, out);
+  return out;
+}
+const trPending = new Set();
+async function ensureTr(s) {
+  if (!s || s.tr || trPending.has(s.id)) return;
+  trPending.add(s.id); s.trErr = false;
+  try { s.tr = await translate(s.en); save(); } catch { s.trErr = true; }
+  trPending.delete(s.id);
+  paintTr(s);
+}
+function trInner(s) {
+  if (s.tr) return esc(plain(s.tr));
+  if (s.trErr) return '<span class="err">Não foi possível traduzir agora. Toque em traduzir de novo.</span>';
+  return '<span class="muted">Traduzindo…</span>';
+}
+function paintTr(s) { $$(`.sent[data-sid="${s.id}"] > .tr`).forEach(el => el.innerHTML = trInner(s)); }
+const openTr = new Set();
+const trObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    trObserver.unobserve(en.target);
+    const f = findSent(en.target.dataset.sid); if (f && !f.s.tr) ensureTr(f.s);
+  });
+}, { rootMargin: '300px 0px' }) : null;
+function observeTr(root = document) {
+  if (!S.showTr) return;
+  $$('.sent', root).forEach(el => { const f = findSent(el.dataset.sid); if (f && !f.s.tr) trObserver ? trObserver.observe(el) : ensureTr(f.s); });
+}
+
+/* ================= Speech (vozes nativas do iOS) ================= */
+let voices = [];
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  voices = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang));
+  if (curView === 'settings') { const sel = $('#voiceSel'); if (sel) sel.innerHTML = voiceOptions(); }
+}
+if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', loadVoices) : (speechSynthesis.onvoiceschanged = loadVoices); }
+function bestVoice() {
+  const us = voices.filter(v => /en[-_]US/i.test(v.lang)), pool = us.length ? us : voices;
+  return pool.find(v => /premium/i.test(v.name)) || pool.find(v => /enhanced|aprimorad|natural|neural/i.test(v.name))
+    || pool.find(v => /samantha/i.test(v.name)) || pool.find(v => v.localService && v.default) || pool[0] || null;
+}
+function pickVoice() { if (!voices.length) loadVoices(); return voices.find(v => v.name === S.voice) || bestVoice(); }
+function clearSpeaking() { $$('.sent.speaking').forEach(e => e.classList.remove('speaking')); }
+function speak(items) {
+  if (!('speechSynthesis' in window)) return toast('Este navegador não tem voz disponível.');
+  items = items.map(it => typeof it === 'string' ? { text: it } : it).filter(it => plain(it.text));
+  if (!items.length) return;
+  const ss = speechSynthesis; ss.cancel(); clearSpeaking();
+  const v = pickVoice();
+  items.forEach((it, i) => {
+    const u = new SpeechSynthesisUtterance(plain(it.text));
+    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+    u.rate = S.rate;
+    u.onstart = () => { clearSpeaking(); if (it.id) $$(`.sent[data-sid="${it.id}"]`).forEach(e => e.classList.add('speaking')); $('#stopSpeak').hidden = false; };
+    if (i === items.length - 1) u.onend = u.onerror = () => { clearSpeaking(); $('#stopSpeak').hidden = true; };
+    ss.speak(u);
+  });
+}
+function stopSpeak() { if ('speechSynthesis' in window) speechSynthesis.cancel(); clearSpeaking(); $('#stopSpeak').hidden = true; }
+
+/* ================= IA (Gemini / Claude) ================= */
+const keyGemini = () => (LS.raw('englishAppGeminiKey') || '').trim();
+const keyClaude = () => (LS.raw('englishAppClaudeKey') || '').trim();
+function aiCfg() {
+  let p = S.ai;
+  if (p === 'auto') p = keyGemini() ? 'gemini' : keyClaude() ? 'claude' : '';
+  return { p, k: p === 'gemini' ? keyGemini() : p === 'claude' ? keyClaude() : '' };
+}
+const hasAI = () => !!aiCfg().k;
+function parseJSON(txt) {
+  let t = String(txt || '').replace(/```(?:json)?/gi, '').trim();
+  const a = t.search(/[\[{]/), b = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));
+  if (a >= 0 && b > a) t = t.slice(a, b + 1);
+  return JSON.parse(t);
+}
+async function gemini(prompt, key) {
+  const models = [...new Set([LS.raw('ep2GemModel'), 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'].filter(Boolean))];
+  let err;
+  for (const m of models) {
+    let r, d;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(key)}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.9, responseMimeType: 'application/json' } })
+      });
+      d = await r.json().catch(() => ({}));
+    } catch (e) { err = new Error('Sem conexão com a IA.'); continue; }
+    if (r.ok && d.candidates?.[0]?.content) { LS.setRaw('ep2GemModel', m); return d.candidates[0].content.parts.map(p => p.text || '').join(''); }
+    err = new Error(d.error?.message || ('Erro ' + r.status));
+    if (r.status === 404 || r.status === 503 || r.status === 500 || (r.status === 400 && /model/i.test(err.message))) continue;
+    throw err;
+  }
+  throw err;
+}
+async function claude(prompt, key) {
+  let err;
+  for (const m of ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-haiku-4-5']) {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: m, max_tokens: 2000, messages: [{ role: 'user', content: prompt + '\n\nReply with the JSON only, no other text.' }] })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) return (d.content || []).map(c => c.text || '').join('');
+    err = new Error(d.error?.message || ('Erro ' + r.status));
+    if (r.status !== 404) throw err;
+  }
+  throw err;
+}
+async function askAI(prompt) {
+  const { p, k } = aiCfg();
+  if (!k) { const e = new Error('NOKEY'); e.nokey = true; throw e; }
+  return parseJSON(p === 'claude' ? await claude(prompt, k) : await gemini(prompt, k));
+}
+function aiError(e) {
+  if (e && e.nokey) return needAI();
+  console.warn(e);
+  toast('IA: ' + (e && e.message ? e.message.slice(0, 120) : 'erro'), { ms: 4500 });
+}
+function needAI() {
+  openSheet(`<div class="sheet-title">Configure a IA</div>
+    <p>Para gerar exemplos, explicar contexto e completar frases, o app usa uma IA com a sua chave.</p>
+    <p class="hint">A chave do Gemini é gratuita: abra <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, toque em <b>Create API key</b> e cole em Ajustes → IA.</p>
+    <button class="btn primary" data-act="goto-settings">Abrir Ajustes</button>`);
+}
+const STYLE = `The learner is a Brazilian adult focused on EVERYDAY, natural, spoken American English: the way people really talk at home, at work, with friends, shopping, texting, travelling. Prefer common, useful words and natural contractions. Avoid formal, literary or rare vocabulary. Portuguese translations must be natural Brazilian Portuguese (pt-BR), not literal.`;
+
+function promptExamples(card, n) {
+  const bt = boldTerms(card.main.en);
+  const existing = [card.main.en, ...card.ex.map(s => s.en)].map(plain).slice(-12);
+  return `${STYLE}
+Original sentence: "${plain(card.main.en)}"
+${bt.length ? `Key expression(s) the learner highlighted: ${bt.map(t => `"${t}"`).join(', ')}. EVERY new sentence must use this same expression (inflected naturally if needed) and wrap it in **double asterisks**.` : `If the original has a key expression (phrasal verb, idiom, collocation, useful structure), reuse it in every new sentence and wrap it in **double asterisks**.`}
+Do NOT repeat or paraphrase too closely these existing sentences: ${JSON.stringify(existing)}
+Write ${n} NEW short sentences (max 16 words each) with a similar meaning or the same use, in different everyday situations, varying the person and tense.
+Return ONLY JSON: {"examples":[{"en":"...","pt":"..."}]}`;
+}
+function promptContext(term, sentence) {
+  return `${STYLE}
+Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.
+Return ONLY JSON:
+{"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
+"kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
+"meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 8 words)",
+"explanation":"2 or 3 short sentences in pt-BR: what it means here, when natives use it, formality, common mistakes",
+"other":"other common meanings in pt-BR, very short (or empty string)",
+"examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
+Give 3 examples in different daily situations, max 15 words each.`;
+}
+function promptTermMore(t) {
+  return `${STYLE}
+Write 3 NEW short everyday sentences (max 15 words) using "${t.term}" with this meaning: "${t.meaning}". Wrap the term in **double asterisks**.
+Do not repeat: ${JSON.stringify((t.ex || []).map(s => plain(s.en)))}
+Return ONLY JSON: {"examples":[{"en":"...","pt":"..."}]}`;
+}
+function promptComplete(lines, force) {
+  return `${STYLE}
+The learner pasted these English lines to study. For EACH line, in the same order:
+${force ? `- Rewrite it as ONE complete, natural everyday sentence with clear context (max 18 words) that contains the original words exactly; wrap the original words in **double asterisks**; set "completed": true. If it is already a complete sentence with clear context, keep it exactly and set "completed": false.`
+: `- If it is already a complete, natural sentence that makes sense on its own: keep it EXACTLY (fix only obvious typos) and set "completed": false.
+- If it is a fragment, a single word, an expression, an unfinished sentence or lacks context: write ONE complete, natural everyday sentence (max 18 words) that contains the original words exactly, wrap those original words in **double asterisks**, and set "completed": true.`}
+Lines: ${JSON.stringify(lines)}
+Return ONLY JSON with exactly ${lines.length} items: {"items":[{"completed":true,"en":"...","pt":"natural pt-BR translation"}]}`;
+}
+const cleanAI = s => serialize(parseSent(String(s || '').replace(/\s+/g, ' ').trim())).replace(/ {2,}/g, ' ');
+
+/* ================= Views ================= */
+const TABS = [['cards', 'Cards', I.cards], ['review', 'Revisar', I.review], ['terms', 'Termos', I.book], ['settings', 'Ajustes', I.gear]];
+function renderTabs() {
+  const due = reviewCounts('cards').total + reviewCounts('terms').total;
+  $('#tabs').innerHTML = TABS.map(([k, l, ic]) => `<button class="tab ${curView === k ? 'active' : ''}" data-act="tab" data-v="${k}">${ic}${k === 'review' && due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}<span>${l}</span></button>`).join('');
+}
+function renderTop() {
+  const titles = { cards: 'Cards', review: 'Revisar', terms: 'Termos', settings: 'Ajustes' };
+  $('#title').textContent = titles[curView];
+  let sub = '';
+  if (curView === 'cards') sub = `${db.cards.length} card${db.cards.length === 1 ? '' : 's'}` + (query ? ` · busca: “${query}”` : '');
+  if (curView === 'terms') sub = `${db.terms.length} termo${db.terms.length === 1 ? '' : 's'} salvos`;
+  $('#sub').textContent = sub;
+  const a = [];
+  if (curView === 'cards') {
+    a.push(`<button class="tb ${query || !$('#searchbar').hidden ? 'on' : ''}" data-act="toggle-search" aria-label="Buscar">${I.search}</button>`);
+    a.push(`<button class="tb ${S.showTr ? 'on' : ''}" data-act="toggle-showtr" aria-label="Mostrar todas as traduções">${I.tr}</button>`);
+    a.push(`<button class="tb primary" data-act="add" aria-label="Novos cards">${I.plus}</button>`);
+  } else if (curView === 'terms') {
+    a.push(`<button class="tb ${S.showTr ? 'on' : ''}" data-act="toggle-showtr" aria-label="Mostrar todas as traduções">${I.tr}</button>`);
+  }
+  $('#topActions').innerHTML = a.join('');
+  if (curView !== 'cards') $('#searchbar').hidden = true;
+}
+function show(v) {
+  if (v !== curView) stopSpeak();
+  curView = v;
+  TABS.forEach(([k]) => $('#view-' + k).hidden = k !== v);
+  renderTop(); renderTabs();
+  ({ cards: renderCards, review: renderReview, terms: renderTerms, settings: renderSettings })[v]();
+  if (v !== 'cards') scrollTo(0, 0);
+}
+
+/* ---------- Cards view ---------- */
+function sentHTML(s, o = {}) {
+  const open = S.showTr || openTr.has(s.id);
+  return `<div class="sent ${o.cls || 'ex'}" data-sid="${s.id}">
+    <div class="sent-row"><div class="en" lang="en">${wordsHTML(s.en)}</div>
+      <div class="tools"><button class="ib" data-act="speak" aria-label="Ouvir">${I.vol}</button><button class="ib ${open ? 'on' : ''}" data-act="tr" aria-label="Traduzir">${I.tr}</button>${o.extra || ''}</div></div>
+    <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
+}
+function mainHTML(s) {
+  const open = S.showTr || openTr.has(s.id);
+  return `<div class="sent main" data-sid="${s.id}"><div class="en" lang="en">${wordsHTML(s.en)}</div>
+    <div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button><button class="pill ${open ? 'on' : ''}" data-act="tr">${I.tr} Traduzir</button></div>
+    <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
+}
+const DEL = `<button class="ib del" data-act="del-ex" aria-label="Apagar exemplo">${I.x}</button>`;
+function cardHTML(c) {
+  const n = db.cards.indexOf(c) + 1;
+  const allOpen = [c.main, ...c.ex].every(s => S.showTr || openTr.has(s.id));
+  return `<article class="card" data-card="${c.id}" style="--stripe:${STRIPES[(n - 1) % STRIPES.length]}">
+    <div class="card-head"><span class="num">#${n}</span><div class="grow">${c.src ? `<span class="badge" title="Frase original">✨ completada de “${esc(c.src)}”</span>` : ''}</div>
+      <button class="ib" data-act="card-menu" aria-label="Opções do card">${I.more}</button></div>
+    ${mainHTML(c.main)}
+    ${c.note ? `<details class="note"><summary>Nota / tradução antiga ▾</summary><div>${esc(c.note)}</div></details>` : ''}
+    ${c.ex.length ? `<div class="ex-wrap"><div class="ex-label">Exemplos <span>${c.ex.length}</span></div>${c.ex.map(s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL })).join('')}</div>` : ''}
+    <div class="card-foot">
+      <button class="pill accent" data-act="gen">${I.spark} Novos exemplos</button>
+      <span class="sp-auto"></span>
+      <button class="ib" data-act="play-all" aria-label="Ouvir tudo">${I.play}</button>
+      <button class="ib ${allOpen ? 'on' : ''}" data-act="tr-card" aria-label="Traduzir tudo do card">${I.tr}</button>
+    </div></article>`;
+}
+function renderCards() {
+  const q = norm(query);
+  const list = q ? db.cards.filter(c => norm([c.main.en, c.main.tr, ...c.ex.map(s => s.en + ' ' + (s.tr || '')), c.note || ''].join(' ')).includes(q)) : db.cards;
+  let html = '';
+  if (migrationNote) html += `<div class="tip"><div style="flex:1"><b>Tudo certo!</b> ${esc(migrationNote)} A primeira frase de cada card virou a frase principal e as demais viraram exemplos.</div><button class="ib" data-act="dismiss-migration">${I.x}</button></div>`;
+  if (!S.tipDone && db.cards.length) html += `<div class="tip"><div style="flex:1"><b>Dica:</b> deslize o dedo sobre uma ou mais palavras para deixá-las em <b>negrito</b> (deslize de novo para tirar). Toque numa palavra para ver o contexto dela.</div><button class="ib" data-act="dismiss-tip">${I.x}</button></div>`;
+  if (!db.cards.length) html += `<div class="empty"><h3>Nenhum card ainda</h3>Cole frases em inglês, uma por linha — cada uma vira um card.<br><button class="pill accent" data-act="add">${I.plus} Criar cards</button></div>`;
+  else if (!list.length) html += `<div class="empty"><h3>Nada encontrado</h3>Nenhum card tem “${esc(query)}”.</div>`;
+  html += list.map(cardHTML).join('');
+  $('#cards').innerHTML = html;
+  db.cards.forEach(c => c.ex.forEach(s => delete s.fresh));
+  renderTop(); observeTr($('#cards'));
+}
+function rerenderCard(c, flash) {
+  const el = $(`.card[data-card="${c.id}"]`);
+  if (!el) return renderCards();
+  el.outerHTML = cardHTML(c);
+  c.ex.forEach(s => delete s.fresh);
+  const nel = $(`.card[data-card="${c.id}"]`);
+  if (flash) { nel.classList.add('flash'); }
+  observeTr(nel);
+  return nel;
+}
+
+/* ---------- Add cards ---------- */
+function splitLines(txt) {
+  return String(txt || '').split(/\r?\n/).map(l => convertMarks(l).replace(/^\s*(?:[-•*–]\s+|\d+[.)]\s+)/, '').replace(/^["“”']+|["“”']+$/g, '').trim()).filter(l => plain(l));
+}
+function openAdd() {
+  const ai = hasAI();
+  const sh = openSheet(`<div class="sheet-title">Novos cards</div>
+    <p class="hint">Cole frases em inglês, <b>uma por linha</b>. Cada linha vira um card. Use <span class="kbd">**palavra**</span> se quiser já marcar algo em negrito.</p>
+    <textarea id="addTa" rows="8" placeholder="I'm running late&#10;it's up to you&#10;get the hang of" autocapitalize="sentences" spellcheck="true"></textarea>
+    <div class="set-row" style="border:0"><div class="lbl">Completar frases incompletas ou sem contexto<small>${ai ? 'A IA cria uma frase completa do dia a dia mantendo suas palavras em negrito.' : 'Configure a IA em Ajustes para usar.'}</small></div>
+      <label class="switch"><input type="checkbox" id="addAI" ${ai && S.autoComplete ? 'checked' : ''} ${ai ? '' : 'disabled'}><span></span></label></div>
+    <button class="btn primary" data-act="add-create" id="addBtn" disabled>Criar cards</button>`);
+  const ta = $('#addTa', sh.body), btn = $('#addBtn', sh.body);
+  ta.addEventListener('input', () => { const n = splitLines(ta.value).length; btn.disabled = !n; btn.textContent = n ? `Criar ${n} card${n > 1 ? 's' : ''}` : 'Criar cards'; });
+  $('#addAI', sh.body).addEventListener('change', e => { S.autoComplete = e.target.checked; saveS(); });
+  setTimeout(() => ta.focus(), 320);
+}
+async function createCards(btn) {
+  const lines = splitLines($('#addTa').value);
+  if (!lines.length) return;
+  const useAI = $('#addAI').checked && hasAI();
+  const made = lines.map(l => newCard(l));
+  let completed = 0, failed = false;
+  if (useAI) {
+    busy(btn, true, ' Completando frases…');
+    for (let i = 0; i < lines.length; i += 15) {
+      const chunk = lines.slice(i, i + 15);
+      try {
+        const r = await askAI(promptComplete(chunk.map(plain), false));
+        const items = r.items || r;
+        if (Array.isArray(items) && items.length === chunk.length) items.forEach((it, j) => {
+          const c = made[i + j];
+          if (it && it.completed && it.en && plain(it.en).toLowerCase() !== plain(chunk[j]).toLowerCase()) { c.src = plain(chunk[j]); c.main.en = cleanAI(it.en); completed++; }
+          if (it && it.pt) c.main.tr = plain(it.pt);
+        });
+      } catch (e) { failed = true; if (e.nokey) break; console.warn(e); }
+    }
+    busy(btn, false);
+  }
+  db.cards.unshift(...made);
+  save(); closeSheet();
+  query = ''; $('#search').value = '';
+  if (curView !== 'cards') show('cards'); else renderCards();
+  scrollTo({ top: 0, behavior: 'smooth' });
+  made.forEach(c => $(`.card[data-card="${c.id}"]`)?.classList.add('flash'));
+  toast(`${made.length} card${made.length > 1 ? 's' : ''} criado${made.length > 1 ? 's' : ''}` + (completed ? ` · ${completed} completado${completed > 1 ? 's' : ''} com contexto` : '') + (failed ? ' · IA indisponível em parte' : ''), {
+    undo: () => { db.cards = db.cards.filter(c => !made.includes(c)); save(); renderCards(); }
+  });
+}
+
+/* ---------- Card actions ---------- */
+async function genExamples(c, btn) {
+  if (!hasAI()) return needAI();
+  busy(btn, true, ' Gerando…');
+  try {
+    const r = await askAI(promptExamples(c, 3));
+    const arr = (r.examples || r || []).filter(x => x && x.en);
+    if (!arr.length) throw new Error('A IA não retornou exemplos.');
+    arr.forEach(x => c.ex.push(Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1, fresh: 1 })));
+    save();
+    rerenderCard(c);
+    toast(`${arr.length} exemplos novos`);
+  } catch (e) { busy(btn, false); aiError(e); }
+}
+function cardMenu(c) {
+  openSheet(`<div class="menu-head">${esc(plain(c.main.en))}</div><div class="menu" data-card="${c.id}">
+    <button data-act="edit-card">${I.edit} Editar card</button>
+    <button data-act="complete-card">${I.wand} Completar / dar contexto (IA)</button>
+    <button data-act="tr-card-menu">${I.tr} Traduzir tudo</button>
+    <button data-act="copy-card">${I.copy} Copiar texto</button>
+    <button data-act="top-card">${I.arrowUp} Mover para o topo</button>
+    ${c.ex.length ? `<button data-act="clear-ex" class="danger">${I.trash} Apagar todos os exemplos</button>` : ''}
+    <button data-act="del-card" class="danger">${I.trash} Apagar card</button></div>`);
+}
+function deleteCard(c) {
+  const i = db.cards.indexOf(c); if (i < 0) return;
+  db.cards.splice(i, 1); save(); renderCards();
+  toast('Card apagado', { undo: () => { db.cards.splice(i, 0, c); save(); renderCards(); } });
+}
+function deleteSent(sid) {
+  const f = findSent(sid); if (!f) return;
+  const owner = f.card || f.term; if (!owner) return;
+  const list = owner.ex, i = list.indexOf(f.s); if (i < 0) return;
+  list.splice(i, 1); save();
+  const rr = () => f.card ? rerenderCard(f.card) : rerenderTerm(f.term);
+  rr();
+  toast('Exemplo apagado', { undo: () => { list.splice(i, 0, f.s); save(); rr(); } });
+}
+function toggleTrCard(c) {
+  const all = [c.main, ...c.ex], open = all.every(s => openTr.has(s.id));
+  all.forEach(s => open ? openTr.delete(s.id) : openTr.add(s.id));
+  rerenderCard(c);
+  if (!open) all.forEach(ensureTr);
+}
+async function completeCard(c) {
+  if (!hasAI()) return needAI();
+  toast('Criando contexto…', { ms: 8000 });
+  try {
+    const r = await askAI(promptComplete([plain(c.main.en)], true));
+    const it = (r.items || r)[0];
+    if (!it || !it.completed || !it.en) return toast('Essa frase já está completa e com contexto.');
+    const before = { en: c.main.en, tr: c.main.tr, src: c.src };
+    c.src = c.src || plain(c.main.en); c.main.en = cleanAI(it.en); c.main.tr = plain(it.pt || '');
+    save(); rerenderCard(c, true);
+    toast('Contexto criado', { undo: () => { Object.assign(c.main, { en: before.en, tr: before.tr }); c.src = before.src; save(); rerenderCard(c); } });
+  } catch (e) { aiError(e); }
+}
+function editCard(c) {
+  const exRow = s => `<div class="edit-ex" data-eid="${s ? s.id : 'new'}"><textarea rows="2" lang="en">${esc(s ? s.en : '')}</textarea><button class="ib del" data-act="edit-del-ex">${I.trash}</button></div>`;
+  const sh = openSheet(`<div data-card="${c.id}"><div class="sheet-title">Editar card</div>
+    <label class="field">Frase principal</label><textarea id="edMain" rows="3" lang="en">${esc(c.main.en)}</textarea>
+    <label class="field">Tradução da frase principal</label><textarea id="edTr" rows="2" placeholder="(automática se vazia)">${esc(c.main.tr || '')}</textarea>
+    <label class="field">Exemplos</label><div id="edEx">${c.ex.map(exRow).join('')}</div>
+    <button class="pill ghost" data-act="edit-add-ex">${I.plus} Adicionar exemplo</button>
+    <label class="field">Nota</label><textarea id="edNote" rows="2" placeholder="Anotações livres">${esc(c.note || '')}</textarea>
+    <p class="hint">Dica: <span class="kbd">**texto**</span> = negrito. Exemplos vazios são removidos.</p>
+    <button class="btn primary" data-act="edit-save">Salvar</button></div>`);
+  sh.exRow = exRow;
+}
+function saveEdit(c) {
+  const snap = JSON.parse(JSON.stringify(c));
+  const en = convertMarks($('#edMain').value).replace(/\s*\n\s*/g, ' ').trim();
+  if (!plain(en)) return toast('A frase principal não pode ficar vazia.');
+  const tr = $('#edTr').value.trim();
+  if (en !== c.main.en && tr === (c.main.tr || '')) c.main.tr = ''; else c.main.tr = tr;
+  c.main.en = en;
+  const old = new Map(c.ex.map(s => [s.id, s]));
+  c.ex = $$('#edEx .edit-ex').map(row => {
+    const v = convertMarks(row.querySelector('textarea').value).replace(/\s*\n\s*/g, ' ').trim();
+    if (!plain(v)) return null;
+    const prev = old.get(row.dataset.eid);
+    if (prev) { if (prev.en !== v) { prev.en = v; prev.tr = ''; } return prev; }
+    return newSent(v);
+  }).filter(Boolean);
+  c.note = $('#edNote').value.trim() || undefined;
+  save(); closeSheet(); rerenderCard(c, true);
+  toast('Card salvo', { undo: () => { const i = db.cards.indexOf(c); if (i >= 0) { db.cards[i] = snap; save(); renderCards(); } } });
+}
+
+/* ---------- Context sheet ---------- */
+let ctx = null;
+const ctxCache = new Map();
+function openContext(term, sentEn, sid) {
+  term = cleanTerm(term);
+  if (!term) return;
+  const f = sid ? findSent(sid) : null;
+  ctx = { term, sent: sentEn || '', cardId: f && f.card ? f.card.id : null, data: null };
+  openSheet(`<div class="sheet-title">Contexto</div>
+    <form class="term-form" id="ctxForm"><input class="input" id="ctxIn" value="${esc(term)}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Termo"><button class="pill accent" type="submit">Ver</button></form>
+    <p class="hint" style="margin:6px 2px 0">Edite para ver um termo maior (ex.: “get the hang of”).</p>
+    ${sentEn ? `<div class="ctx-sent" id="ctxSent">${highlightTerm(sentEn, term)}</div>` : ''}
+    <div id="ctxBody"></div>`, { onClose: () => { ctx = null; } });
+  $('#ctxForm').addEventListener('submit', e => { e.preventDefault(); const t = cleanTerm($('#ctxIn').value); if (!t || !ctx) return; $('#ctxIn').blur(); ctx.term = t; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, t); loadContext(); });
+  loadContext();
+}
+async function loadContext() {
+  const body = $('#ctxBody'); if (!body || !ctx) return;
+  const my = ctx;
+  const key = my.term.toLowerCase() + '|' + plain(my.sent);
+  body.innerHTML = `<div class="loading"><span class="spin"></span>Buscando “${esc(my.term)}”…</div>`;
+  try {
+    let data = ctxCache.get(key);
+    if (!data) {
+      if (hasAI()) {
+        const r = await askAI(promptContext(my.term, my.sent));
+        data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', other: r.other || '', ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
+      } else data = await dictLookup(my.term);
+      ctxCache.set(key, data);
+    }
+    if (ctx !== my) return;
+    my.data = data;
+    renderContext();
+  } catch (e) {
+    if (ctx !== my) return;
+    body.innerHTML = `<div class="ctx-card"><b>Não consegui carregar.</b><div class="hint">${esc(e.nokey ? 'Configure a IA em Ajustes.' : (e.message || 'Erro'))}</div><button class="pill" data-act="ctx-retry">Tentar de novo</button></div>`;
+  }
+}
+// Sem IA: dicionário gratuito do Google Tradutor (tradução, sentidos, definições e exemplos)
+async function dictLookup(term) {
+  const POS = { verb: 'verbo', noun: 'substantivo', adjective: 'adjetivo', adverb: 'advérbio', preposition: 'preposição', pronoun: 'pronome', conjunction: 'conjunção', interjection: 'interjeição', phrase: 'expressão', 'phrasal verb': 'phrasal verb' };
+  let j = [];
+  try { j = await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&dt=bd&dt=md&dt=ex&q=${encodeURIComponent(term)}`)).json(); } catch {}
+  const meaning = (j[0] || []).map(x => x[0]).join('') || await translate(term).catch(() => '');
+  const other = (j[1] || []).map(p => `${POS[p[0]] || p[0]}: ${(p[1] || []).slice(0, 5).join(', ')}`).join(' · ');
+  const defs = [];
+  (j[12] || []).forEach(p => (p[1] || []).slice(0, 2).forEach(d => defs.length < 4 && defs.push({ pos: POS[p[0]] || p[0], s: newSent(d[0]) })));
+  const ex = (j[13]?.[0] || []).slice(0, 4).map(e => newSent(String(e[0]).replace(/<b>(.*?)<\/b>/g, '**$1**').replace(/<[^>]+>/g, '')));
+  return { ai: false, term, kind: (j[1]?.[0]?.[0] && (POS[j[1][0][0]] || j[1][0][0])) || '', meaning, other, defs, ex };
+}
+function renderContext() {
+  const d = ctx.data, body = $('#ctxBody'); if (!body) return;
+  d.ex.forEach(s => tmpSents.set(s.id, s));
+  (d.defs || []).forEach(x => tmpSents.set(x.s.id, x.s));
+  const saved = db.terms.some(t => t.term.toLowerCase() === d.term.toLowerCase());
+  const card = ctx.cardId ? cardById(ctx.cardId) : null;
+  const extra = card ? `<button class="ib" data-act="ex-to-card" aria-label="Adicionar ao card">${I.plus}</button>` : '';
+  body.innerHTML = `<div class="ctx-card">
+      <div class="ctx-term"><h3 lang="en">${esc(d.term)}</h3>${d.kind ? `<span class="badge">${esc(d.kind)}</span>` : ''}<span style="flex:1"></span><button class="ib" data-act="speak-ctx-term" aria-label="Ouvir">${I.vol}</button></div>
+      ${d.meaning ? `<div class="ctx-mean">${esc(d.meaning)}</div>` : ''}
+      ${d.expl ? `<div class="ctx-expl">${esc(d.expl)}</div>` : ''}
+      ${d.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(d.other)}</div>` : ''}
+      ${d.defs && d.defs.length ? `<div style="margin-top:8px">${d.defs.map(x => `<div class="def"><div class="pos">${esc(x.pos)}</div>${sentHTML(x.s, { cls: 'ex' })}</div>`).join('')}</div>` : ''}
+      ${!d.ai ? `<p class="hint">Dicionário básico. Configure a IA em Ajustes para explicações em português e exemplos do dia a dia.</p>` : ''}
+    </div>
+    ${d.ex.length ? `<div class="ex-label" style="padding-top:16px">Em outras frases</div><div class="ctx-card" style="margin-top:6px;padding-top:4px;padding-bottom:4px">${d.ex.map(s => sentHTML(s, { cls: 'ex', extra })).join('')}</div>` : ''}
+    <div class="row-btns">
+      ${d.ai ? `<button class="pill" data-act="ctx-more">${I.spark} Mais exemplos</button>` : ''}
+      <button class="pill ${saved ? 'on' : 'accent'}" data-act="ctx-save" ${saved ? 'disabled' : ''}>${saved ? I.check + ' Salvo em Termos' : I.bookmarkPlus + ' Salvar termo'}</button>
+    </div>`;
+  observeTr(body);
+}
+async function ctxMore(btn) {
+  if (!ctx || !ctx.data) return;
+  const my = ctx;
+  busy(btn, true, ' Gerando…');
+  try {
+    const r = await askAI(promptTermMore({ term: my.data.term, meaning: my.data.meaning, ex: my.data.ex }));
+    (r.examples || []).filter(x => x && x.en).forEach(x => my.data.ex.push(newSent(cleanAI(x.en), plain(x.pt || ''))));
+    if (ctx === my) renderContext();
+  } catch (e) { busy(btn, false); aiError(e); }
+}
+function ctxSave() {
+  const d = ctx && ctx.data; if (!d) return;
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), other: d.other || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
+  db.terms.unshift(t); save(); renderContext(); renderTabs();
+  toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
+  if (curView === 'terms') renderTerms();
+}
+
+/* ---------- Terms view ---------- */
+function termHTML(t) {
+  return `<article class="card" data-term="${t.id}" style="--stripe:var(--accent)">
+    <div class="term-head"><div class="grow"><div class="term-name" lang="en">${esc(t.term)}</div>${t.kind ? `<span class="badge gray">${esc(t.kind)}</span>` : ''}</div>
+      <button class="ib" data-act="speak-term" aria-label="Ouvir">${I.vol}</button><button class="ib" data-act="term-menu" aria-label="Opções">${I.more}</button></div>
+    ${t.meaning ? `<div class="term-mean">${esc(t.meaning)}</div>` : ''}
+    ${t.expl ? `<div class="term-expl">${esc(t.expl)}</div>` : ''}
+    ${t.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(t.other)}</div>` : ''}
+    ${t.ctx ? `<div class="ctx-sent small">${highlightTerm(t.ctx, t.term)}</div>` : ''}
+    ${t.ex.length ? `<div class="ex-wrap" style="margin-top:6px">${t.ex.map(s => sentHTML(s, { cls: 'ex', extra: DEL })).join('')}</div>` : ''}
+    <div class="card-foot"><button class="pill" data-act="term-more">${I.spark} Mais exemplos</button><button class="pill" data-act="term-play">${I.play} Ouvir tudo</button></div></article>`;
+}
+function renderTerms() {
+  const v = $('#view-terms');
+  if (!db.terms.length) { v.innerHTML = `<div class="empty"><h3>Nenhum termo salvo</h3>Toque em qualquer palavra de um card para ver o significado no contexto, exemplos novos — e salvar aqui.</div>`; return; }
+  v.innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">${db.terms.map(termHTML).join('')}</div>`;
+  observeTr(v);
+}
+function rerenderTerm(t) { const el = $(`.card[data-term="${t.id}"]`); if (el) { el.outerHTML = termHTML(t); observeTr($(`.card[data-term="${t.id}"]`)); } }
+async function termMore(t, btn) {
+  if (!hasAI()) return needAI();
+  busy(btn, true, ' Gerando…');
+  try {
+    const r = await askAI(promptTermMore(t));
+    (r.examples || []).filter(x => x && x.en).forEach(x => t.ex.push(newSent(cleanAI(x.en), plain(x.pt || ''))));
+    save(); rerenderTerm(t);
+  } catch (e) { busy(btn, false); aiError(e); }
+}
+function termMenu(t) {
+  openSheet(`<div class="menu-head">${esc(t.term)}</div><div class="menu" data-term="${t.id}">
+    <button data-act="term-context">${I.search} Ver contexto de novo</button>
+    ${t.cardId && cardById(t.cardId) ? `<button data-act="term-goto-card">${I.cards} Ir para o card de origem</button>` : ''}
+    <button data-act="term-del" class="danger">${I.trash} Apagar termo</button></div>`);
+}
+
+/* ---------- Review ---------- */
+const DAY = 864e5;
+function reviewCounts(src) {
+  const list = src === 'terms' ? db.terms : db.cards, now = Date.now();
+  const due = list.filter(x => x.rv && x.rv.due <= now).length;
+  const fresh = list.filter(x => !x.rv).length;
+  const st = db.stats[src] || {};
+  const left = Math.max(0, S.newPerDay - (st.day === today() ? st.newCount : 0));
+  return { due, fresh, newToday: Math.min(fresh, left), total: due + Math.min(fresh, left) };
+}
+function nextRv(rv, g) {
+  rv = rv || { ivl: 0, ease: 2.5, reps: 0, lapses: 0 };
+  const ease = Math.max(1.3, rv.ease + [-0.2, -0.15, 0, 0.15][g]);
+  let ivl;
+  if (g === 0) ivl = 0;
+  else if (!rv.reps || !rv.ivl) ivl = [0, 1, 3, 5][g];
+  else ivl = Math.max(rv.ivl + 1, Math.round(g === 1 ? rv.ivl * 1.2 : g === 2 ? rv.ivl * rv.ease : rv.ivl * rv.ease * 1.4));
+  return { ivl, ease, reps: g === 0 ? 0 : rv.reps + 1, lapses: rv.lapses + (g === 0 ? 1 : 0), due: g === 0 ? Date.now() + 60e3 : Date.now() + ivl * DAY, last: Date.now() };
+}
+const fmtIvl = d => d === 0 ? '1 min' : d < 30 ? `${d} d` : d < 365 ? `${Math.round(d / 30)} m` : `${(d / 365).toFixed(1)} a`;
+let R = null;
+function startReview(free) {
+  const src = S.revSrc, list = src === 'terms' ? db.terms : db.cards, now = Date.now();
+  let q;
+  if (free) q = [...list].sort(() => Math.random() - .5).slice(0, 20);
+  else {
+    const c = reviewCounts(src);
+    q = list.filter(x => x.rv && x.rv.due <= now).sort((a, b) => a.rv.due - b.rv.due).concat(c.newToday ? list.filter(x => !x.rv).slice(-c.newToday).reverse() : []);
+  }
+  if (!q.length) return toast(free ? 'Nada para revisar.' : 'Nenhum pendente agora 🎉');
+  R = { src, q, total: q.length, done: 0, ok: 0, shown: false, free };
+  renderReview();
+}
+function rvFace(item, side) {
+  const dir = S.revDir;
+  if (R.src === 'terms') {
+    if (side === 'front') return dir === 'en'
+      ? `<div class="rv-front" lang="en">${esc(item.term)}</div>${item.ctx ? `<div class="ctx-sent small">${highlightTerm(item.ctx, item.term)}</div>` : ''}<div class="row-btns"><button class="pill" data-act="rv-speak">${I.vol} Ouvir</button></div>`
+      : `<div class="rv-front pt">${esc(item.meaning || '(sem significado salvo)')}</div><p class="hint">Qual é o termo em inglês?</p>`;
+    return `${dir === 'pt' ? `<div class="rv-front" lang="en">${esc(item.term)}</div>` : `<div class="term-mean">${esc(item.meaning)}</div>`}
+      ${item.expl ? `<div class="term-expl">${esc(item.expl)}</div>` : ''}
+      ${item.ex.length ? `<div class="ex-wrap">${item.ex.map(s => sentHTML(s, { cls: 'ex' })).join('')}</div>` : ''}`;
+  }
+  if (side === 'front') return dir === 'en'
+    ? `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${wordsHTML(item.main.en)}</div></div><div class="row-btns"><button class="pill" data-act="rv-speak">${I.vol} Ouvir</button></div><p class="hint">Você entende? Tente traduzir mentalmente.</p>`
+    : `<div class="rv-front pt" id="rvPt">${item.main.tr ? esc(plain(item.main.tr)) : '<span class="muted">Traduzindo…</span>'}</div><p class="hint">Como você diria isso em inglês? Fale em voz alta.</p>`;
+  return `${dir === 'en' ? `<div class="sent main" data-sid="${item.main.id}"><div class="tr" style="margin-top:0">${trInner(item.main)}</div></div>`
+      : `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${wordsHTML(item.main.en)}</div><div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button></div></div>`}
+    ${item.note ? `<details class="note" open><summary>Nota</summary><div>${esc(item.note)}</div></details>` : ''}
+    ${item.ex.length ? `<div class="ex-wrap"><div class="ex-label">Exemplos</div>${item.ex.map(s => sentHTML(s, { cls: 'ex' })).join('')}</div>` : ''}`;
+}
+function renderReview() {
+  const v = $('#view-review');
+  if (!R) {
+    const c = reviewCounts(S.revSrc), n = (S.revSrc === 'terms' ? db.terms : db.cards).length;
+    v.innerHTML = `
+      <div class="seg" style="margin-top:4px">${[['cards', 'Cards'], ['terms', 'Termos']].map(([k, l]) => `<button class="${S.revSrc === k ? 'on' : ''}" data-act="rv-src" data-v="${k}">${l}</button>`).join('')}</div>
+      <div class="stats"><div class="stat"><b>${c.due}</b><span>Pendentes</span></div><div class="stat"><b>${c.newToday}</b><span>Novos hoje</span></div><div class="stat"><b>${n}</b><span>Total</span></div></div>
+      <button class="btn primary" data-act="rv-start" ${c.total ? '' : 'disabled'}>${c.total ? `Começar revisão (${c.total})` : 'Tudo revisado por hoje 🎉'}</button>
+      <button class="btn" data-act="rv-free" ${n ? '' : 'disabled'}>Revisão livre (20 aleatórios)</button>
+      <div class="group-title">Como revisar</div>
+      <div class="group">
+        <div class="set-row"><div class="lbl">Direção</div><div class="seg" style="width:190px">${[['en', 'EN → PT'], ['pt', 'PT → EN']].map(([k, l]) => `<button class="${S.revDir === k ? 'on' : ''}" data-act="rv-dir" data-v="${k}">${l}</button>`).join('')}</div></div>
+        <div class="set-row"><div class="lbl">Tocar áudio automaticamente</div><label class="switch"><input type="checkbox" data-set="revAuto" ${S.revAuto ? 'checked' : ''}><span></span></label></div>
+        <div class="set-row"><div class="lbl">Novos por dia<small>Cards que entram na revisão pela 1ª vez</small></div><select data-set="newPerDay">${[5, 10, 15, 20, 30, 50, 100].map(x => `<option ${S.newPerDay === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+      </div>
+      <p class="hint">Repetição espaçada: quanto melhor você responde, mais tempo até o card voltar.</p>`;
+    return;
+  }
+  const item = R.q[0];
+  if (!item) {
+    v.innerHTML = `<div class="empty"><h3>Revisão concluída 🎉</h3>${R.done} respostas · ${R.ok} acertos<br><button class="pill accent" data-act="rv-exit">Voltar</button></div>`;
+    R = null; renderTabs(); return;
+  }
+  const btns = [0, 1, 2, 3].map(g => `<button class="g${g}" data-act="rv-rate" data-g="${g}">${['Errei', 'Difícil', 'Bom', 'Fácil'][g]}<small>${fmtIvl(nextRv(item.rv, g).ivl)}</small></button>`).join('');
+  v.innerHTML = `<div class="rv-meta"><span>${R.done}/${R.total}${R.free ? ' · livre' : ''}</span><button class="pill ghost" data-act="rv-exit" style="height:auto">Sair</button></div>
+    <div class="rv-progress"><i style="width:${Math.round(R.done / Math.max(R.total, 1) * 100)}%"></i></div>
+    <div class="rv-card">${rvFace(item, 'front')}${R.shown ? `<div class="rv-back">${rvFace(item, 'back')}</div>` : ''}</div>
+    ${R.shown ? `<div class="rv-rate">${btns}</div>` : `<button class="btn primary" data-act="rv-show">Mostrar resposta</button>`}`;
+  if (R.src === 'cards') {
+    if (S.revDir === 'pt' && !item.main.tr) ensureTr(item.main).then(() => { const el = $('#rvPt'); if (el) el.innerHTML = item.main.tr ? esc(plain(item.main.tr)) : '<span class="err">Sem tradução (offline?). Mostre a resposta.</span>'; });
+    if (R.shown) { if (S.revDir === 'en') ensureTr(item.main); }
+  }
+  if (S.revAuto && ((S.revDir === 'en' && !R.shown) || (S.revDir === 'pt' && R.shown))) rvSpeak(item);
+}
+function rvSpeak(item) { speak(R.src === 'terms' ? [item.term] : [{ text: item.main.en, id: item.main.id }]); }
+function rvRate(g) {
+  const item = R.q.shift(), wasNew = !item.rv;
+  item.rv = nextRv(item.rv, g);
+  if (wasNew) { const st = db.stats[R.src] || {}; if (st.day !== today()) { st.day = today(); st.newCount = 0; } st.newCount++; db.stats[R.src] = st; }
+  R.done++; if (g > 0) R.ok++;
+  if (g === 0) { R.q.splice(Math.min(3, R.q.length), 0, item); R.total++; }
+  R.shown = false; save(); renderReview(); renderTabs();
+}
+
+/* ---------- Settings ---------- */
+function voiceOptions() {
+  if (!voices.length) return '<option value="">Voz padrão do sistema</option>';
+  const cur = pickVoice();
+  const sorted = [...voices].sort((a, b) => (/en[-_]US/i.test(b.lang) - /en[-_]US/i.test(a.lang)) || a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
+  return sorted.map(v => `<option value="${esc(v.name)}" ${cur && cur.name === v.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+}
+function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) })).filter(x => x.arr && x.arr.length && !isOldSample(x.arr)); }
+function renderSettings() {
+  const ai = aiCfg(), old = oldVersionsFound();
+  const lb = S.lastBackup ? Math.floor((Date.now() - S.lastBackup) / DAY) : null;
+  $('#view-settings').innerHTML = `
+    <div class="group-title">Aparência</div>
+    <div class="group">
+      <div class="set-row"><div class="lbl">Tema</div><div class="seg" style="width:230px">${[['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Escuro'], ['sepia', 'Sépia']].map(([k, l]) => `<button class="${S.theme === k ? 'on' : ''}" data-act="set-theme" data-v="${k}">${l}</button>`).join('')}</div></div>
+      <div class="set-row" style="display:block"><div class="lbl">Tamanho da fonte <small id="fsVal">${S.fs}px</small></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px">A</span><input type="range" min="14" max="30" step="1" value="${S.fs}" data-set="fs"><span style="font-size:22px">A</span></div>
+        <div class="fs-preview">I'm <b>running late</b>, I'll be there soon.</div></div>
+      <div class="set-row"><div class="lbl">Cor de destaque</div><div class="swatches">${['#2563eb', '#4f46e5', '#0d9488', '#16a34a', '#ea580c', '#db2777'].map(c => `<button class="swatch ${S.accent === c ? 'on' : ''}" style="--c:${c}" data-act="set-accent" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>
     </div>
 
-    <div class="nav-float">
-        <button type="button" class="nav-btn" onclick="scrollToTop()">⬆</button>
-        <button type="button" class="nav-btn" onclick="scrollToBottom()">⬇</button>
+    <div class="group-title">Voz</div>
+    <div class="group">
+      <div class="set-row"><div class="lbl">Voz</div><select id="voiceSel" data-set="voice">${voiceOptions()}</select></div>
+      <div class="set-row" style="display:block"><div class="lbl">Velocidade <small id="rateVal">${S.rate.toFixed(2)}x</small></div><input type="range" min="0.5" max="1.5" step="0.05" value="${S.rate}" data-set="rate"></div>
+      <div class="set-row"><button class="pill" data-act="test-voice">${I.vol} Testar voz</button></div>
+    </div>
+    <p class="hint">Usa as vozes nativas do iPhone. Para vozes mais naturais: Ajustes do iPhone → Acessibilidade → Conteúdo Falado → Vozes → Inglês → baixe uma voz <b>Aprimorada</b> ou <b>Premium</b> (ex.: Ava, Zoe, Evan) e escolha aqui.</p>
+
+    <div class="group-title">Tradução</div>
+    <div class="group">
+      <div class="set-row"><div class="lbl">Mostrar traduções sempre<small>Traduz tudo automaticamente ao rolar</small></div><label class="switch"><input type="checkbox" data-set="showTr" ${S.showTr ? 'checked' : ''}><span></span></label></div>
     </div>
 
-    <div class="header-container">
-        <h1>🇬🇧 English Pro</h1>
-        <div class="font-controls">
-            <div class="color-picker-wrapper" title="Mudar Cor dos Cards">
-                <input type="color" id="card-bg-picker" onchange="changeCardBg(this.value)" value="#ffffff">
-            </div>
-            <button type="button" class="font-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Modo Noturno">🌙</button>
-            <button type="button" class="font-btn" onclick="changeFontSize(-0.1)">A-</button>
-            <button type="button" class="font-btn" onclick="changeFontSize(0.1)">A+</button>
-        </div>
+    <div class="group-title">IA (exemplos, contexto, completar frases)</div>
+    <div class="group">
+      <div class="set-row"><div class="lbl">Usar</div><select data-set="ai">${[['auto', 'Automático'], ['gemini', 'Google Gemini'], ['claude', 'Claude (Anthropic)']].map(([k, l]) => `<option value="${k}" ${S.ai === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <div class="set-row"><div class="lbl">Chave Gemini</div><input class="input" type="password" data-key="englishAppGeminiKey" value="${esc(keyGemini())}" placeholder="AIza…" autocomplete="off"></div>
+      <div class="set-row"><div class="lbl">Chave Claude</div><input class="input" type="password" data-key="englishAppClaudeKey" value="${esc(keyClaude())}" placeholder="sk-ant-…" autocomplete="off"></div>
+      <div class="set-row"><div class="lbl"><small>${ai.k ? `Em uso: <b>${ai.p === 'claude' ? 'Claude' : 'Gemini'}</b>` : 'Nenhuma chave configurada'}</small></div><button class="pill" data-act="test-ai">Testar</button></div>
     </div>
+    <p class="hint">Chave do Gemini grátis em <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. As chaves ficam só neste aparelho e não vão no backup.</p>
 
-    <div class="voice-config-area">
-        <label>📢 Escolher Voz do Sistema:</label>
-        <select id="global-voice-select" onchange="saveGlobalVoice()">
-            <option value="">Carregando vozes...</option>
-        </select>
+    <div class="group-title">Backup</div>
+    <div class="group">
+      <div class="set-row"><div class="lbl">${db.cards.length} cards · ${db.terms.length} termos<small>${lb == null ? 'Nenhum backup feito ainda' : lb === 0 ? 'Último backup: hoje' : `Último backup: há ${lb} dia${lb > 1 ? 's' : ''}`}</small></div></div>
+      <div class="set-row"><button class="pill accent" data-act="backup-share">${I.share} Salvar backup</button><button class="pill" data-act="backup-download">${I.down} Baixar .json</button></div>
+      <div class="set-row"><button class="pill" data-act="backup-import">${I.up} Restaurar / importar backup</button></div>
     </div>
+    <p class="hint">“Salvar backup” abre o menu de compartilhar do iPhone (Salvar em Arquivos, iCloud, WhatsApp…). Também aceita backups da versão antiga.</p>
 
-    <div class="gemini-config-area">
-        <label>✨ Chave API Gemini (Exemplos):</label>
-        <input type="password" id="gemini-key-input" placeholder="Cole sua chave sk-..." onchange="saveGeminiKey()">
+    <div class="group-title">Versão antiga</div>
+    <div class="group">
+      ${old.length ? old.map(o => `<div class="set-row"><div class="lbl">${esc(o.k.replace('englishCardsFinal', ''))}<small>${o.arr.length} cards guardados neste aparelho</small></div><button class="pill" data-act="import-old" data-k="${o.k}">Importar</button></div>`).join('') : '<div class="set-row"><div class="lbl"><small>Nenhum dado de versões antigas neste aparelho.</small></div></div>'}
+      <div class="set-row"><a class="pill" href="v38.html">${I.history} Abrir app antigo (V38)</a></div>
     </div>
+    <p class="hint">Os dados da versão antiga continuam guardados intactos. “Importar” junta com os atuais sem duplicar.</p>
 
-    <div class="input-group">
-        <h3>Nova Entrada</h3>
-        <div class="input-row">
-            <label>Frases em Inglês</label>
-            <textarea id="input-phrase" rows="4" placeholder="Cole aqui seu texto... Use ==texto== para destacar"></textarea>
-        </div>
-        <div class="input-row">
-            <label>Tradução</label>
-            <textarea id="input-translation" rows="4" placeholder="..."></textarea>
-        </div>
-        <button type="button" class="translate-action-btn" onclick="translateForm()">🪄 Traduzir Campos Acima</button>
-        <button type="button" id="add-btn" onclick="addCard()">Salvar Cartão</button>
+    <div class="group-title">Apagar</div>
+    <div class="group">
+      <div class="set-row"><button class="pill danger" data-act="wipe-cards">${I.trash} Apagar todos os cards</button></div>
+      <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
+      <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-
-    <div class="data-controls">
-        <button type="button" class="data-btn" onclick="downloadBackup()">💾 Backup</button>
-        <button type="button" class="data-btn" onclick="document.getElementById('file-input').click()">📂 Restaurar</button>
-        <button type="button" class="data-btn btn-danger" onclick="clearAllData()">🗑️ Zerar</button>
-        <input type="file" id="file-input" accept=".json" onchange="restoreBackup(this)">
-    </div>
-
-    <div class="import-toggle">
-        <button type="button" class="import-link" onclick="toggleImportArea()">⬇ Colar Texto Longo</button>
-    </div>
-    <div id="import-section">
-        <textarea id="import-area" rows="6" placeholder="Blocos separados por linha em branco..."></textarea>
-        <button type="button" id="add-btn" style="background-color: #64748b;" onclick="processBulkImport()">Processar</button>
-    </div>
-
-    <div id="card-container"></div>
-
-    <script>
-        let cards = [];
-        let voices = [];
-        let currentFontSize = 1.15; 
-        
-        const borderColors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
-        const STORAGE_KEY = 'englishCardsFinalV38_8';
-
-        // --- SISTEMA DE TEMAS E CORES ---
-        let isDarkMode = localStorage.getItem('englishAppDarkMode') === 'true';
-        if(isDarkMode) {
-            document.body.classList.add('dark-mode');
-            document.getElementById('theme-toggle-btn').innerText = '☀️';
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('englishAppDarkMode', isDarkMode);
-            document.getElementById('theme-toggle-btn').innerText = isDarkMode ? '☀️' : '🌙';
-            
-            if(isDarkMode) {
-                document.documentElement.style.setProperty('--custom-card-bg', 'var(--card-bg)');
-            } else {
-                const savedColor = localStorage.getItem('englishAppCardBg');
-                if(savedColor) document.documentElement.style.setProperty('--custom-card-bg', savedColor);
-            }
-        }
-
-        let customCardBg = localStorage.getItem('englishAppCardBg');
-        if (customCardBg) {
-            document.getElementById('card-bg-picker').value = customCardBg;
-            if(!isDarkMode) document.documentElement.style.setProperty('--custom-card-bg', customCardBg);
-        }
-
-        function changeCardBg(color) {
-            localStorage.setItem('englishAppCardBg', color);
-            if(!isDarkMode) {
-                document.documentElement.style.setProperty('--custom-card-bg', color);
-            } else {
-                alert("Cor salva! Ela será aplicada quando você voltar ao Modo Claro.");
-            }
-        }
-
-        // --- GEMINI API KEY SETUP ---
-        let geminiApiKey = localStorage.getItem('englishAppGeminiKey') || '';
-        document.getElementById('gemini-key-input').value = geminiApiKey;
-
-        function saveGeminiKey() {
-            geminiApiKey = document.getElementById('gemini-key-input').value.trim();
-            localStorage.setItem('englishAppGeminiKey', geminiApiKey);
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const index = entry.target.id.replace('card-', '');
-                    localStorage.setItem('englishAppLastPos', index);
-                }
-            });
-        }, { threshold: 0.6 });
-
-        // --- SISTEMA DE VOZ MANUAL RESTAURADO ---
-        function populateVoiceList() {
-            voices = window.speechSynthesis.getVoices();
-            const voiceSelect = document.getElementById('global-voice-select');
-            
-            if (voices.length === 0) return;
-
-            const savedVoiceName = localStorage.getItem('englishAppGlobalVoiceName');
-            voiceSelect.innerHTML = '';
-            
-            voices.sort((a, b) => {
-                const aname = a.name.toUpperCase();
-                const bname = b.name.toUpperCase();
-                if (aname < bname) return -1;
-                else if (aname == bname) return 0;
-                else return +1;
-            });
-
-            voices.forEach((voice) => {
-                if(voice.lang.includes('en')) {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.name;
-                    
-                    if (voice.name === savedVoiceName) {
-                        option.selected = true;
-                    }
-                    voiceSelect.appendChild(option);
-                }
-            });
-        }
-
-        populateVoiceList();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-
-        function saveGlobalVoice() {
-            const select = document.getElementById('global-voice-select');
-            localStorage.setItem('englishAppGlobalVoiceName', select.value);
-        }
-
-        function cleanTextForAudio(t) {
-            if(!t) return '';
-            let c = t.replace(/[*#~^]/g, '');
-            c = c.replace(/^(Example|Exemple|Another example|Another exemple|Ex|Ex\.|Exemplo)\s*[:.-]?\s*/gi, '');
-            return c.trim();
-        }
-
-        function speakText(text, index) {
-            const clean = cleanTextForAudio(text);
-            if (!clean) return;
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                
-                // Se o índice for 'modal', assume taxa padrão de 1.0 (evita null pointer)
-                const rateElement = document.getElementById(`speed-${index}`);
-                const rate = rateElement ? rateElement.value : "1.0";
-
-                const u = new SpeechSynthesisUtterance(clean);
-                
-                const selectedVoiceName = document.getElementById('global-voice-select').value;
-                const selectedVoice = voices.find(v => v.name === selectedVoiceName);
-
-                if (selectedVoice) {
-                    u.voice = selectedVoice;
-                    u.lang = selectedVoice.lang;
-                } else {
-                    const fallback = voices.find(v => v.lang.startsWith('en'));
-                    if(fallback) u.voice = fallback;
-                }
-
-                u.rate = parseFloat(rate);
-
-                // Removida manipulação de innerText (ampulheta) para evitar crash no iOS
-                window.speechSynthesis.speak(u);
-            }
-        }
-
-        function speakAll(index) {
-            const clean = cleanTextForAudio(cards[index].phrase).replace(/\n/g, '. ');
-            speakText(clean, index);
-        }
-
-        // --- GERADOR DE EXEMPLOS GEMINI ---
-        let currentExampleTerm = "";
-        let currentExampleContext = ""; 
-
-        async function openExampleModal(element) {
-            const rawText = element.innerText;
-            const term = rawText.replace(/[.,!?;:]/g, '').trim();
-            currentExampleTerm = term;
-            
-            const parentLine = element.closest('.line-text');
-            currentExampleContext = parentLine ? parentLine.innerText.replace(/🔈|🌐|👁️/g, '').trim() : "";
-            
-            const modal = document.getElementById('example-modal');
-            const content = document.getElementById('modal-body');
-            modal.style.display = 'flex';
-            
-            if (!geminiApiKey) {
-                content.innerHTML = `<div class="modal-header">Aviso</div><div style="padding:10px; color:#ef4444">Por favor, insira a chave da API do Gemini no topo da tela para gerar exemplos.</div>`;
-                return;
-            }
-
-            content.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">⏳ Gerando exemplo para: <b>"${term}"</b>...</div>`;
-            await fetchAndRenderGeminiExamples(term, currentExampleContext, content, false);
-        }
-
-        async function fetchAndRenderGeminiExamples(term, contextText, container, isAppending) {
-            try {
-                if(isAppending) {
-                    const btn = document.getElementById('load-more-btn');
-                    if(btn) { btn.innerText = "⏳ Gerando..."; btn.disabled = true; }
-                }
-
-                // SOLICITA APENAS 1 EXEMPLO AGORA
-                const prompt = `Gere 1 exemplo curto e prático de frase em inglês aplicando a expressão "${term}". 
-                Importante: O contexto original onde o usuário encontrou essa expressão foi: "${contextText}". Tente gerar um exemplo que se encaixe nesse MESMO sentido ou contexto de uso.
-                Diretriz de Simplicidade: não busque apenas termos básicos demais. Quero, ao invés disso, termos úteis. Quero o equilíbrio.
-                Retorne APENAS um JSON válido, sem formatação markdown, estritamente neste formato:
-                [
-                    {"en": "frase em ingles 1", "pt": "traducao 1"}
-                ]`;
-
-                const fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
-                
-                let response = await fetch(fetchUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { temperature: 0.9 }
-                    })
-                });
-
-                let data = await response.json();
-
-                if (data.error && data.error.code === 404) {
-                    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
-                    response = await fetch(fallbackUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    });
-                    data = await response.json();
-                }
-
-                if (data.error) throw new Error(data.error.message);
-
-                let jsonStr = data.candidates[0].content.parts[0].text;
-                jsonStr = jsonStr.replace(/```json/gi, '').replace(/```/gi, '').trim();
-                
-                const examples = JSON.parse(jsonStr);
-
-                let html = isAppending ? "" : `<div class="modal-header">Exemplos Contextuais: "${term}"</div><div id="examples-list">`;
-                
-                let baseId = Date.now() + Math.floor(Math.random() * 1000);
-
-                examples.forEach(ex => {
-                    baseId++;
-                    const transId = `ex-trans-${baseId}`;
-                    
-                    // ESCAPE BLINDADO PARA INLINE ONCLICK (Impede Safari de abrir tela em branco)
-                    const safeEnText = ex.en.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
-                    
-                    html += `
-                        <div class="example-item">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-                                <div style="font-weight:600; line-height: 1.4; flex:1;">🇺🇸 ${ex.en}</div>
-                                <div style="display:flex; gap:5px; margin-left:10px;">
-                                    <button type="button" class="play-mini" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeEnText}', 'modal')" title="Ouvir">🔈</button>
-                                    <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleExTrans('${transId}')" title="Ocultar/Mostrar Tradução">👁️</button>
-                                </div>
-                            </div>
-                            <div id="${transId}" style="color:#16a34a; font-size:0.9rem; line-height: 1.4; display:block;">🇧🇷 ${ex.pt}</div>
-                        </div>
-                    `;
-                });
-
-                if (isAppending) {
-                    const list = document.getElementById('examples-list');
-                    list.insertAdjacentHTML('beforeend', html);
-                    const btn = document.getElementById('load-more-btn');
-                    if(btn){ btn.innerText = "➕ Gerar Mais"; btn.disabled = false; }
-                } else {
-                    html += `</div><button type="button" id="load-more-btn" onclick="event.preventDefault(); loadMoreExamples()" style="width:100%; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:8px; color:var(--text); font-weight:bold; margin-top:10px; cursor:pointer;">➕ Gerar Mais</button>`;
-                    container.innerHTML = html;
-                }
-            } catch (e) {
-                if (isAppending) {
-                     const btn = document.getElementById('load-more-btn');
-                     if(btn){ btn.innerText = "❌ Erro. Tentar de novo"; btn.disabled = false; }
-                } else {
-                     container.innerHTML = `<div class="modal-header">Ops!</div><div style="padding:10px; color:#ef4444">Erro ao gerar exemplos: ${e.message}</div>`;
-                }
-            }
-        }
-
-        function loadMoreExamples() {
-            const content = document.getElementById('modal-body');
-            fetchAndRenderGeminiExamples(currentExampleTerm, currentExampleContext, content, true);
-        }
-
-        function toggleExTrans(id) {
-            const el = document.getElementById(id);
-            if(el) {
-                el.style.display = el.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        function closeExampleModal(e) {
-            if (e && e.target !== document.getElementById('example-modal') && e.target !== document.querySelector('.modal-close')) return;
-            document.getElementById('example-modal').style.display = 'none';
-        }
-
-        // --- TRADUÇÃO DE LINHA ---
-        async function toggleLineTrans(cardIndex, lineIndex, text) {
-            const transDiv = document.getElementById(`line-trans-${cardIndex}-${lineIndex}`);
-            if (transDiv.style.display === 'block') {
-                transDiv.style.display = 'none';
-                return;
-            }
-            
-            transDiv.style.display = 'block'; 
-            
-            if (transDiv.innerText === "") {
-                transDiv.innerText = "⏳ Traduzindo linha...";
-                const res = await fetchTranslation(text);
-                transDiv.innerText = res;
-            }
-        }
-
-        // --- SOLUÇÃO PARA CLICAR NA EXPRESSÃO INTEIRA ---
-        function formatHighlight(t) {
-            if(!t) return '';
-            
-            const wrap = (txt, cls) => `<span class="hl-base ${cls} word-interactive" onclick="event.preventDefault(); event.stopPropagation(); openExampleModal(this)">${txt}</span>`;
-            
-            let h = t.replace(/\*(.*?)\*/g, (m,p1) => wrap(p1, 'hl-blue'));
-            h = h.replace(/#(.*?)#/g, (m,p1) => wrap(p1, 'hl-red'));
-            h = h.replace(/~(.*?)~/g, (m,p1) => wrap(p1, 'hl-lilac'));
-            h = h.replace(/\^(.*?)\^/g, (m,p1) => wrap(p1, 'hl-bold'));
-            return h;
-        }
-
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
-
-        function changeFontSize(delta) {
-            currentFontSize += delta;
-            if (currentFontSize < 0.8) currentFontSize = 0.8;
-            if (currentFontSize > 2.5) currentFontSize = 2.5;
-            document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
-            localStorage.setItem('englishAppFontSize', currentFontSize);
-        }
-
-        function downloadBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "backup_ingles_" + new Date().toISOString().slice(0,10) + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        function restoreBackup(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        if(confirm(`Encontrados ${data.length} cartões. Substituir?`)) {
-                            cards = data; saveCards(); renderCards(); alert("Restaurado!");
-                        }
-                    } else { alert("Arquivo inválido."); }
-                } catch(err) { alert("Erro ao ler arquivo."); }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearAllData() {
-            if(confirm("Apagar TUDO?")) {
-                if(confirm("Confirmação final?")) {
-                    localStorage.clear(); cards = []; currentFontSize = 1.15; renderCards(); alert("Zerado.");
-                }
-            }
-        }
-
-        function normalizeFormatting(text) {
-            if (!text) return '';
-            let lines = text.split('\n');
-            lines = lines.map((line, index) => {
-                let l = line;
-                l = l.replace(/\*\*(.*?)\*\*/g, '^$1^');
-                l = l.replace(/__(.*?)__/g, '^$1^');
-                l = l.replace(/<b>(.*?)<\/b>/gi, '^$1^');
-                if (index === 1) { l = l.replace(/==(.*?)==/g, '*$1*'); } 
-                else if (index >= 2) { l = l.replace(/==(.*?)==/g, '#$1#'); } 
-                else { l = l.replace(/==(.*?)==/g, '^$1^'); }
-                return l;
-            });
-            return lines.join('\n');
-        }
-
-        function loadCards() {
-            const savedFont = localStorage.getItem('englishAppFontSize');
-            if (savedFont) {
-                currentFontSize = parseFloat(savedFont);
-                document.documentElement.style.setProperty('--line-font-size', `${currentFontSize}rem`);
-            }
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) { cards = JSON.parse(saved); } 
-            else { cards = [{ id: 1, phrase: "Use ==bold== here.\nExample: My ==car== is blue.\nAnother example: This is ==urgent==.", translation: "Exemplo", accent: 'US' }]; }
-            renderCards();
-            setTimeout(() => {
-                const lastPos = localStorage.getItem('englishAppLastPos');
-                if (lastPos) {
-                    const el = document.getElementById(`card-${lastPos}`);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 500);
-        }
-        function saveCards() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
-
-        function renderCards() {
-            const container = document.getElementById('card-container');
-            container.innerHTML = '';
-            
-            cards.forEach((card, index) => {
-                const el = document.createElement('div');
-                el.className = 'card';
-                el.id = `card-${index}`;
-                observer.observe(el);
-
-                const color = borderColors[index % borderColors.length];
-                el.style.borderLeftColor = color;
-
-                const lines = card.phrase.split('\n');
-                let phrasesHtml = '';
-                
-                lines.forEach((line, lineIndex) => {
-                    if(line.trim() === "") return;
-                    const display = formatHighlight(line);
-                    const clean = cleanTextForAudio(line);
-                    const safeCleanText = clean.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
-                    
-                    phrasesHtml += `
-                        <div class="line-container">
-                            <div class="line-item">
-                                <button type="button" class="play-mini" onclick="event.preventDefault(); event.stopPropagation(); speakText('${safeCleanText}', ${index})">🔈</button>
-                                <div class="line-text">${display}</div>
-                                <button type="button" class="trans-mini-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleLineTrans(${index}, ${lineIndex}, '${safeCleanText}')" title="Traduzir Linha">🌐</button>
-                            </div>
-                            <div id="line-trans-${index}-${lineIndex}" class="line-trans-area"></div>
-                        </div>
-                    `;
-                });
-
-                let transContent = card.translation 
-                    ? `<div class="translation-text">${card.translation}</div>`
-                    : `<button type="button" class="translate-action-btn" onclick="event.preventDefault(); translateCardNow(${index})" style="width:100%">✨ Traduzir Agora</button><div id="trans-text-${index}" class="translation-text"></div>`;
-
-                el.innerHTML = `
-                    <div class="card-number">#${index + 1}</div>
-                    
-                    <div id="view-mode-${index}">
-                        <div class="phrases-area">${phrasesHtml}</div>
-                        <div class="card-footer">
-                            <div class="controls-group">
-                                <select id="speed-${index}" style="width:auto; padding: 4px; height: 30px; font-size:0.8rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); border-radius: 5px;">
-                                    <option value="0.8">0.8x</option>
-                                    <option value="1" selected>1.0x</option>
-                                    <option value="1.1">1.1x</option>
-                                    <option value="1.2">1.2x</option>
-                                    <option value="1.5">1.5x</option>
-                                </select>
-                                <button type="button" class="play-all-btn" onclick="event.preventDefault(); speakAll(${index})">▶ Ouvir</button>
-                            </div>
-                            <div class="footer-actions">
-                                <button type="button" class="action-btn-small" onclick="event.preventDefault(); enableEditMode(${index})" title="Editar">✏️</button>
-                                <button type="button" class="action-btn-small delete" onclick="event.preventDefault(); deleteCard(${index})" title="Excluir">🗑️</button>
-                            </div>
-                        </div>
-                        <button type="button" class="toggle-btn" onclick="event.preventDefault(); toggleDetails(this)">👁️ Ver Tradução Geral</button>
-                        <div class="details-area">${transContent}</div>
-                    </div>
-
-                    <div id="edit-mode-${index}" style="display:none;">
-                        <div class="edit-toolbar">
-                            <button type="button" class="color-btn btn-smart" id="btn-smart-${index}" onclick="event.preventDefault(); autoSmartMark(${index})">🔗 Auto Smart</button>
-                            <span style="color:var(--border)">|</span>
-                            <button type="button" class="color-btn btn-blue" onclick="event.preventDefault(); applyHighlight(${index}, '*')">Blue</button>
-                            <button type="button" class="color-btn btn-red" onclick="event.preventDefault(); applyHighlight(${index}, '#')">Red</button>
-                            <button type="button" class="color-btn btn-lilac" onclick="event.preventDefault(); applyHighlight(${index}, '~')">Lilac</button>
-                            <button type="button" class="color-btn btn-bold" onclick="event.preventDefault(); applyHighlight(${index}, '^')">Bold</button>
-                        </div>
-                        <textarea id="edit-phrase-${index}" rows="6" class="edit-mode-area"></textarea>
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); toggleTransEdit(${index})" style="flex:1;">📝 Ver Tradução</button>
-                            <button type="button" class="color-btn btn-secondary" onclick="event.preventDefault(); updateTranslationInEdit(${index})" style="flex:1;">✨ Auto Traduzir</button>
-                        </div>
-                        <div id="edit-trans-wrapper-${index}" style="display:none;">
-                            <textarea id="edit-trans-${index}" rows="5" class="edit-mode-area"></textarea>
-                        </div>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <button type="button" class="save-btn" onclick="event.preventDefault(); saveEdit(${index})">Salvar</button>
-                            <button type="button" class="cancel-btn" onclick="event.preventDefault(); cancelEdit(${index})">Cancelar</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(el);
-            });
-        }
-
-        function enableEditMode(i) {
-            document.getElementById(`view-mode-${i}`).style.display='none';
-            document.getElementById(`edit-mode-${i}`).style.display='block';
-            const pArea = document.getElementById(`edit-phrase-${i}`);
-            const tArea = document.getElementById(`edit-trans-${i}`);
-            document.getElementById(`edit-trans-wrapper-${i}`).style.display = 'none';
-            pArea.value = cards[i].phrase.split('\n').filter(l=>l.trim()).join('\n\n');
-            tArea.value = cards[i].translation.split('\n').filter(l=>l.trim()).join('\n\n');
-        }
-
-        function toggleTransEdit(index) {
-            const wrapper = document.getElementById(`edit-trans-wrapper-${index}`);
-            wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
-        }
-
-        async function updateTranslationInEdit(index) {
-            const phraseText = document.getElementById(`edit-phrase-${index}`).value;
-            const transArea = document.getElementById(`edit-trans-${index}`);
-            document.getElementById(`edit-trans-wrapper-${index}`).style.display = 'block'; 
-            transArea.value = "Traduzindo...";
-            transArea.value = await fetchTranslation(phraseText);
-        }
-
-        function cancelEdit(i) { renderCards(); }
-        function saveEdit(i) {
-            cards[i].phrase = normalizeFormatting(document.getElementById(`edit-phrase-${i}`).value); 
-            cards[i].translation = document.getElementById(`edit-trans-${i}`).value;
-            saveCards(); renderCards();
-        }
-        
-        async function autoSmartMark(index) {
-            const textarea = document.getElementById(`edit-phrase-${index}`);
-            const btn = document.getElementById(`btn-smart-${index}`);
-            let text = textarea.value;
-            let lines = text.split('\n').filter(l => l.trim() !== '');
-            if (lines.length < 1) return;
-            const match = lines[0].match(/\^(.*?)\^/);
-            if (!match) { alert("Marque o termo principal em NEGRITO na linha 1 primeiro."); return; }
-            const term = match[1].replace(/[.,!?;:]/g, ''); 
-            const originalBtnText = btn.innerText;
-            btn.innerText = "⏳ Triangulando...";
-            btn.disabled = true;
-            try {
-                let keywords = [term];
-                const datamuseRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(term)}&max=10`);
-                const dmData = await datamuseRes.json();
-                dmData.forEach(i => keywords.push(i.word));
-                const ptRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(term)}&langpair=en|pt-BR`);
-                const ptData = await ptRes.json();
-                const words = term.split(/\s+/);
-                words.forEach(w => { if(w.length > 3) keywords.push(w); });
-                keywords = [...new Set(keywords.map(k => k.toLowerCase()))];
-                if (lines.length > 1) lines[1] = smartReplace(lines[1], keywords, '*');
-                if (lines.length > 2) lines[2] = smartReplace(lines[2], keywords, '#');
-                textarea.value = lines.join('\n\n');
-            } catch (error) { alert("Erro na análise."); } 
-            finally { btn.innerText = originalBtnText; btn.disabled = false; }
-        }
-
-        function smartReplace(sentence, keywords, symbol) {
-            let clean = sentence.replace(/[*#~]/g, '');
-            keywords.sort((a, b) => b.length - a.length);
-            const phraseWords = clean.split(/(\s+|[.,!?;:])/);
-            const processed = phraseWords.map(word => {
-                const wLow = word.toLowerCase();
-                const isMatch = keywords.some(k => (wLow.includes(k) && k.length>3) || (k.includes(wLow) && wLow.length>3));
-                if (isMatch && word.trim().length > 0) return `${symbol}${word}${symbol}`;
-                return word;
-            });
-            return processed.join('');
-        }
-
-        function applyHighlight(i, s) {
-            const t = document.getElementById(`edit-phrase-${i}`);
-            const start = t.selectionStart; const end = t.selectionEnd;
-            if (start === end) return alert("Selecione texto!");
-            t.setRangeText(`${s}${t.value.substring(start, end).replace(/[*#~^]/g, '')}${s}`, start, end, 'select');
-        }
-
-        async function fetchTranslation(text) {
-            if (!text.trim()) return "";
-            try {
-                const lines = text.split('\n'); const tr = [];
-                for (let l of lines) {
-                    if (!l.trim()) { tr.push(""); continue; }
-                    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(l.replace(/[*#~^]/g, ''))}&langpair=en|pt-BR`);
-                    const d = await res.json();
-                    tr.push(d.responseData ? d.responseData.translatedText : "Erro");
-                }
-                return tr.join('\n');
-            } catch (e) { return "Erro conexão"; }
-        }
-        async function translateForm() { document.getElementById('input-translation').value = await fetchTranslation(document.getElementById('input-phrase').value); }
-        async function translateCardNow(i) {
-            const res = await fetchTranslation(cards[i].phrase);
-            cards[i].translation = res; saveCards(); renderCards();
-        }
-        
-        function addCard() {
-            const raw = document.getElementById('input-phrase').value.trim();
-            const t = document.getElementById('input-translation').value.trim();
-            if(!raw) return alert("Vazio!");
-            cards.unshift({ id: Date.now(), phrase: normalizeFormatting(raw), translation: t, accent: 'US' });
-            saveCards(); renderCards();
-            document.getElementById('input-phrase').value=''; document.getElementById('input-translation').value='';
-        }
-
-        function processBulkImport() {
-            document.getElementById('import-area').value.split(/\n\s*\n/).forEach(b=>{
-                if(b.trim()) cards.unshift({id:Date.now()+Math.random(), phrase:normalizeFormatting(b.trim()), translation:"", accent:'US'});
-            });
-            saveCards(); renderCards(); toggleImportArea();
-        }
-
-        function deleteCard(i) { if(confirm("Excluir cartão?")) { cards.splice(i,1); saveCards(); renderCards(); }}
-        function toggleDetails(btn) { btn.nextElementSibling.classList.toggle('visible'); }
-        function toggleImportArea() { const d=document.getElementById('import-section'); d.style.display=d.style.display==='block'?'none':'block'; }
-
-        loadCards();
-    </script>
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.0</p>`;
+}
+
+/* ---------- Backup ---------- */
+function backupData() { return { app: 'english-pro', v: 2, exported: new Date().toISOString(), cards: db.cards, terms: db.terms, stats: db.stats }; }
+function backupFile() {
+  const name = `english-pro-backup-${today()}.json`;
+  return { name, blob: new Blob([JSON.stringify(backupData())], { type: 'application/json' }) };
+}
+function markBackup() { S.lastBackup = Date.now(); saveS(); if (curView === 'settings') renderSettings(); }
+async function backupShare() {
+  const { name, blob } = backupFile();
+  try {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Backup English Pro' }); markBackup(); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  backupDownload();
+}
+function backupDownload() {
+  const { name, blob } = backupFile();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+  markBackup();
+}
+function normalizeImport(data) {
+  if (Array.isArray(data)) return { cards: data.map(o => o && o.main ? o : migrateOldCard(o)).filter(Boolean), terms: [] };
+  if (data && Array.isArray(data.cards)) return { cards: data.cards.map(o => o && o.main ? o : migrateOldCard(o)).filter(Boolean), terms: Array.isArray(data.terms) ? data.terms : [], stats: data.stats };
+  throw new Error('Formato não reconhecido');
+}
+function mergeIn(inc) {
+  const have = new Set(db.cards.map(c => norm(c.main.en)));
+  const haveT = new Set(db.terms.map(t => norm(t.term)));
+  const ids = new Set(db.cards.map(c => c.id));
+  let nc = 0, nt = 0;
+  const add = inc.cards.filter(c => { const k = norm(c.main.en); if (have.has(k)) return false; have.add(k); return true; });
+  add.forEach(c => { if (ids.has(c.id)) c.id = uid(); nc++; });
+  db.cards.push(...add);
+  inc.terms.forEach(t => { const k = norm(t.term); if (!haveT.has(k)) { haveT.add(k); db.terms.push(Object.assign({ ex: [] }, t)); nt++; } });
+  return { nc, nt };
+}
+function offerImport(inc, label) {
+  const sh = openSheet(`<div class="sheet-title">Importar</div>
+    <p>${esc(label)}: <b>${inc.cards.length}</b> cards e <b>${inc.terms.length}</b> termos.</p>
+    <button class="btn primary" data-act="imp-merge">Juntar com os atuais (sem duplicar)</button>
+    <button class="btn danger" data-act="imp-replace">Substituir tudo</button>
+    <p class="hint">Antes de substituir, um backup do que você tem agora é guardado automaticamente neste aparelho.</p>`);
+  sh.inc = inc;
+}
+function doImport(mode) {
+  const sh = sheets[sheets.length - 1], inc = sh && sh.inc; if (!inc) return;
+  const snap = JSON.stringify(db);
+  if (mode === 'replace') {
+    if (!confirm('Substituir todos os cards e termos atuais pelos do backup?')) return;
+    LS.setRaw('englishPro2_beforeRestore', snap);
+    db.cards = inc.cards; db.terms = inc.terms; if (inc.stats) db.stats = inc.stats;
+    save(); closeSheet(); renderAll(); toast(`Restaurado: ${db.cards.length} cards, ${db.terms.length} termos`, { undo: () => { db = JSON.parse(snap); save(); renderAll(); } });
+  } else {
+    const r = mergeIn(inc); save(); closeSheet(); renderAll();
+    toast(`${r.nc} cards e ${r.nt} termos adicionados`, { undo: () => { db = JSON.parse(snap); save(); renderAll(); } });
+  }
+}
+$('#fileIn').addEventListener('change', e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { try { offerImport(normalizeImport(JSON.parse(rd.result)), f.name); } catch (err) { toast('Arquivo inválido: ' + err.message); } };
+  rd.readAsText(f);
+});
+function renderAll() { show(curView); }
+
+/* ================= Interactions: swipe-to-bold & tap ================= */
+let sw = null, swallowClick = false;
+function paintSel() {
+  $$('.sel', sw.en).forEach(e => e.classList.remove('sel'));
+  const a = Math.min(sw.start, sw.cur), b = Math.max(sw.start, sw.cur);
+  $$('[data-i]', sw.en).forEach(e => { const i = +e.dataset.i; if (i >= a && i <= b) e.classList.add('sel'); });
+}
+document.addEventListener('pointerdown', e => {
+  const w = e.target.closest('.w'); if (!w || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  sw = { en: w.closest('.en'), start: +w.dataset.i, cur: +w.dataset.i, x: e.clientX, y: e.clientY, pid: e.pointerId, active: false };
+});
+document.addEventListener('pointermove', e => {
+  if (!sw || e.pointerId !== sw.pid) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (!sw.active) {
+    if (Math.abs(dx) > 9 && Math.abs(dx) > Math.abs(dy) * 1.1) { sw.active = true; try { sw.en.setPointerCapture(e.pointerId); } catch {} }
+    else if (Math.abs(dy) > 12) { sw = null; return; }
+    else return;
+  }
+  e.preventDefault();
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const w = el && el.closest && el.closest('.w');
+  if (w && w.closest('.en') === sw.en) { sw.cur = +w.dataset.i; }
+  paintSel();
+}, { passive: false });
+function endSwipe(e) {
+  if (!sw || e.pointerId !== sw.pid) return;
+  const s = sw; sw = null;
+  if (!s.active) return;
+  swallowClick = true; setTimeout(() => swallowClick = false, 400);
+  $$('.sel', s.en).forEach(x => x.classList.remove('sel'));
+  if (e.type === 'pointercancel') return;
+  const sentEl = s.en.closest('.sent'); const f = sentEl && findSent(sentEl.dataset.sid); if (!f) return;
+  const toks = parseSent(f.s.en), a = Math.min(s.start, s.cur), b = Math.max(s.start, s.cur);
+  const words = toks.map((k, i) => i).filter(i => i >= a && i <= b && !toks[i].sp);
+  if (!words.length) return;
+  const allBold = words.every(i => toks[i].b);
+  words.forEach(i => toks[i].b = !allBold);
+  f.s.en = serialize(toks);
+  if (!f.tmp) save();
+  $$(`.sent[data-sid="${f.s.id}"] > .en, .sent[data-sid="${f.s.id}"] .sent-row > .en`).forEach(en => en.innerHTML = wordsHTML(f.s.en));
+  if (!S.tipDone) { S.tipDone = true; saveS(); }
+}
+document.addEventListener('pointerup', endSwipe);
+// iOS: garante que a página não role enquanto o dedo desliza destacando palavras
+document.addEventListener('touchmove', e => { if (sw && sw.active) e.preventDefault(); }, { passive: false });
+document.addEventListener('pointercancel', endSwipe);
+// Impede o "arrastar" nativo de texto/imagem no desktop enquanto destaca
+document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest('.en')) e.preventDefault(); });
+
+function termAt(wEl) {
+  const en = wEl.closest('.en'), sentEl = en.closest('.sent');
+  const f = sentEl && findSent(sentEl.dataset.sid);
+  const text = f ? f.s.en : en.textContent;
+  const toks = parseSent(text), i = +wEl.dataset.i;
+  if (!toks[i]) return { term: wEl.textContent, sent: text, sid: sentEl && sentEl.dataset.sid };
+  if (!toks[i].b) return { term: toks[i].t, sent: text, sid: sentEl.dataset.sid };
+  let a = i, b = i;
+  while (a - 1 >= 0 && (toks[a - 1].b || (toks[a - 1].sp && a - 2 >= 0 && toks[a - 2].b))) a--;
+  while (b + 1 < toks.length && (toks[b + 1].b || (toks[b + 1].sp && b + 2 < toks.length && toks[b + 2].b))) b++;
+  return { term: toks.slice(a, b + 1).map(k => k.t).join(''), sent: text, sid: sentEl.dataset.sid };
+}
+
+/* ================= Click delegation ================= */
+document.addEventListener('click', e => {
+  if (swallowClick) { e.preventDefault(); e.stopPropagation(); swallowClick = false; return; }
+  const w = e.target.closest('.w');
+  if (w && !e.target.closest('[data-act]')) { const t = termAt(w); if (sheets.length && ctx && w.closest('#ctxBody')) closeSheet(); openContext(t.term, t.sent, t.sid); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  const cardEl = b.closest('[data-card]'), card = cardEl && cardById(cardEl.dataset.card);
+  const termEl = b.closest('[data-term]'), term = termEl && termById(termEl.dataset.term);
+  const sentEl = b.closest('.sent'), fs = sentEl && findSent(sentEl.dataset.sid);
+  switch (act) {
+    case 'tab': closeAllSheets(); if (b.dataset.v === curView) scrollTo({ top: 0, behavior: 'smooth' }); else show(b.dataset.v); break;
+    case 'close-sheet': closeSheet(); break;
+    case 'undo': if (undoFn) { const f = undoFn; undoFn = null; $('#toast').classList.remove('show'); f(); } break;
+    case 'stop': stopSpeak(); break;
+    case 'add': openAdd(); break;
+    case 'add-create': createCards(b); break;
+    case 'toggle-search': { const sb = $('#searchbar'); sb.hidden = !sb.hidden; if (!sb.hidden) $('#search').focus(); else if (query) { query = ''; $('#search').value = ''; renderCards(); } renderTop(); break; }
+    case 'clear-search': query = ''; $('#search').value = ''; renderCards(); $('#search').focus(); break;
+    case 'toggle-showtr': S.showTr = !S.showTr; saveS(); if (!S.showTr) openTr.clear(); show(curView); break;
+    case 'dismiss-tip': S.tipDone = true; saveS(); renderCards(); break;
+    case 'dismiss-migration': migrationNote = ''; renderCards(); break;
+
+    case 'speak': if (fs) speak([{ text: fs.s.en, id: fs.s.id }]); break;
+    case 'tr': if (fs) {
+      const open = !(S.showTr || openTr.has(fs.s.id));
+      if (S.showTr && !open) { fs.s.trErr = false; if (!fs.s.tr) ensureTr(fs.s); break; }
+      open ? openTr.add(fs.s.id) : openTr.delete(fs.s.id);
+      const box = sentEl.querySelector(':scope > .tr'); box.hidden = !open; b.classList.toggle('on', open);
+      if (open) { fs.s.trErr = false; box.innerHTML = trInner(fs.s); ensureTr(fs.s); }
+    } break;
+    case 'del-ex': if (fs) deleteSent(fs.s.id); break;
+    case 'play-all': if (card) speak([card.main, ...card.ex].map(s => ({ text: s.en, id: s.id }))); break;
+    case 'tr-card': if (card) toggleTrCard(card); break;
+    case 'gen': if (card) genExamples(card, b); break;
+    case 'card-menu': if (card) cardMenu(card); break;
+    case 'edit-card': closeSheet(); editCard(card); break;
+    case 'complete-card': closeSheet(); completeCard(card); break;
+    case 'tr-card-menu': closeSheet(); { const all = [card.main, ...card.ex]; all.forEach(s => openTr.add(s.id)); rerenderCard(card); all.forEach(ensureTr); } break;
+    case 'copy-card': closeSheet(); {
+      const txt = [card.main, ...card.ex].map(s => plain(s.en) + (s.tr ? '\n  ' + plain(s.tr) : '')).join('\n');
+      (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copiado'), () => toast('Não foi possível copiar'));
+    } break;
+    case 'top-card': closeSheet(); { const i = db.cards.indexOf(card); db.cards.splice(i, 1); db.cards.unshift(card); save(); renderCards(); scrollTo({ top: 0, behavior: 'smooth' }); toast('Movido para o topo', { undo: () => { db.cards.splice(db.cards.indexOf(card), 1); db.cards.splice(i, 0, card); save(); renderCards(); } }); } break;
+    case 'clear-ex': closeSheet(); { const old = card.ex; card.ex = []; save(); rerenderCard(card); toast('Exemplos apagados', { undo: () => { card.ex = old; save(); rerenderCard(card); } }); } break;
+    case 'del-card': closeSheet(); deleteCard(card); break;
+    case 'edit-add-ex': { const sh = sheets[sheets.length - 1]; $('#edEx').insertAdjacentHTML('beforeend', sh.exRow(null)); $('#edEx .edit-ex:last-child textarea').focus(); } break;
+    case 'edit-del-ex': b.closest('.edit-ex').remove(); break;
+    case 'edit-save': saveEdit(card); break;
+
+    case 'ctx-retry': loadContext(); break;
+    case 'ctx-more': ctxMore(b); break;
+    case 'ctx-save': ctxSave(); break;
+    case 'speak-ctx-term': if (ctx && ctx.data) speak([ctx.data.term]); break;
+    case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(newSent(fs.s.en, fs.s.tr)); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
+
+    case 'speak-term': if (term) speak([term.term]); break;
+    case 'term-play': if (term) speak([{ text: term.term }, ...term.ex.map(s => ({ text: s.en, id: s.id }))]); break;
+    case 'term-more': if (term) termMore(term, b); break;
+    case 'term-menu': if (term) termMenu(term); break;
+    case 'term-del': if (term) { if (sheets.length) closeSheet(); const i = db.terms.indexOf(term); db.terms.splice(i, 1); save(); renderTerms(); renderTop(); renderTabs(); toast('Termo apagado', { undo: () => { db.terms.splice(i, 0, term); save(); renderTerms(); renderTop(); renderTabs(); } }); } break;
+    case 'term-context': closeSheet(); openContext(term.term, term.ctx, null); break;
+    case 'term-goto-card': closeSheet(); { const id = term.cardId; query = ''; $('#search').value = ''; show('cards'); const el = $(`.card[data-card="${id}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); } } break;
+
+    case 'rv-src': S.revSrc = b.dataset.v; saveS(); renderReview(); break;
+    case 'rv-dir': S.revDir = b.dataset.v; saveS(); renderReview(); break;
+    case 'rv-start': startReview(false); break;
+    case 'rv-free': startReview(true); break;
+    case 'rv-show': R.shown = true; renderReview(); break;
+    case 'rv-rate': rvRate(+b.dataset.g); break;
+    case 'rv-speak': if (R && R.q[0]) rvSpeak(R.q[0]); break;
+    case 'rv-exit': R = null; stopSpeak(); renderReview(); renderTabs(); break;
+
+    case 'goto-settings': closeAllSheets(); show('settings'); break;
+    case 'set-theme': S.theme = b.dataset.v; saveS(); applyTheme(); renderSettings(); break;
+    case 'set-accent': S.accent = b.dataset.v; saveS(); applyTheme(); renderSettings(); break;
+    case 'test-voice': speak(["Hey! I'm running a little late, but I'll be there in ten minutes."]); break;
+    case 'test-ai': busy(b, true); askAI('Return ONLY JSON: {"ok":true,"hello":"a short friendly greeting in English"}').then(r => toast('IA funcionando: ' + (r.hello || 'ok'))).catch(aiError).finally(() => busy(b, false)); break;
+    case 'backup-share': backupShare(); break;
+    case 'backup-download': backupDownload(); break;
+    case 'backup-import': $('#fileIn').click(); break;
+    case 'imp-merge': doImport('merge'); break;
+    case 'imp-replace': doImport('replace'); break;
+    case 'import-old': { const arr = readOldKey(b.dataset.k) || []; offerImport({ cards: arr.map(migrateOldCard).filter(Boolean), terms: [] }, 'Versão ' + b.dataset.k.replace('englishCardsFinal', '')); } break;
+    case 'wipe-cards': if (db.cards.length && confirm(`Apagar TODOS os ${db.cards.length} cards?`)) { const old = db.cards; db.cards = []; save(); renderSettings(); renderTabs(); toast('Cards apagados', { undo: () => { db.cards = old; save(); renderSettings(); renderTabs(); } }); } break;
+    case 'wipe-terms': if (db.terms.length && confirm(`Apagar TODOS os ${db.terms.length} termos?`)) { const old = db.terms; db.terms = []; save(); renderSettings(); renderTabs(); toast('Termos apagados', { undo: () => { db.terms = old; save(); renderSettings(); renderTabs(); } }); } break;
+    case 'wipe-review': if (confirm('Zerar o progresso de revisão de todos os cards e termos?')) { const snap = JSON.stringify([db.cards.map(c => c.rv), db.terms.map(t => t.rv), db.stats]); [...db.cards, ...db.terms].forEach(x => delete x.rv); db.stats = {}; save(); renderTabs(); toast('Progresso zerado', { undo: () => { const [a, b2, st] = JSON.parse(snap); db.cards.forEach((c, i) => a[i] ? c.rv = a[i] : delete c.rv); db.terms.forEach((t, i) => b2[i] ? t.rv = b2[i] : delete t.rv); db.stats = st; save(); renderTabs(); } }); } break;
+  }
+});
+
+/* Settings inputs */
+document.addEventListener('input', e => {
+  const el = e.target, k = el.dataset.set;
+  if (k === 'fs') { S.fs = +el.value; $('#fsVal').textContent = S.fs + 'px'; applyTheme(); saveS(); }
+  if (k === 'rate') { S.rate = +el.value; $('#rateVal').textContent = S.rate.toFixed(2) + 'x'; saveS(); }
+  if (el.id === 'search') { clearTimeout(window._qt); window._qt = setTimeout(() => { query = el.value.trim(); renderCards(); }, 160); }
+});
+document.addEventListener('change', e => {
+  const el = e.target, k = el.dataset.set;
+  if (el.dataset.key) { LS.setRaw(el.dataset.key, el.value.trim()); if (curView === 'settings') renderSettings(); toast('Chave salva'); return; }
+  if (!k || k === 'fs' || k === 'rate') return;
+  if (el.type === 'checkbox') S[k] = el.checked;
+  else if (k === 'newPerDay') S[k] = +el.value;
+  else S[k] = el.value;
+  saveS();
+  if (k === 'voice') speak(['This is my voice.']);
+  if (k === 'showTr') { openTr.clear(); renderTop(); }
+  if (k === 'ai') renderSettings();
+  if (k === 'newPerDay') { renderReview(); renderTabs(); }
+});
+
+/* Scroll: borda do topo + lembrar posição */
+let posT;
+addEventListener('scroll', () => {
+  $('#topbar').classList.toggle('scrolled', scrollY > 4);
+  if (curView !== 'cards') return;
+  clearTimeout(posT);
+  posT = setTimeout(() => {
+    const top = $('#topbar').offsetHeight;
+    const el = $$('#cards .card').find(c => c.getBoundingClientRect().bottom > top + 10);
+    if (el) LS.setRaw('ep2Pos', el.dataset.card);
+  }, 250);
+}, { passive: true });
+
+/* ================= Boot ================= */
+show('cards');
+(() => {
+  const id = LS.raw('ep2Pos'); if (!id) return;
+  const el = $(`.card[data-card="${id}"]`); if (el && db.cards[0] && db.cards[0].id !== id) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60);
+})();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
 </body>
 </html>
