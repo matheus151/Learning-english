@@ -43,9 +43,8 @@ svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:
 a{color:var(--accent)}
 
 /* ---------- Top bar ---------- */
-.topbar{position:sticky;top:0;z-index:20;padding:calc(var(--top) + 6px) 16px 8px;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-bottom:.5px solid transparent;transition:border-color .2s}
+.topbar{position:sticky;top:0;z-index:20;padding:calc(var(--top) + 6px) 16px 8px;background:var(--bg);border-bottom:.5px solid transparent;transition:border-color .2s}
 .topbar.scrolled{border-bottom-color:var(--line)}
-@supports not (background:color-mix(in srgb,red 50%,blue)){.topbar{background:var(--bg)}}
 .top-row{display:flex;align-items:center;gap:8px;max-width:720px;margin:0 auto;min-height:44px}
 .top-title{flex:1;min-width:0}
 .top-title h1{margin:0;font-size:28px;line-height:1.1;font-weight:800;letter-spacing:-.02em}
@@ -83,12 +82,12 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .sent{position:relative}
 .en{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;word-wrap:break-word;overflow-wrap:anywhere}
 .main .en{font-size:calc(var(--fs) * 1.12);line-height:1.42;font-weight:500;color:var(--strong);padding:2px 0 8px}
-.w{border-radius:3px;transition:background-color .12s}
-.w.b,.sp.b{font-weight:800;color:var(--strong);background:linear-gradient(transparent 58%,var(--hl) 58%)}
-.main .w.b{font-weight:800}
+.w{border-radius:3px}
+.w.b,.sp.b,.en b{font-weight:800;color:var(--strong);background:linear-gradient(transparent 58%,var(--hl) 58%)}
+.en:not([data-w]) b{pointer-events:none}
 .w.sel,.sp.sel{background:var(--sel)!important}
 .sent.speaking .en{color:var(--accent)}
-.sent.speaking .w.b{color:var(--accent)}
+.sent.speaking .w.b,.sent.speaking .en b{color:var(--accent)}
 .main-tools{display:flex;gap:8px;flex-wrap:wrap}
 .pill{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:999px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
 .pill svg{width:17px;height:17px}
@@ -126,8 +125,7 @@ details.note div{white-space:pre-line;margin-top:6px;padding:8px 10px;background
 .empty .pill{margin-top:16px}
 
 /* ---------- Tab bar ---------- */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;padding:6px 8px calc(var(--bot) + 4px);background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-top:.5px solid var(--line)}
-@supports not (background:color-mix(in srgb,red 50%,blue)){.tabbar{background:var(--card)}}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;padding:6px 8px calc(var(--bot) + 4px);background:var(--card);border-top:.5px solid var(--line)}
 .tabbar-in{display:flex;width:100%;max-width:520px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:10.5px;font-weight:600;color:var(--muted);position:relative}
 .tab svg{width:24px;height:24px}
@@ -280,7 +278,7 @@ const LS = {
   setRaw(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} }
 };
 
-const I = {
+const ICONS = {
   vol: '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
   tr: '<svg viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>',
   spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.9L19 9.7l-5.2 1.8L12 16.5l-1.8-5L5 9.7l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
@@ -305,6 +303,12 @@ const I = {
   wand: '<svg viewBox="0 0 24 24"><path d="m15 4 5 5"/><path d="M3 21 15.5 8.5"/><path d="M12 3v2M19 10h2M17.5 4.5 19 3"/></svg>',
   history: '<svg viewBox="0 0 24 24"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>'
 };
+// Cada ícone é desenhado uma vez (sprite) e os botões só referenciam com <use>: bem menos elementos na página
+const I = {};
+document.body.insertAdjacentHTML('afterbegin', '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + Object.entries(ICONS).map(([k, v]) => {
+  I[k] = `<svg viewBox="0 0 24 24"><use href="#i-${k}"/></svg>`;
+  return v.replace('<svg viewBox="0 0 24 24">', `<symbol id="i-${k}" viewBox="0 0 24 24">`).replace('</svg>', '</symbol>');
+}).join('') + '</svg>');
 let curView = 'cards', query = '';
 const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2'];
 
@@ -390,7 +394,7 @@ if (!db || !Array.isArray(db.cards)) {
 db.terms = db.terms || []; db.stats = db.stats || {};
 
 let saveT;
-function save() { clearTimeout(saveT); saveT = setTimeout(() => LS.set(DB_KEY, db), 120); }
+function save() { clearTimeout(saveT); saveT = setTimeout(() => LS.set(DB_KEY, db), 400); }
 function saveNow() { clearTimeout(saveT); LS.set(DB_KEY, db); }
 addEventListener('pagehide', saveNow);
 document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
@@ -490,6 +494,17 @@ function wordsHTML(text) {
   return toks.map((k, i) => k.sp ? (e[i] ? `<span class="sp b" data-i="${i}">${k.t}</span>` : `<span class="sp" data-i="${i}">${k.t}</span>`)
     : `<span class="w${k.b ? ' b' : ''}" data-i="${i}">${esc(k.t)}</span>`).join('');
 }
+// Versão leve para exibir: texto puro + <b> nos destaques (bem menos elementos na página)
+function textHTML(text) {
+  return esc(String(text || '')).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+}
+// Troca o texto leve pelos spans por palavra (necessário para tocar/deslizar). Feito só na frase tocada.
+function wordify(en) {
+  if (!en || en.dataset.w) return;
+  const sentEl = en.closest('.sent'), f = sentEl && findSent(sentEl.dataset.sid);
+  if (!f) return;
+  en.innerHTML = wordsHTML(f.s.en); en.dataset.w = '1';
+}
 const boldTerms = text => { const r = [], re = /\*\*(.+?)\*\*/g; let m; while ((m = re.exec(text))) r.push(m[1].trim()); return [...new Set(r)]; };
 const cleanTerm = t => String(t || '').replace(/\*\*/g, '').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim();
 function highlightTerm(sentence, term) {
@@ -521,13 +536,19 @@ async function translate(text, to = 'pt') {
   trCache.set(ck, out);
   return out;
 }
-const trPending = new Set();
-async function ensureTr(s) {
-  if (!s || s.tr || trPending.has(s.id)) return;
+const trPending = new Set(), trQueue = [];
+let trActive = 0;
+function ensureTr(s) {
+  if (!s || s.tr || trPending.has(s.id)) return Promise.resolve();
   trPending.add(s.id); s.trErr = false;
-  try { s.tr = await translate(s.en); save(); } catch { s.trErr = true; }
-  trPending.delete(s.id);
-  paintTr(s);
+  return new Promise(res => { trQueue.push({ s, res }); pumpTr(); });
+}
+function pumpTr() {
+  while (trActive < 3 && trQueue.length) {
+    const { s, res } = trQueue.shift(); trActive++;
+    translate(s.en).then(t => { s.tr = t; save(); }).catch(() => { s.trErr = true; })
+      .finally(() => { trActive--; trPending.delete(s.id); paintTr(s); res(); pumpTr(); });
+  }
 }
 function trInner(s) {
   if (s.tr) return esc(plain(s.tr));
@@ -549,36 +570,70 @@ function observeTr(root = document) {
 }
 
 /* ================= Speech (vozes nativas do iOS) ================= */
-let voices = [];
+const hasTTS = 'speechSynthesis' in window;
+let voices = [], voiceCache = null;
 function loadVoices() {
-  if (!('speechSynthesis' in window)) return;
+  if (!hasTTS) return;
   voices = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang));
-  if (curView === 'settings') { const sel = $('#voiceSel'); if (sel) sel.innerHTML = voiceOptions(); }
+  voiceCache = null;
+  if (curView === 'settings') { const sel = $('#voiceSel'); if (sel && document.activeElement !== sel) sel.innerHTML = voiceOptions(); }
 }
-if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', loadVoices) : (speechSynthesis.onvoiceschanged = loadVoices); }
+if (hasTTS) { loadVoices(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', loadVoices) : (speechSynthesis.onvoiceschanged = loadVoices); }
+// Padrão: voz rápida (Samantha etc.). Vozes Premium soam melhor mas demoram para começar; ficam como escolha em Ajustes.
 function bestVoice() {
   const us = voices.filter(v => /en[-_]US/i.test(v.lang)), pool = us.length ? us : voices;
-  return pool.find(v => /premium/i.test(v.name)) || pool.find(v => /enhanced|aprimorad|natural|neural/i.test(v.name))
-    || pool.find(v => /samantha/i.test(v.name)) || pool.find(v => v.localService && v.default) || pool[0] || null;
+  return pool.find(v => /samantha/i.test(v.name)) || pool.find(v => v.localService && v.default && !/premium/i.test(v.name))
+    || pool.find(v => v.localService && !/premium|enhanced|aprimorad/i.test(v.name)) || pool[0] || null;
 }
-function pickVoice() { if (!voices.length) loadVoices(); return voices.find(v => v.name === S.voice) || bestVoice(); }
-function clearSpeaking() { $$('.sent.speaking').forEach(e => e.classList.remove('speaking')); }
+function pickVoice() {
+  if (voiceCache && (voiceCache.name === S.voice || !S.voice)) return voiceCache;
+  if (!voices.length) loadVoices();
+  return (voiceCache = voices.find(v => v.name === S.voice) || bestVoice());
+}
+// Referências vivas às falas: sem isso o Safari pode descartá-las e o fim da fala nunca é avisado (botão "Parar" preso)
+let speakGen = 0, liveUtts = [], speakWatch = null, speakingEls = [];
+function clearSpeaking() { speakingEls.forEach(e => e.classList.remove('speaking')); speakingEls = []; }
+function markSpeaking(id) {
+  clearSpeaking();
+  if (id) { speakingEls = $$(`.sent[data-sid="${id}"]`); speakingEls.forEach(e => e.classList.add('speaking')); }
+}
+function showStop(on) { const b = $('#stopSpeak'); if (b.hidden === on) b.hidden = !on; }
+function endSpeak(gen) {
+  if (gen !== speakGen) return;
+  clearInterval(speakWatch); speakWatch = null;
+  liveUtts = []; clearSpeaking(); showStop(false);
+}
 function speak(items) {
-  if (!('speechSynthesis' in window)) return toast('Este navegador não tem voz disponível.');
+  if (!hasTTS) return toast('Este navegador não tem voz disponível.');
   items = items.map(it => typeof it === 'string' ? { text: it } : it).filter(it => plain(it.text));
   if (!items.length) return;
-  const ss = speechSynthesis; ss.cancel(); clearSpeaking();
-  const v = pickVoice();
-  items.forEach((it, i) => {
-    const u = new SpeechSynthesisUtterance(plain(it.text));
-    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
-    u.rate = S.rate;
-    u.onstart = () => { clearSpeaking(); if (it.id) $$(`.sent[data-sid="${it.id}"]`).forEach(e => e.classList.add('speaking')); $('#stopSpeak').hidden = false; };
-    if (i === items.length - 1) u.onend = u.onerror = () => { clearSpeaking(); $('#stopSpeak').hidden = true; };
-    ss.speak(u);
-  });
+  const ss = speechSynthesis, gen = ++speakGen;
+  const wasBusy = ss.speaking || ss.pending;
+  clearInterval(speakWatch); clearSpeaking();
+  if (wasBusy) ss.cancel();
+  const run = () => {
+    if (gen !== speakGen) return;
+    if (ss.paused) ss.resume();
+    const v = pickVoice();
+    liveUtts = items.map((it, i) => {
+      const u = new SpeechSynthesisUtterance(plain(it.text));
+      if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+      u.rate = S.rate;
+      u.onstart = () => { if (gen === speakGen) markSpeaking(it.id); };
+      if (i === items.length - 1) u.onend = u.onerror = () => endSpeak(gen);
+      return u;
+    });
+    liveUtts.forEach(u => ss.speak(u));
+    showStop(true);
+    // vigia: se o iOS não avisar o fim, limpa a tela quando a fala realmente parar
+    let idle = 0;
+    speakWatch = setInterval(() => { if (!ss.speaking && !ss.pending) { if (++idle >= 2) endSpeak(gen); } else idle = 0; }, 700);
+  };
+  // No iOS, falar logo após cancelar costuma travar: espera um instante só quando havia algo tocando.
+  // A 1ª fala continua síncrona (dentro do toque), que é o que o iOS exige para liberar o áudio.
+  wasBusy ? setTimeout(run, 80) : run();
 }
-function stopSpeak() { if ('speechSynthesis' in window) speechSynthesis.cancel(); clearSpeaking(); $('#stopSpeak').hidden = true; }
+function stopSpeak() { speakGen++; if (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); clearInterval(speakWatch); speakWatch = null; liveUtts = []; clearSpeaking(); showStop(false); }
 
 /* ================= IA (Gemini / Claude) ================= */
 const keyGemini = () => (LS.raw('englishAppGeminiKey') || '').trim();
@@ -723,19 +778,19 @@ function show(v) {
 function sentHTML(s, o = {}) {
   const open = S.showTr || openTr.has(s.id);
   return `<div class="sent ${o.cls || 'ex'}" data-sid="${s.id}">
-    <div class="sent-row"><div class="en" lang="en">${wordsHTML(s.en)}</div>
+    <div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>
       <div class="tools"><button class="ib" data-act="speak" aria-label="Ouvir">${I.vol}</button><button class="ib ${open ? 'on' : ''}" data-act="tr" aria-label="Traduzir">${I.tr}</button>${o.extra || ''}</div></div>
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
 function mainHTML(s) {
   const open = S.showTr || openTr.has(s.id);
-  return `<div class="sent main" data-sid="${s.id}"><div class="en" lang="en">${wordsHTML(s.en)}</div>
+  return `<div class="sent main" data-sid="${s.id}"><div class="en" lang="en">${textHTML(s.en)}</div>
     <div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button><button class="pill ${open ? 'on' : ''}" data-act="tr">${I.tr} Traduzir</button></div>
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
 const DEL = `<button class="ib del" data-act="del-ex" aria-label="Apagar exemplo">${I.x}</button>`;
-function cardHTML(c) {
-  const n = db.cards.indexOf(c) + 1;
+function cardHTML(c, n) {
+  n = n || db.cards.indexOf(c) + 1;
   const allOpen = [c.main, ...c.ex].every(s => S.showTr || openTr.has(s.id));
   return `<article class="card" data-card="${c.id}" style="--stripe:${STRIPES[(n - 1) % STRIPES.length]}">
     <div class="card-head"><span class="num">#${n}</span><div class="grow">${c.src ? `<span class="badge" title="Frase original">✨ completada de “${esc(c.src)}”</span>` : ''}</div>
@@ -750,16 +805,36 @@ function cardHTML(c) {
       <button class="ib ${allOpen ? 'on' : ''}" data-act="tr-card" aria-label="Traduzir tudo do card">${I.tr}</button>
     </div></article>`;
 }
-function renderCards() {
+// A lista é montada aos poucos (PAGE cards por vez) conforme a rolagem: abre rápido mesmo com centenas de cards
+const PAGE = 25;
+let cardList = [], cardsShown = 0, cardNum = new Map();
+const moreObserver = 'IntersectionObserver' in window ? new IntersectionObserver(en => { if (en.some(x => x.isIntersecting)) appendCards(); }, { rootMargin: '1200px 0px' }) : null;
+function appendCards() {
+  const box = $('#cards'), more = $('#moreCards'); if (!more) return;
+  const next = cardList.slice(cardsShown, cardsShown + PAGE);
+  cardsShown += next.length;
+  more.insertAdjacentHTML('beforebegin', next.map(c => cardHTML(c, cardNum.get(c.id))).join(''));
+  if (cardsShown >= cardList.length) { moreObserver && moreObserver.unobserve(more); more.remove(); }
+  observeTr(box);
+}
+function ensureCardShown(id) {
+  const i = cardList.findIndex(c => c.id === id);
+  if (i >= cardsShown) { cardsShown = i + PAGE; renderCards(); }
+}
+function renderCards(reset) {
+  if (reset || !cardsShown) cardsShown = PAGE;
+  cardNum = new Map(db.cards.map((c, i) => [c.id, i + 1]));
   const q = norm(query);
-  const list = q ? db.cards.filter(c => norm([c.main.en, c.main.tr, ...c.ex.map(s => s.en + ' ' + (s.tr || '')), c.note || ''].join(' ')).includes(q)) : db.cards;
+  const list = cardList = q ? db.cards.filter(c => norm([c.main.en, c.main.tr, ...c.ex.map(s => s.en + ' ' + (s.tr || '')), c.note || ''].join(' ')).includes(q)) : db.cards;
   let html = '';
   if (migrationNote) html += `<div class="tip"><div style="flex:1"><b>Tudo certo!</b> ${esc(migrationNote)} A primeira frase de cada card virou a frase principal e as demais viraram exemplos.</div><button class="ib" data-act="dismiss-migration">${I.x}</button></div>`;
   if (!S.tipDone && db.cards.length) html += `<div class="tip"><div style="flex:1"><b>Dica:</b> deslize o dedo sobre uma ou mais palavras para deixá-las em <b>negrito</b> (deslize de novo para tirar). Toque numa palavra para ver o contexto dela.</div><button class="ib" data-act="dismiss-tip">${I.x}</button></div>`;
   if (!db.cards.length) html += `<div class="empty"><h3>Nenhum card ainda</h3>Cole frases em inglês, uma por linha — cada uma vira um card.<br><button class="pill accent" data-act="add">${I.plus} Criar cards</button></div>`;
   else if (!list.length) html += `<div class="empty"><h3>Nada encontrado</h3>Nenhum card tem “${esc(query)}”.</div>`;
-  html += list.map(cardHTML).join('');
+  html += list.slice(0, cardsShown).map(c => cardHTML(c, cardNum.get(c.id))).join('');
+  if (list.length > cardsShown) html += '<div id="moreCards" style="height:1px"></div>';
   $('#cards').innerHTML = html;
+  const more = $('#moreCards'); if (more) moreObserver ? moreObserver.observe(more) : appendCards();
   db.cards.forEach(c => c.ex.forEach(s => delete s.fresh));
   renderTop(); observeTr($('#cards'));
 }
@@ -1082,10 +1157,10 @@ function rvFace(item, side) {
       ${item.ex.length ? `<div class="ex-wrap">${item.ex.map(s => sentHTML(s, { cls: 'ex' })).join('')}</div>` : ''}`;
   }
   if (side === 'front') return dir === 'en'
-    ? `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${wordsHTML(item.main.en)}</div></div><div class="row-btns"><button class="pill" data-act="rv-speak">${I.vol} Ouvir</button></div><p class="hint">Você entende? Tente traduzir mentalmente.</p>`
+    ? `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${textHTML(item.main.en)}</div></div><div class="row-btns"><button class="pill" data-act="rv-speak">${I.vol} Ouvir</button></div><p class="hint">Você entende? Tente traduzir mentalmente.</p>`
     : `<div class="rv-front pt" id="rvPt">${item.main.tr ? esc(plain(item.main.tr)) : '<span class="muted">Traduzindo…</span>'}</div><p class="hint">Como você diria isso em inglês? Fale em voz alta.</p>`;
   return `${dir === 'en' ? `<div class="sent main" data-sid="${item.main.id}"><div class="tr" style="margin-top:0">${trInner(item.main)}</div></div>`
-      : `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${wordsHTML(item.main.en)}</div><div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button></div></div>`}
+      : `<div class="sent main" data-sid="${item.main.id}"><div class="en rv-front" lang="en">${textHTML(item.main.en)}</div><div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button></div></div>`}
     ${item.note ? `<details class="note" open><summary>Nota</summary><div>${esc(item.note)}</div></details>` : ''}
     ${item.ex.length ? `<div class="ex-wrap"><div class="ex-label">Exemplos</div>${item.ex.map(s => sentHTML(s, { cls: 'ex' })).join('')}</div>` : ''}`;
 }
@@ -1160,7 +1235,7 @@ function renderSettings() {
       <div class="set-row" style="display:block"><div class="lbl">Velocidade <small id="rateVal">${S.rate.toFixed(2)}x</small></div><input type="range" min="0.5" max="1.5" step="0.05" value="${S.rate}" data-set="rate"></div>
       <div class="set-row"><button class="pill" data-act="test-voice">${I.vol} Testar voz</button></div>
     </div>
-    <p class="hint">Usa as vozes nativas do iPhone. Para vozes mais naturais: Ajustes do iPhone → Acessibilidade → Conteúdo Falado → Vozes → Inglês → baixe uma voz <b>Aprimorada</b> ou <b>Premium</b> (ex.: Ava, Zoe, Evan) e escolha aqui.</p>
+    <p class="hint">Usa as vozes nativas do iPhone. Para vozes mais naturais: Ajustes do iPhone → Acessibilidade → Conteúdo Falado → Vozes → Inglês → baixe uma voz <b>Aprimorada</b> ou <b>Premium</b> (ex.: Ava, Zoe, Evan) e escolha aqui. Vozes Premium soam melhor, mas demoram um pouco mais para começar.</p>
 
     <div class="group-title">Tradução</div>
     <div class="group">
@@ -1197,7 +1272,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.0</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.1</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -1270,14 +1345,23 @@ function renderAll() { show(curView); }
 /* ================= Interactions: swipe-to-bold & tap ================= */
 let sw = null, swallowClick = false;
 function paintSel() {
-  $$('.sel', sw.en).forEach(e => e.classList.remove('sel'));
   const a = Math.min(sw.start, sw.cur), b = Math.max(sw.start, sw.cur);
-  $$('[data-i]', sw.en).forEach(e => { const i = +e.dataset.i; if (i >= a && i <= b) e.classList.add('sel'); });
+  if (sw.painted === a + ':' + b) return;
+  sw.painted = a + ':' + b;
+  for (const e of sw.en.children) { const i = +e.dataset.i; e.classList.toggle('sel', i >= a && i <= b); }
+}
+function wordAt(en, x, y) {
+  const el = document.elementFromPoint(x, y), w = el && el.closest && el.closest('[data-i]');
+  return w && en.contains(w) ? w : null;
 }
 document.addEventListener('pointerdown', e => {
-  const w = e.target.closest('.w'); if (!w || (e.pointerType === 'mouse' && e.button !== 0)) return;
-  sw = { en: w.closest('.en'), start: +w.dataset.i, cur: +w.dataset.i, x: e.clientX, y: e.clientY, pid: e.pointerId, active: false };
-});
+  sw = null;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const en = e.target.closest && e.target.closest('.en'); if (!en) return;
+  wordify(en);
+  const w = wordAt(en, e.clientX, e.clientY); if (!w) return;
+  sw = { en, start: +w.dataset.i, cur: +w.dataset.i, x: e.clientX, y: e.clientY, pid: e.pointerId, active: false };
+}, { passive: true });
 document.addEventListener('pointermove', e => {
   if (!sw || e.pointerId !== sw.pid) return;
   const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
@@ -1286,12 +1370,10 @@ document.addEventListener('pointermove', e => {
     else if (Math.abs(dy) > 12) { sw = null; return; }
     else return;
   }
-  e.preventDefault();
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const w = el && el.closest && el.closest('.w');
-  if (w && w.closest('.en') === sw.en) { sw.cur = +w.dataset.i; }
+  const w = wordAt(sw.en, e.clientX, e.clientY);
+  if (w) sw.cur = +w.dataset.i;
   paintSel();
-}, { passive: false });
+}, { passive: true });
 function endSwipe(e) {
   if (!sw || e.pointerId !== sw.pid) return;
   const s = sw; sw = null;
@@ -1307,12 +1389,10 @@ function endSwipe(e) {
   words.forEach(i => toks[i].b = !allBold);
   f.s.en = serialize(toks);
   if (!f.tmp) save();
-  $$(`.sent[data-sid="${f.s.id}"] > .en, .sent[data-sid="${f.s.id}"] .sent-row > .en`).forEach(en => en.innerHTML = wordsHTML(f.s.en));
+  $$(`.sent[data-sid="${f.s.id}"] > .en,.sent[data-sid="${f.s.id}"] .sent-row > .en`).forEach(en => { en.innerHTML = wordsHTML(f.s.en); en.dataset.w = '1'; });
   if (!S.tipDone) { S.tipDone = true; saveS(); }
 }
 document.addEventListener('pointerup', endSwipe);
-// iOS: garante que a página não role enquanto o dedo desliza destacando palavras
-document.addEventListener('touchmove', e => { if (sw && sw.active) e.preventDefault(); }, { passive: false });
 document.addEventListener('pointercancel', endSwipe);
 // Impede o "arrastar" nativo de texto/imagem no desktop enquanto destaca
 document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest('.en')) e.preventDefault(); });
@@ -1333,8 +1413,13 @@ function termAt(wEl) {
 /* ================= Click delegation ================= */
 document.addEventListener('click', e => {
   if (swallowClick) { e.preventDefault(); e.stopPropagation(); swallowClick = false; return; }
-  const w = e.target.closest('.w');
-  if (w && !e.target.closest('[data-act]')) { const t = termAt(w); if (sheets.length && ctx && w.closest('#ctxBody')) closeSheet(); openContext(t.term, t.sent, t.sid); return; }
+  const enEl = !e.target.closest('[data-act]') && e.target.closest('.en');
+  if (enEl) {
+    wordify(enEl);
+    const hit = wordAt(enEl, e.clientX, e.clientY), w = hit && hit.classList.contains('w') ? hit : null;
+    if (!w) return;
+    const t = termAt(w); if (sheets.length && ctx && w.closest('#ctxBody')) closeSheet(); openContext(t.term, t.sent, t.sid); return;
+  }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act;
   const cardEl = b.closest('[data-card]'), card = cardEl && cardById(cardEl.dataset.card);
@@ -1392,7 +1477,7 @@ document.addEventListener('click', e => {
     case 'term-menu': if (term) termMenu(term); break;
     case 'term-del': if (term) { if (sheets.length) closeSheet(); const i = db.terms.indexOf(term); db.terms.splice(i, 1); save(); renderTerms(); renderTop(); renderTabs(); toast('Termo apagado', { undo: () => { db.terms.splice(i, 0, term); save(); renderTerms(); renderTop(); renderTabs(); } }); } break;
     case 'term-context': closeSheet(); openContext(term.term, term.ctx, null); break;
-    case 'term-goto-card': closeSheet(); { const id = term.cardId; query = ''; $('#search').value = ''; show('cards'); const el = $(`.card[data-card="${id}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); } } break;
+    case 'term-goto-card': closeSheet(); { const id = term.cardId; query = ''; $('#search').value = ''; show('cards'); ensureCardShown(id); const el = $(`.card[data-card="${id}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); } } break;
 
     case 'rv-src': S.revSrc = b.dataset.v; saveS(); renderReview(); break;
     case 'rv-dir': S.revDir = b.dataset.v; saveS(); renderReview(); break;
@@ -1425,7 +1510,7 @@ document.addEventListener('input', e => {
   const el = e.target, k = el.dataset.set;
   if (k === 'fs') { S.fs = +el.value; $('#fsVal').textContent = S.fs + 'px'; applyTheme(); saveS(); }
   if (k === 'rate') { S.rate = +el.value; $('#rateVal').textContent = S.rate.toFixed(2) + 'x'; saveS(); }
-  if (el.id === 'search') { clearTimeout(window._qt); window._qt = setTimeout(() => { query = el.value.trim(); renderCards(); }, 160); }
+  if (el.id === 'search') { clearTimeout(window._qt); window._qt = setTimeout(() => { query = el.value.trim(); renderCards(true); }, 200); }
 });
 document.addEventListener('change', e => {
   const el = e.target, k = el.dataset.set;
@@ -1458,6 +1543,7 @@ addEventListener('scroll', () => {
 show('cards');
 (() => {
   const id = LS.raw('ep2Pos'); if (!id) return;
+  ensureCardShown(id);
   const el = $(`.card[data-card="${id}"]`); if (el && db.cards[0] && db.cards[0].id !== id) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60);
 })();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
