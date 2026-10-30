@@ -767,7 +767,7 @@ async function claude(prompt, key) {
 const AI_CALL = {
   gemini,
   claude,
-  groq: (prompt, key) => chatAI('https://api.groq.com/openai/v1/chat/completions', key, ['llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'], prompt, { temperature: 0.8, response_format: { type: 'json_object' } }),
+  groq: (prompt, key) => chatAI('https://api.groq.com/openai/v1/chat/completions', key, ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], prompt, { temperature: 0.8, response_format: { type: 'json_object' } }),
   openrouter: (prompt, key) => chatAI('https://openrouter.ai/api/v1/chat/completions', key, ['openrouter/free'], prompt, { temperature: 0.8 }),
   free: async prompt => {
     const call = () => chatAI('https://text.pollinations.ai/openai', '', ['openai'], prompt, { seed: Math.floor(Math.random() * 1e9), max_tokens: 4000, reasoning_effort: 'low' });
