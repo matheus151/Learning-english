@@ -20,9 +20,9 @@ Abra em https://matheus151.github.io/Learning-english/ e, no Safari, toque em **
 
 ## IA
 
-Exemplos, contexto e completar frases usam o **Gemini** (chave grátis em https://aistudio.google.com/apikey)
-ou o **Claude**. A chave fica salva só no aparelho (Ajustes → IA). A chave do Gemini da versão antiga é reaproveitada.
-Sem chave, tradução e dicionário básico continuam funcionando.
+Exemplos, contexto e completar frases usam, nesta ordem, as IAs disponíveis: Gemini, Groq, OpenRouter, Claude e uma IA grátis sem chave (pollinations.ai, 1 resposta a cada 30 segundos).
+Se uma atingir o limite ou falhar, o app passa sozinho para a próxima. As chaves ficam só no aparelho (Ajustes → IA) e não vão no backup.
+Sem nenhuma IA disponível, tradução e dicionário básico continuam funcionando.
 
 ## Versões antigas
 
