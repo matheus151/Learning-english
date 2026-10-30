@@ -696,7 +696,7 @@ const aiCooling = p => (LS.get('ep2AiCool', {})[p] || 0) > Date.now();
 function aiCool(p, ms) { const c = LS.get('ep2AiCool', {}); if (ms) c[p] = Date.now() + ms; else delete c[p]; LS.set('ep2AiCool', c); }
 function aiFail(msg, status) {
   const e = new Error(msg); e.status = status;
-  e.quota = status === 429 || status === 402 || /quota|credit|exhausted|rate limit/i.test(msg);
+  e.quota = status === 429 || status === 402 || /quota|credit|rate limit/i.test(msg);
   e.auth = status === 401 || status === 403 || /api key/i.test(msg);
   return e;
 }
@@ -770,7 +770,7 @@ const AI_CALL = {
   groq: (prompt, key) => chatAI('https://api.groq.com/openai/v1/chat/completions', key, ['llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'llama-3.1-8b-instant'], prompt, { temperature: 0.8, response_format: { type: 'json_object' } }),
   openrouter: (prompt, key) => chatAI('https://openrouter.ai/api/v1/chat/completions', key, ['openrouter/free'], prompt, { temperature: 0.8 }),
   free: async prompt => {
-    const call = () => chatAI('https://text.pollinations.ai/openai', '', ['openai'], prompt, { seed: Math.floor(Math.random() * 1e9) });
+    const call = () => chatAI('https://text.pollinations.ai/openai', '', ['openai'], prompt, { seed: Math.floor(Math.random() * 1e9), max_tokens: 4000, reasoning_effort: 'low' });
     try { return await call(); } catch (e) {
       // limite do serviço: 1 resposta a cada 30 segundos; o erro diz quanto falta
       const wait = /retry after (\d+)\s*s/i.exec(e.message);

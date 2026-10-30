@@ -1,5 +1,5 @@
 // Network-first: always tries the latest version, falls back to cache when offline.
-const CACHE = 'english-pro-v7';
+const CACHE = 'english-pro-v8';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-180.png'];
 
 self.addEventListener('install', e => {
