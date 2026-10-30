@@ -124,6 +124,7 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .chip{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:12px;background:var(--accent-soft);color:var(--text);font-size:15px;text-align:left}
 .chip b{color:var(--accent)}
 .chip span{font-size:12.5px;color:var(--muted)}
+.ctx-mains{margin:4px 0 0;padding-left:20px;font-size:15.5px;line-height:1.45}
 .ctx-sub{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:12px}
 .ex-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 0 2px;display:flex;gap:6px}
 .ex-label span{font-weight:600;opacity:.7}
@@ -765,9 +766,9 @@ Return ONLY JSON:
 "meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 6 words)",
 "explanation":"ONE short, direct sentence in pt-BR (max 20 words): what it means here and when it is used",
 "similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
-"other":"other common meanings in pt-BR, max 10 words (or empty string)",
+"mains":["the main general meanings of the term on its own, regardless of this sentence, in pt-BR, most common first, max 5 words each"],
 "examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
-Give 2 to 4 "similar" items (empty array if none really fits) and 3 examples in different daily situations, max 15 words each.`;
+Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 to 4 "similar" items (empty array if none really fits) and 3 examples in different daily situations, max 15 words each.`;
 }
 function promptTermMore(t) {
   return `${STYLE}
@@ -1072,8 +1073,8 @@ async function loadContext() {
       if (hasAI()) {
         const r = await askAI(promptContext(my.term, my.sent, my.via));
         const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 4).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
-        data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', other: r.other || '', similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
-      } else data = await dictLookup(my.term);
+        data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
+      } else data = await dictLookup(my.term, my.sent);
       ctxCache.set(key, data);
     }
     if (ctx !== my) return;
@@ -1085,16 +1086,27 @@ async function loadContext() {
   }
 }
 // Sem IA: dicionário gratuito do Google Tradutor (tradução, sentidos, definições e exemplos)
-async function dictLookup(term) {
+async function dictLookup(term, sent) {
   const POS = { verb: 'verbo', noun: 'substantivo', adjective: 'adjetivo', adverb: 'advérbio', preposition: 'preposição', pronoun: 'pronome', conjunction: 'conjunção', interjection: 'interjeição', phrase: 'expressão', 'phrasal verb': 'phrasal verb' };
   let j = [];
   try { j = await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&dt=bd&dt=md&dt=ex&q=${encodeURIComponent(term)}`)).json(); } catch {}
   const meaning = (j[0] || []).map(x => x[0]).join('') || await translate(term).catch(() => '');
-  const other = (j[1] || []).map(p => `${POS[p[0]] || p[0]}: ${(p[1] || []).slice(0, 5).join(', ')}`).join(' · ');
+  const list = (j[1] || []).map(p => `${POS[p[0]] || p[0]}: ${(p[1] || []).slice(0, 5).join(', ')}`);
+  const mains = list.length ? list : meaning ? [meaning] : [];
+  const ctxTr = sent ? await translate(sent).catch(() => '') : '';
   const defs = [];
   (j[12] || []).forEach(p => (p[1] || []).slice(0, 2).forEach(d => defs.length < 4 && defs.push({ pos: POS[p[0]] || p[0], s: newSent(d[0]) })));
   const ex = (j[13]?.[0] || []).slice(0, 4).map(e => newSent(String(e[0]).replace(/<b>(.*?)<\/b>/g, '**$1**').replace(/<[^>]+>/g, '')));
-  return { ai: false, term, kind: (j[1]?.[0]?.[0] && (POS[j[1][0][0]] || j[1][0][0])) || '', meaning, other, defs, ex };
+  return { ai: false, term, kind: (j[1]?.[0]?.[0] && (POS[j[1][0][0]] || j[1][0][0])) || '', meaning, mains, ctxTr, defs, ex };
+}
+// Principais significados do termo isolado + significado na frase. Termos salvos antes disso não têm a lista.
+function meaningsHTML(d, hasCtx, meanCls, explCls) {
+  const expl = d.expl ? `<div class="${explCls}">${esc(d.expl)}</div>` : '';
+  const mains = d.mains || [];
+  if (!mains.length) return (d.meaning ? `<div class="${meanCls}">${esc(d.meaning)}</div>` : '') + expl;
+  const inCtx = d.ctxTr || (hasCtx ? d.meaning : '');
+  return `<div class="ctx-sub">Principais significados</div><ul class="ctx-mains">${mains.map(m => `<li>${esc(m)}</li>`).join('')}</ul>`
+    + (inCtx ? `<div class="ctx-sub">Neste contexto</div><div class="${meanCls}">${esc(inCtx)}</div>` : '') + expl;
 }
 function renderContext() {
   const d = ctx.data, body = $('#ctxBody'); if (!body) return;
@@ -1105,8 +1117,7 @@ function renderContext() {
   const extra = card ? `<button class="ib" data-act="ex-to-card" aria-label="Adicionar ao card">${I.plus}</button>` : '';
   body.innerHTML = `<div class="ctx-card">
       <div class="ctx-term"><h3 lang="en">${esc(d.term)}</h3>${d.kind ? `<span class="badge">${esc(d.kind)}</span>` : ''}<span style="flex:1"></span><button class="ib" data-act="speak-ctx-term" aria-label="Ouvir">${I.vol}</button></div>
-      ${d.meaning ? `<div class="ctx-mean">${esc(d.meaning)}</div>` : ''}
-      ${d.expl ? `<div class="ctx-expl">${esc(d.expl)}</div>` : ''}
+      ${meaningsHTML(d, !!ctx.sent, 'ctx-mean', 'ctx-expl')}
       ${ctx.via ? `<div class="ctx-other">Alternativa a <b lang="en">${esc(ctx.via)}</b> nesta frase · <button class="pill ghost" style="height:auto;padding:0" data-act="ctx-back">voltar</button></div>` : ''}
       ${d.similar && d.similar.length ? `<div class="ctx-sub">Também se diz</div><div class="chips">${d.similar.map(x => `<button class="chip" data-act="ctx-similar" data-term="${esc(x.term)}"><b lang="en">${esc(x.term)}</b>${x.note ? `<span>${esc(x.note)}</span>` : ''}</button>`).join('')}</div>` : ''}
       ${d.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(d.other)}</div>` : ''}
@@ -1132,7 +1143,7 @@ async function ctxMore(btn) {
 }
 function ctxSave() {
   const d = ctx && ctx.data; if (!d) return;
-  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), other: d.other || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
   db.terms.unshift(t); save(); renderContext(); renderTabs();
   toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
   if (curView === 'terms') renderTerms();
@@ -1143,8 +1154,7 @@ function termHTML(t) {
   return `<article class="card" data-term="${t.id}" style="--stripe:var(--accent)">
     <div class="term-head"><div class="grow"><div class="term-name" lang="en">${esc(t.term)}</div>${t.kind ? `<span class="badge gray">${esc(t.kind)}</span>` : ''}</div>
       <button class="ib" data-act="speak-term" aria-label="Ouvir">${I.vol}</button><button class="ib" data-act="term-menu" aria-label="Opções">${I.more}</button></div>
-    ${t.meaning ? `<div class="term-mean">${esc(t.meaning)}</div>` : ''}
-    ${t.expl ? `<div class="term-expl">${esc(t.expl)}</div>` : ''}
+    ${meaningsHTML(t, !!t.ctx, 'term-mean', 'term-expl')}
     ${t.similar && t.similar.length ? `<div class="ctx-other"><b>Também se diz:</b> ${t.similar.map(x => `<b lang="en" style="color:var(--accent)">${esc(x.term)}</b>${x.note ? ` (${esc(x.note)})` : ''}`).join(', ')}</div>` : ''}
     ${t.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(t.other)}</div>` : ''}
     ${t.ctx ? `<div class="ctx-sent small">${highlightTerm(t.ctx, t.via || t.term)}</div>` : ''}
@@ -1348,7 +1358,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.3</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.4</p>`;
 }
 
 /* ---------- Backup ---------- */
