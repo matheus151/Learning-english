@@ -19,7 +19,7 @@
   --bg:#f2f2f7; --card:#ffffff; --card2:#f7f7fa; --text:#1c1c1e; --strong:#000; --muted:#6e6e73;
   --line:rgba(60,60,67,.14); --accent:#2563eb; --accent-soft:rgba(37,99,235,.12); --on-accent:#fff;
   --tr:#15803d; --tr-bg:#f0fdf4; --tr-line:#bbf7d0; --hl:rgba(250,204,21,.55); --danger:#e5484d;
-  --sel:rgba(37,99,235,.22); --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04);
+  --sel:rgba(37,99,235,.22); --sec:#64748b; --gen:#7c3aed; --gen-bg:rgba(124,58,237,.07); --gen-line:rgba(124,58,237,.3); --gen-hl:rgba(167,139,250,.45); --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04);
   --fs:19px; --radius:18px;
   --top:env(safe-area-inset-top,0px); --bot:env(safe-area-inset-bottom,0px);
 }
@@ -27,10 +27,12 @@
   --bg:#000; --card:#1c1c1e; --card2:#26262a; --text:#f2f2f7; --strong:#fff; --muted:#98989f;
   --line:rgba(84,84,88,.55); --tr:#4ade80; --tr-bg:rgba(34,197,94,.10); --tr-line:rgba(34,197,94,.28);
   --hl:rgba(250,204,21,.32); --shadow:none;
+  --sec:#94a3b8; --gen:#b79cff; --gen-bg:rgba(167,139,250,.12); --gen-line:rgba(167,139,250,.35); --gen-hl:rgba(167,139,250,.38);
 }
 :root[data-theme="sepia"]{
   --bg:#efe6d2; --card:#fbf5e6; --card2:#f3ead6; --text:#3b2f20; --strong:#1f170c; --muted:#7a6a55;
   --line:rgba(94,72,40,.18); --tr:#4d6b1f; --tr-bg:#eef0d9; --tr-line:#d4d9a8; --hl:rgba(232,165,52,.45);
+  --sec:#7a6a55; --gen:#7a4fb8; --gen-bg:rgba(122,79,184,.08); --gen-line:rgba(122,79,184,.3); --gen-hl:rgba(160,120,220,.35);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -100,6 +102,19 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .tr .muted,.muted{color:var(--muted)}
 .tr .err{color:var(--danger)}
 .ex-wrap{margin-top:12px;border-top:1px solid var(--line)}
+.ex-wrap.sec .sent.ex{border-left:3px solid var(--sec);padding-left:10px;margin:6px 0;border-bottom:0}
+.ex-wrap.sec .ex-label{color:var(--sec)}
+.ex-wrap.gen{border-top:1px dashed var(--gen-line)}
+.ex-wrap.gen .ex-label{color:var(--gen);align-items:center}
+.ex-wrap.gen .ex-label svg{width:14px;height:14px}
+.ex-wrap.gen .sent.ex{background:var(--gen-bg);border-left:3px solid var(--gen);border-radius:0 12px 12px 0;padding:7px 0 7px 10px;margin:6px 0;border-bottom:0}
+.ex-wrap.gen .sent.ex .w.b,.ex-wrap.gen .sent.ex .sp.b,.ex-wrap.gen .sent.ex .en b{background:linear-gradient(transparent 58%,var(--gen-hl) 58%)}
+.alt-tag{display:inline-block;font-size:11.5px;font-weight:700;color:var(--gen);background:var(--card);border:1px solid var(--gen-line);border-radius:999px;padding:1px 8px;margin-bottom:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:12px;background:var(--accent-soft);color:var(--text);font-size:15px;text-align:left}
+.chip b{color:var(--accent)}
+.chip span{font-size:12.5px;color:var(--muted)}
+.ctx-sub{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:12px}
 .ex-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 0 2px;display:flex;gap:6px}
 .ex-label span{font-weight:600;opacity:.7}
 .sent.ex{padding:7px 0;border-bottom:1px solid var(--line)}
@@ -137,10 +152,11 @@ details.note div{white-space:pre-line;margin-top:6px;padding:8px 10px;background
 .sheet-ov.open{background:rgba(0,0,0,.38)}
 .sheet{width:100%;max-width:720px;max-height:calc(100% - var(--top) - 24px);background:var(--bg);border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;position:relative}
 .sheet-ov.open .sheet{transform:none}
-.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:8px auto 2px;flex:none}
-.sheet-x{position:absolute;right:10px;top:10px;background:var(--card)}
-.sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 16px calc(var(--bot) + 20px)}
-.sheet-title{font-size:20px;font-weight:800;margin:4px 44px 12px 0}
+.sheet-head{flex:none;position:relative;z-index:5;height:44px;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px}
+.grab{position:absolute;left:50%;top:8px;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:var(--line)}
+.sheet-x{width:40px;height:40px;background:var(--card);color:var(--text)}
+.sheet-body{position:relative;z-index:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 16px calc(var(--bot) + 20px)}
+.sheet-title{font-size:20px;font-weight:800;margin:0 0 12px}
 .hint{font-size:13.5px;color:var(--muted);margin:6px 0 10px}
 .field{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
 textarea,.input{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px 12px;outline:none;resize:vertical}
@@ -154,7 +170,7 @@ textarea:focus,.input:focus{border-color:var(--accent)}
 .menu button:last-child{border-bottom:0}
 .menu button svg{color:var(--accent)}
 .menu button.danger,.menu button.danger svg{color:var(--danger)}
-.menu-head{font-size:14px;color:var(--muted);margin:2px 44px 12px 2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.menu-head{font-size:14px;color:var(--muted);margin:0 2px 12px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
 .edit-ex{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px}
 .edit-ex textarea{flex:1}
@@ -441,7 +457,7 @@ const sheets = [];
 function openSheet(html, o = {}) {
   const ov = document.createElement('div');
   ov.className = 'sheet-ov';
-  ov.innerHTML = `<div class="sheet ${o.cls || ''}" role="dialog" aria-modal="true"><div class="grab"></div><button class="ib sheet-x" data-act="close-sheet" aria-label="Fechar">${I.x}</button><div class="sheet-body">${html}</div></div>`;
+  ov.innerHTML = `<div class="sheet ${o.cls || ''}" role="dialog" aria-modal="true"><div class="sheet-head"><div class="grab"></div><button class="ib sheet-x" data-act="close-sheet" aria-label="Fechar">${I.x}</button></div><div class="sheet-body">${html}</div></div>`;
   document.body.appendChild(ov);
   requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('open')));
   ov.addEventListener('click', e => { if (e.target === ov) closeSheet(); });
@@ -707,22 +723,27 @@ function promptExamples(card, n) {
   const existing = [card.main.en, ...card.ex.map(s => s.en)].map(plain).slice(-12);
   return `${STYLE}
 Original sentence: "${plain(card.main.en)}"
-${bt.length ? `Key expression(s) the learner highlighted: ${bt.map(t => `"${t}"`).join(', ')}. EVERY new sentence must use this same expression (inflected naturally if needed) and wrap it in **double asterisks**.` : `If the original has a key expression (phrasal verb, idiom, collocation, useful structure), reuse it in every new sentence and wrap it in **double asterisks**.`}
+${bt.length ? `Key expression(s) the learner highlighted: ${bt.map(t => `"${t}"`).join(', ')}.` : `Key expression: the main phrasal verb, idiom, collocation or useful structure of the original sentence.`}
 Do NOT repeat or paraphrase too closely these existing sentences: ${JSON.stringify(existing)}
-Write ${n} NEW short sentences (max 16 words each) with a similar meaning or the same use, in different everyday situations, varying the person and tense.
-Return ONLY JSON: {"examples":[{"en":"...","pt":"..."}]}`;
+Write ${n} NEW short sentences (max 16 words each) with a similar meaning, each in a different everyday situation, varying the person and tense. Mix two kinds:
+- About half use the SAME key expression (inflected naturally). Wrap it in **double asterisks** and set "alt" to "".
+- The others use a DIFFERENT expression with the same meaning that natives commonly say in everyday speech and that fits this context (a more usual or equally natural synonym, phrasal verb or idiom). Wrap it in **double asterisks** and put that expression (base form) in "alt". Only do this when a natural alternative really exists; otherwise use the original expression.
+Return ONLY JSON: {"examples":[{"en":"...","pt":"...","alt":""}]}`;
 }
-function promptContext(term, sentence) {
+function promptContext(term, sentence, via) {
   return `${STYLE}
-Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.
+${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}".`
+  : `Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.`}
+Be direct and objective, no filler.
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
 "kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
-"meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 8 words)",
-"explanation":"2 or 3 short sentences in pt-BR: what it means here, when natives use it, formality, common mistakes",
-"other":"other common meanings in pt-BR, very short (or empty string)",
+"meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 6 words)",
+"explanation":"ONE short, direct sentence in pt-BR (max 20 words): what it means here and when it is used",
+"similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
+"other":"other common meanings in pt-BR, max 10 words (or empty string)",
 "examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
-Give 3 examples in different daily situations, max 15 words each.`;
+Give 2 to 4 "similar" items (empty array if none really fits) and 3 examples in different daily situations, max 15 words each.`;
 }
 function promptTermMore(t) {
   return `${STYLE}
@@ -778,7 +799,7 @@ function show(v) {
 function sentHTML(s, o = {}) {
   const open = S.showTr || openTr.has(s.id);
   return `<div class="sent ${o.cls || 'ex'}" data-sid="${s.id}">
-    <div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>
+    ${o.tag || ''}<div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>
       <div class="tools"><button class="ib" data-act="speak" aria-label="Ouvir">${I.vol}</button><button class="ib ${open ? 'on' : ''}" data-act="tr" aria-label="Traduzir">${I.tr}</button>${o.extra || ''}</div></div>
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
@@ -789,6 +810,15 @@ function mainHTML(s) {
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
 const DEL = `<button class="ib del" data-act="del-ex" aria-label="Apagar exemplo">${I.x}</button>`;
+// Exemplos que vieram com o card (secundários) x exemplos criados depois (IA, contexto ou adicionados à mão)
+const isGen = s => !!(s.ai || s.gen);
+const exOrdered = c => [...c.ex.filter(s => !isGen(s)), ...c.ex.filter(isGen)];
+function exGroupsHTML(c) {
+  const sec = c.ex.filter(s => !isGen(s)), gen = c.ex.filter(isGen);
+  const row = s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL, tag: s.alt ? `<span class="alt-tag" title="Expressão alternativa">≈ ${esc(s.alt)}</span>` : '' });
+  return (sec.length ? `<div class="ex-wrap sec"><div class="ex-label">Exemplos <span>${sec.length}</span></div>${sec.map(row).join('')}</div>` : '')
+    + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">${I.spark} Criados depois <span>${gen.length}</span></div>${gen.map(row).join('')}</div>` : '');
+}
 function cardHTML(c, n) {
   n = n || db.cards.indexOf(c) + 1;
   const allOpen = [c.main, ...c.ex].every(s => S.showTr || openTr.has(s.id));
@@ -797,7 +827,7 @@ function cardHTML(c, n) {
       <button class="ib" data-act="card-menu" aria-label="Opções do card">${I.more}</button></div>
     ${mainHTML(c.main)}
     ${c.note ? `<details class="note"><summary>Nota / tradução antiga ▾</summary><div>${esc(c.note)}</div></details>` : ''}
-    ${c.ex.length ? `<div class="ex-wrap"><div class="ex-label">Exemplos <span>${c.ex.length}</span></div>${c.ex.map(s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL })).join('')}</div>` : ''}
+    ${exGroupsHTML(c)}
     <div class="card-foot">
       <button class="pill accent" data-act="gen">${I.spark} Novos exemplos</button>
       <span class="sp-auto"></span>
@@ -904,10 +934,10 @@ async function genExamples(c, btn) {
   if (!hasAI()) return needAI();
   busy(btn, true, ' Gerando…');
   try {
-    const r = await askAI(promptExamples(c, 3));
+    const r = await askAI(promptExamples(c, 4));
     const arr = (r.examples || r || []).filter(x => x && x.en);
     if (!arr.length) throw new Error('A IA não retornou exemplos.');
-    arr.forEach(x => c.ex.push(Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1, fresh: 1 })));
+    arr.forEach(x => c.ex.push(Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1, fresh: 1 }, x.alt && plain(x.alt) ? { alt: plain(x.alt) } : {})));
     save();
     rerenderCard(c);
     toast(`${arr.length} exemplos novos`);
@@ -981,7 +1011,7 @@ function saveEdit(c) {
     if (!plain(v)) return null;
     const prev = old.get(row.dataset.eid);
     if (prev) { if (prev.en !== v) { prev.en = v; prev.tr = ''; } return prev; }
-    return newSent(v);
+    return Object.assign(newSent(v), { gen: 1 });
   }).filter(Boolean);
   c.note = $('#edNote').value.trim() || undefined;
   save(); closeSheet(); rerenderCard(c, true);
@@ -995,26 +1025,27 @@ function openContext(term, sentEn, sid) {
   term = cleanTerm(term);
   if (!term) return;
   const f = sid ? findSent(sid) : null;
-  ctx = { term, sent: sentEn || '', cardId: f && f.card ? f.card.id : null, data: null };
+  ctx = { term, via: null, sent: sentEn || '', cardId: f && f.card ? f.card.id : null, data: null };
   openSheet(`<div class="sheet-title">Contexto</div>
     <form class="term-form" id="ctxForm"><input class="input" id="ctxIn" value="${esc(term)}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Termo"><button class="pill accent" type="submit">Ver</button></form>
     <p class="hint" style="margin:6px 2px 0">Edite para ver um termo maior (ex.: “get the hang of”).</p>
     ${sentEn ? `<div class="ctx-sent" id="ctxSent">${highlightTerm(sentEn, term)}</div>` : ''}
     <div id="ctxBody"></div>`, { onClose: () => { ctx = null; } });
-  $('#ctxForm').addEventListener('submit', e => { e.preventDefault(); const t = cleanTerm($('#ctxIn').value); if (!t || !ctx) return; $('#ctxIn').blur(); ctx.term = t; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, t); loadContext(); });
+  $('#ctxForm').addEventListener('submit', e => { e.preventDefault(); const t = cleanTerm($('#ctxIn').value); if (!t || !ctx) return; $('#ctxIn').blur(); ctx.term = t; ctx.via = null; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, t); loadContext(); });
   loadContext();
 }
 async function loadContext() {
   const body = $('#ctxBody'); if (!body || !ctx) return;
   const my = ctx;
-  const key = my.term.toLowerCase() + '|' + plain(my.sent);
+  const key = my.term.toLowerCase() + '|' + plain(my.sent) + '|' + (my.via || '');
   body.innerHTML = `<div class="loading"><span class="spin"></span>Buscando “${esc(my.term)}”…</div>`;
   try {
     let data = ctxCache.get(key);
     if (!data) {
       if (hasAI()) {
-        const r = await askAI(promptContext(my.term, my.sent));
-        data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', other: r.other || '', ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
+        const r = await askAI(promptContext(my.term, my.sent, my.via));
+        const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 4).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
+        data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', other: r.other || '', similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
       } else data = await dictLookup(my.term);
       ctxCache.set(key, data);
     }
@@ -1049,6 +1080,8 @@ function renderContext() {
       <div class="ctx-term"><h3 lang="en">${esc(d.term)}</h3>${d.kind ? `<span class="badge">${esc(d.kind)}</span>` : ''}<span style="flex:1"></span><button class="ib" data-act="speak-ctx-term" aria-label="Ouvir">${I.vol}</button></div>
       ${d.meaning ? `<div class="ctx-mean">${esc(d.meaning)}</div>` : ''}
       ${d.expl ? `<div class="ctx-expl">${esc(d.expl)}</div>` : ''}
+      ${ctx.via ? `<div class="ctx-other">Alternativa a <b lang="en">${esc(ctx.via)}</b> nesta frase · <button class="pill ghost" style="height:auto;padding:0" data-act="ctx-back">voltar</button></div>` : ''}
+      ${d.similar && d.similar.length ? `<div class="ctx-sub">Também se diz</div><div class="chips">${d.similar.map(x => `<button class="chip" data-act="ctx-similar" data-term="${esc(x.term)}"><b lang="en">${esc(x.term)}</b>${x.note ? `<span>${esc(x.note)}</span>` : ''}</button>`).join('')}</div>` : ''}
       ${d.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(d.other)}</div>` : ''}
       ${d.defs && d.defs.length ? `<div style="margin-top:8px">${d.defs.map(x => `<div class="def"><div class="pos">${esc(x.pos)}</div>${sentHTML(x.s, { cls: 'ex' })}</div>`).join('')}</div>` : ''}
       ${!d.ai ? `<p class="hint">Dicionário básico. Configure a IA em Ajustes para explicações em português e exemplos do dia a dia.</p>` : ''}
@@ -1072,7 +1105,7 @@ async function ctxMore(btn) {
 }
 function ctxSave() {
   const d = ctx && ctx.data; if (!d) return;
-  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), other: d.other || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), other: d.other || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
   db.terms.unshift(t); save(); renderContext(); renderTabs();
   toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
   if (curView === 'terms') renderTerms();
@@ -1085,8 +1118,9 @@ function termHTML(t) {
       <button class="ib" data-act="speak-term" aria-label="Ouvir">${I.vol}</button><button class="ib" data-act="term-menu" aria-label="Opções">${I.more}</button></div>
     ${t.meaning ? `<div class="term-mean">${esc(t.meaning)}</div>` : ''}
     ${t.expl ? `<div class="term-expl">${esc(t.expl)}</div>` : ''}
+    ${t.similar && t.similar.length ? `<div class="ctx-other"><b>Também se diz:</b> ${t.similar.map(x => `<b lang="en" style="color:var(--accent)">${esc(x.term)}</b>${x.note ? ` (${esc(x.note)})` : ''}`).join(', ')}</div>` : ''}
     ${t.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(t.other)}</div>` : ''}
-    ${t.ctx ? `<div class="ctx-sent small">${highlightTerm(t.ctx, t.term)}</div>` : ''}
+    ${t.ctx ? `<div class="ctx-sent small">${highlightTerm(t.ctx, t.via || t.term)}</div>` : ''}
     ${t.ex.length ? `<div class="ex-wrap" style="margin-top:6px">${t.ex.map(s => sentHTML(s, { cls: 'ex', extra: DEL })).join('')}</div>` : ''}
     <div class="card-foot"><button class="pill" data-act="term-more">${I.spark} Mais exemplos</button><button class="pill" data-act="term-play">${I.play} Ouvir tudo</button></div></article>`;
 }
@@ -1272,7 +1306,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.1</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.2</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -1447,7 +1481,7 @@ document.addEventListener('click', e => {
       if (open) { fs.s.trErr = false; box.innerHTML = trInner(fs.s); ensureTr(fs.s); }
     } break;
     case 'del-ex': if (fs) deleteSent(fs.s.id); break;
-    case 'play-all': if (card) speak([card.main, ...card.ex].map(s => ({ text: s.en, id: s.id }))); break;
+    case 'play-all': if (card) speak([card.main, ...exOrdered(card)].map(s => ({ text: s.en, id: s.id }))); break;
     case 'tr-card': if (card) toggleTrCard(card); break;
     case 'gen': if (card) genExamples(card, b); break;
     case 'card-menu': if (card) cardMenu(card); break;
@@ -1466,10 +1500,12 @@ document.addEventListener('click', e => {
     case 'edit-save': saveEdit(card); break;
 
     case 'ctx-retry': loadContext(); break;
+    case 'ctx-similar': if (ctx) { ctx.via = ctx.via || (ctx.data && ctx.data.term) || ctx.term; ctx.term = b.dataset.term; $('#ctxIn').value = ctx.term; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, ctx.via); $('#ctxIn').closest('.sheet-body').scrollTop = 0; loadContext(); } break;
+    case 'ctx-back': if (ctx && ctx.via) { ctx.term = ctx.via; ctx.via = null; $('#ctxIn').value = ctx.term; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, ctx.term); loadContext(); } break;
     case 'ctx-more': ctxMore(b); break;
     case 'ctx-save': ctxSave(); break;
     case 'speak-ctx-term': if (ctx && ctx.data) speak([ctx.data.term]); break;
-    case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(newSent(fs.s.en, fs.s.tr)); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
+    case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(Object.assign(newSent(fs.s.en, fs.s.tr), { gen: 1 })); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
 
     case 'speak-term': if (term) speak([term.term]); break;
     case 'term-play': if (term) speak([{ text: term.term }, ...term.ex.map(s => ({ text: s.en, id: s.id }))]); break;
@@ -1504,6 +1540,8 @@ document.addEventListener('click', e => {
     case 'wipe-review': if (confirm('Zerar o progresso de revisão de todos os cards e termos?')) { const snap = JSON.stringify([db.cards.map(c => c.rv), db.terms.map(t => t.rv), db.stats]); [...db.cards, ...db.terms].forEach(x => delete x.rv); db.stats = {}; save(); renderTabs(); toast('Progresso zerado', { undo: () => { const [a, b2, st] = JSON.parse(snap); db.cards.forEach((c, i) => a[i] ? c.rv = a[i] : delete c.rv); db.terms.forEach((t, i) => b2[i] ? t.rv = b2[i] : delete t.rv); db.stats = st; save(); renderTabs(); } }); } break;
   }
 });
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheets.length) closeSheet(); });
 
 /* Settings inputs */
 document.addEventListener('input', e => {
