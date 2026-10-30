@@ -83,7 +83,17 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 
 .sent{position:relative}
 .en{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;word-wrap:break-word;overflow-wrap:anywhere}
-.main .en{font-size:calc(var(--fs) * 1.12);line-height:1.42;font-weight:500;color:var(--strong);padding:2px 0 8px}
+.main .en{flex:1;min-width:0;font-size:calc(var(--fs) * 1.12);line-height:1.42;font-weight:500;color:var(--main-c,var(--strong));padding:2px 0 8px}
+.main .en b,.main .w.b,.main .sp.b{color:var(--main-c,var(--strong))}
+.sec .en{color:var(--sec-c,inherit)}
+.sec .en b,.sec .w.b,.sec .sp.b{color:var(--sec-c,var(--strong))}
+.ex-toggle{flex:none;display:flex;align-items:center;gap:2px;height:34px;min-width:34px;margin:0 -6px 0 2px;padding:0 6px;justify-content:center;border-radius:999px;color:var(--muted)}
+.ex-toggle:active{background:var(--card2)}
+.ex-toggle svg{transition:transform .15s}
+.ex-count{display:none;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.card.ex-closed .ex-toggle svg{transform:rotate(-90deg)}
+.card.ex-closed .ex-count{display:inline}
+.card.ex-closed .ex-wrap{display:none}
 .w{border-radius:3px}
 .w.b,.sp.b,.en b{font-weight:800;color:var(--strong);background:linear-gradient(transparent 58%,var(--hl) 58%)}
 .en:not([data-w]) b{pointer-events:none}
@@ -102,8 +112,8 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .tr .muted,.muted{color:var(--muted)}
 .tr .err{color:var(--danger)}
 .ex-wrap{margin-top:12px;border-top:1px solid var(--line)}
-.ex-wrap.sec .sent.ex{border-left:3px solid var(--sec);padding-left:10px;margin:6px 0;border-bottom:0}
-.ex-wrap.sec .ex-label{color:var(--sec)}
+.ex-wrap.sec .sent.ex{border-left:3px solid var(--sec-c,var(--sec));padding-left:10px;margin:6px 0;border-bottom:0}
+.ex-wrap.sec .ex-label{color:var(--sec-c,var(--sec))}
 .ex-wrap.gen{border-top:1px dashed var(--gen-line)}
 .ex-wrap.gen .ex-label{color:var(--gen);align-items:center}
 .ex-wrap.gen .ex-label svg{width:14px;height:14px}
@@ -228,6 +238,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .swatches{display:flex;gap:10px;flex-wrap:wrap}
 .swatch{width:30px;height:30px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(0,0,0,.08)}
 .swatch.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+.swatch.custom{position:relative;overflow:hidden;background:conic-gradient(#ef4444,#f59e0b,#22c55e,#06b6d4,#6366f1,#ec4899,#ef4444)}
+.swatch.custom.on{overflow:visible;background:var(--c)}
+.swatch.custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;padding:0;border:0}
+.color-row{display:block}
+.color-row .swatches{margin-top:10px;align-items:center;gap:7px;flex-wrap:nowrap}
+.color-row .swatch{width:28px;height:28px;flex:none}
+.color-default{flex:none;height:28px;padding:0 10px;border-radius:999px;background:var(--card2);font-size:13px;font-weight:600;color:var(--muted)}
+.color-default.on{background:var(--accent-soft);color:var(--accent)}
+.color-sample{font-size:var(--fs);line-height:1.35;margin-top:8px}
 .rv-card{background:var(--card);border-radius:22px;padding:22px 18px;box-shadow:var(--shadow);min-height:260px;display:flex;flex-direction:column}
 .rv-progress{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:4px 0 14px}
 .rv-progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
@@ -301,6 +320,7 @@ const ICONS = {
   play: '<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>',
   more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  chev: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
   trash: '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
@@ -330,7 +350,7 @@ const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2
 
 /* ================= Settings ================= */
 const SET_KEY = 'englishPro2Settings';
-const DEF = { theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+const DEF = { mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
 let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
 if (LS.raw(SET_KEY) == null) {
   // herda preferências da versão antiga (V38)
@@ -428,6 +448,9 @@ const cardById = id => db.cards.find(c => c.id === id);
 const termById = id => db.terms.find(t => t.id === id);
 
 /* ================= Theme ================= */
+// Cada cor tem um tom para fundo claro e outro para fundo escuro, para continuar legível ao trocar de tema
+const TEXT_COLORS = { blue: ['#1d4ed8', '#93c5fd'], red: ['#b91c1c', '#fca5a5'], green: ['#15803d', '#86efac'], orange: ['#b45309', '#fcd34d'], purple: ['#7e22ce', '#d8b4fe'], teal: ['#0e7490', '#67e8f9'] };
+const textColor = v => { const p = TEXT_COLORS[v]; return p ? p[document.documentElement.dataset.theme === 'dark' ? 1 : 0] : v; };
 function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
 const mq = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
@@ -435,6 +458,7 @@ function applyTheme() {
   const r = document.documentElement;
   r.dataset.theme = t;
   r.style.setProperty('--fs', S.fs + 'px');
+  [['--main-c', S.mainColor], ['--sec-c', S.secColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
   r.style.setProperty('--accent', S.accent);
   r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
   r.style.setProperty('--sel', hexA(S.accent, .28));
@@ -803,9 +827,9 @@ function sentHTML(s, o = {}) {
       <div class="tools"><button class="ib" data-act="speak" aria-label="Ouvir">${I.vol}</button><button class="ib ${open ? 'on' : ''}" data-act="tr" aria-label="Traduzir">${I.tr}</button>${o.extra || ''}</div></div>
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
-function mainHTML(s) {
+function mainHTML(s, toggle = '') {
   const open = S.showTr || openTr.has(s.id);
-  return `<div class="sent main" data-sid="${s.id}"><div class="en" lang="en">${textHTML(s.en)}</div>
+  return `<div class="sent main" data-sid="${s.id}"><div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>${toggle}</div>
     <div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button><button class="pill ${open ? 'on' : ''}" data-act="tr">${I.tr} Traduzir</button></div>
     <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
 }
@@ -822,10 +846,12 @@ function exGroupsHTML(c) {
 function cardHTML(c, n) {
   n = n || db.cards.indexOf(c) + 1;
   const allOpen = [c.main, ...c.ex].every(s => S.showTr || openTr.has(s.id));
-  return `<article class="card" data-card="${c.id}" style="--stripe:${STRIPES[(n - 1) % STRIPES.length]}">
+  const closed = !!c.collapsed && c.ex.length > 0;
+  const toggle = c.ex.length ? `<button class="ex-toggle" data-act="toggle-ex" aria-expanded="${!closed}" aria-label="Mostrar ou ocultar exemplos"><span class="ex-count">${c.ex.length}</span>${I.chev}</button>` : '';
+  return `<article class="card${closed ? ' ex-closed' : ''}" data-card="${c.id}" style="--stripe:${STRIPES[(n - 1) % STRIPES.length]}">
     <div class="card-head"><span class="num">#${n}</span><div class="grow">${c.src ? `<span class="badge" title="Frase original">✨ completada de “${esc(c.src)}”</span>` : ''}</div>
       <button class="ib" data-act="card-menu" aria-label="Opções do card">${I.more}</button></div>
-    ${mainHTML(c.main)}
+    ${mainHTML(c.main, toggle)}
     ${c.note ? `<details class="note"><summary>Nota / tradução antiga ▾</summary><div>${esc(c.note)}</div></details>` : ''}
     ${exGroupsHTML(c)}
     <div class="card-foot">
@@ -937,6 +963,7 @@ async function genExamples(c, btn) {
     const r = await askAI(promptExamples(c, 4));
     const arr = (r.examples || r || []).filter(x => x && x.en);
     if (!arr.length) throw new Error('A IA não retornou exemplos.');
+    c.collapsed = false;
     arr.forEach(x => c.ex.push(Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1, fresh: 1 }, x.alt && plain(x.alt) ? { alt: plain(x.alt) } : {})));
     save();
     rerenderCard(c);
@@ -1250,6 +1277,14 @@ function voiceOptions() {
   return sorted.map(v => `<option value="${esc(v.name)}" ${cur && cur.name === v.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
 }
 function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) })).filter(x => x.arr && x.arr.length && !isOldSample(x.arr)); }
+function colorRow(key, label, sample, fallback) {
+  const cur = S[key], isCustom = !!cur && !TEXT_COLORS[cur];
+  return `<div class="set-row color-row"><div class="lbl">${label}</div>
+    <div class="color-sample" style="color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})" lang="en">${sample}</div>
+    <div class="swatches"><button class="color-default ${cur ? '' : 'on'}" data-act="set-text-color" data-k="${key}" data-v="">Padrão</button>
+      ${Object.keys(TEXT_COLORS).map(c => `<button class="swatch ${cur === c ? 'on' : ''}" style="--c:${textColor(c)}" data-act="set-text-color" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join('')}
+      <label class="swatch custom ${isCustom ? 'on' : ''}" ${isCustom ? `style="--c:${esc(cur)}"` : ''} aria-label="Escolher outra cor"><input type="color" data-color="${key}" value="${isCustom ? esc(cur) : '#2563eb'}"></label></div></div>`;
+}
 function renderSettings() {
   const ai = aiCfg(), old = oldVersionsFound();
   const lb = S.lastBackup ? Math.floor((Date.now() - S.lastBackup) / DAY) : null;
@@ -1262,6 +1297,13 @@ function renderSettings() {
         <div class="fs-preview">I'm <b>running late</b>, I'll be there soon.</div></div>
       <div class="set-row"><div class="lbl">Cor de destaque</div><div class="swatches">${['#2563eb', '#4f46e5', '#0d9488', '#16a34a', '#ea580c', '#db2777'].map(c => `<button class="swatch ${S.accent === c ? 'on' : ''}" style="--c:${c}" data-act="set-accent" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>
     </div>
+
+    <div class="group-title">Cores dos cards</div>
+    <div class="group">
+      ${colorRow('mainColor', 'Frases principais', "I'm running late, I'll be there soon.", 'var(--strong)')}
+      ${colorRow('secColor', 'Exemplos secundários', "She's always running late for work.", 'var(--text)')}
+    </div>
+    <p class="hint">A cor escolhida vale para todos os cards de uma vez.</p>
 
     <div class="group-title">Voz</div>
     <div class="group">
@@ -1306,7 +1348,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.2</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.3</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -1481,6 +1523,7 @@ document.addEventListener('click', e => {
       if (open) { fs.s.trErr = false; box.innerHTML = trInner(fs.s); ensureTr(fs.s); }
     } break;
     case 'del-ex': if (fs) deleteSent(fs.s.id); break;
+    case 'toggle-ex': if (card) { card.collapsed = !card.collapsed; save(); cardEl.classList.toggle('ex-closed', card.collapsed); b.setAttribute('aria-expanded', String(!card.collapsed)); } break;
     case 'play-all': if (card) speak([card.main, ...exOrdered(card)].map(s => ({ text: s.en, id: s.id }))); break;
     case 'tr-card': if (card) toggleTrCard(card); break;
     case 'gen': if (card) genExamples(card, b); break;
@@ -1526,6 +1569,7 @@ document.addEventListener('click', e => {
 
     case 'goto-settings': closeAllSheets(); show('settings'); break;
     case 'set-theme': S.theme = b.dataset.v; saveS(); applyTheme(); renderSettings(); break;
+    case 'set-text-color': S[b.dataset.k] = b.dataset.v; saveS(); applyTheme(); renderSettings(); break;
     case 'set-accent': S.accent = b.dataset.v; saveS(); applyTheme(); renderSettings(); break;
     case 'test-voice': speak(["Hey! I'm running a little late, but I'll be there in ten minutes."]); break;
     case 'test-ai': busy(b, true); askAI('Return ONLY JSON: {"ok":true,"hello":"a short friendly greeting in English"}').then(r => toast('IA funcionando: ' + (r.hello || 'ok'))).catch(aiError).finally(() => busy(b, false)); break;
@@ -1546,12 +1590,14 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheets.len
 /* Settings inputs */
 document.addEventListener('input', e => {
   const el = e.target, k = el.dataset.set;
+  if (el.dataset.color) { S[el.dataset.color] = el.value; saveS(); applyTheme(); }
   if (k === 'fs') { S.fs = +el.value; $('#fsVal').textContent = S.fs + 'px'; applyTheme(); saveS(); }
   if (k === 'rate') { S.rate = +el.value; $('#rateVal').textContent = S.rate.toFixed(2) + 'x'; saveS(); }
   if (el.id === 'search') { clearTimeout(window._qt); window._qt = setTimeout(() => { query = el.value.trim(); renderCards(true); }, 200); }
 });
 document.addEventListener('change', e => {
   const el = e.target, k = el.dataset.set;
+  if (el.dataset.color) { renderSettings(); return; }
   if (el.dataset.key) { LS.setRaw(el.dataset.key, el.value.trim()); if (curView === 'settings') renderSettings(); toast('Chave salva'); return; }
   if (!k || k === 'fs' || k === 'rate') return;
   if (el.type === 'checkbox') S[k] = el.checked;
