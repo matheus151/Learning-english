@@ -87,6 +87,8 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .main .en b,.main .w.b,.main .sp.b{color:var(--main-c,var(--strong))}
 .sec .en{color:var(--sec-c,inherit)}
 .sec .en b,.sec .w.b,.sec .sp.b{color:var(--sec-c,var(--strong))}
+.card .main .sent-row{background:var(--main-bg,var(--accent-soft));border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.card .main .sent-row .en{padding:0}
 .ex-toggle{flex:none;display:flex;align-items:center;gap:2px;height:34px;min-width:34px;margin:0 -6px 0 2px;padding:0 6px;justify-content:center;border-radius:999px;color:var(--muted)}
 .ex-toggle:active{background:var(--card2)}
 .ex-toggle svg{transition:transform .15s}
@@ -360,7 +362,7 @@ const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2
 
 /* ================= Settings ================= */
 const SET_KEY = 'englishPro2Settings';
-const DEF = { aiFree: true, mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+const DEF = { aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
 let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
 if (LS.raw(SET_KEY) == null) {
   // herda preferências da versão antiga (V38)
@@ -438,6 +440,7 @@ if (!db || !Array.isArray(db.cards)) {
   LS.set(DB_KEY, db);
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
+if (db.simsV !== 2) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 2; }
 db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
 let saveT;
@@ -473,6 +476,7 @@ function applyTheme() {
   const r = document.documentElement;
   r.dataset.theme = t;
   r.style.setProperty('--fs', S.fs + 'px');
+  if (S.mainBg) r.style.setProperty('--main-bg', hexA(textColor(S.mainBg), t === 'dark' ? .24 : .13)); else r.style.removeProperty('--main-bg');
   [['--main-c', S.mainColor], ['--sec-c', S.secColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
   r.style.setProperty('--accent', S.accent);
   r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
@@ -839,7 +843,7 @@ ${o.sentence ? `Original sentence: "${plain(o.sentence)}"\n` : ''}${o.term ? `Ke
 Do NOT repeat or closely paraphrase these existing sentences: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
 Write exactly 4 NEW short sentences (max 16 words each), each in a different everyday situation, in this exact order:
 ${steps.join('\n')}
-Wrap the expression used in each sentence in **double asterisks**. A substitute must keep the same meaning as the key expression and be able to replace it in the original sentence; never use loosely related terms.
+Wrap the expression used in each sentence in **double asterisks**. A substitute must be what natives really say in casual everyday conversation (never formal, written, technical or rarely used words), keep the same meaning as the key expression and be able to replace it in the original sentence; never use loosely related terms.
 Return ONLY JSON: {"key":"the key expression","examples":[{"en":"...","pt":"...","alt":""}]}`;
 }
 // Garante a etiqueta certa em cada frase: a 1ª é o termo original, as demais seguem os substitutos previstos
@@ -871,7 +875,7 @@ function promptContext(term, sentence, via) {
 ${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}".`
   : `Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.`}
 Be direct and objective, no filler.
-Each "similar" item must be common in everyday speech and able to replace the term in this sentence without changing the meaning. Give fewer, or none, if no such term exists; never use loosely related terms.
+Each "similar" item must be what native speakers really say in casual everyday conversation (avoid formal, written, literary, technical or rarely used words; prefer common phrasal verbs and simple words, e.g. "go over" rather than "exceed") and must be able to replace the term in this sentence without changing the meaning. List the most commonly spoken first. Give fewer, or none, if no such term exists; never use loosely related terms.
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
 "kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
@@ -879,8 +883,9 @@ Return ONLY JSON:
 "explanation":"ONE short, direct sentence in pt-BR (max 20 words): what it means here and when it is used",
 "similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context, in base form (go over, not went over)","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
 "mains":["the main general meanings of the term on its own, regardless of this sentence, in pt-BR, most common first, max 5 words each"],
+"uses":["the main situations where this term is used in real life, in pt-BR, max 8 words each, e.g. reuniões e compromissos que atrasam"],
 "examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
-Give 2 to 4 "mains" items (1 if the term really has a single meaning), exactly 3 "similar" items and 3 examples in different daily situations, max 15 words each.`;
+Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 or 3 "uses" items, exactly 3 "similar" items and 3 examples in different daily situations, max 15 words each.`;
 }
 function promptComplete(lines, force) {
   return `${STYLE}
@@ -1188,7 +1193,7 @@ async function loadContext() {
         const r = await askAI(promptContext(my.term, my.sent, my.via)).catch(() => null);
         if (r) {
           const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 3).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
-          data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
+          data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), uses: (Array.isArray(r.uses) ? r.uses : []).map(plain).filter(Boolean).slice(0, 3), similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
           ctxCache.set(key, data);
         }
       }
@@ -1229,6 +1234,7 @@ function meaningsHTML(d, hasCtx, meanCls, explCls) {
   if (!mains.length) return (d.meaning ? `<div class="${meanCls}">${esc(d.meaning)}</div>` : '') + expl;
   const inCtx = d.ctxTr || (hasCtx ? d.meaning : '');
   return `<div class="ctx-sub">Principais significados</div><ul class="ctx-mains">${mains.map(m => `<li>${esc(m)}</li>`).join('')}</ul>`
+    + (d.uses && d.uses.length ? `<div class="ctx-sub">Principais contextos de uso</div><ul class="ctx-mains">${d.uses.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` : '')
     + (inCtx ? `<div class="ctx-sub">Neste contexto</div><div class="${meanCls}">${esc(inCtx)}</div>` : '') + expl;
 }
 function renderContext() {
@@ -1267,7 +1273,7 @@ async function ctxMore(btn) {
 }
 function ctxSave() {
   const d = ctx && ctx.data; if (!d) return;
-  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => Object.assign(newSent(s.en, s.tr), s.alt ? { alt: s.alt } : {})), created: Date.now() };
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], uses: d.uses || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => Object.assign(newSent(s.en, s.tr), s.alt ? { alt: s.alt } : {})), created: Date.now() };
   db.terms.unshift(t); save(); renderContext(); renderTabs();
   toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
   if (curView === 'terms') renderTerms();
@@ -1497,7 +1503,7 @@ function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) 
 function colorRow(key, label, sample, fallback) {
   const cur = S[key], isCustom = !!cur && !TEXT_COLORS[cur];
   return `<div class="set-row color-row"><div class="lbl">${label}</div>
-    <div class="color-sample" style="color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})" lang="en">${sample}</div>
+    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
     <div class="swatches"><button class="color-default ${cur ? '' : 'on'}" data-act="set-text-color" data-k="${key}" data-v="">Padrão</button>
       ${Object.keys(TEXT_COLORS).map(c => `<button class="swatch ${cur === c ? 'on' : ''}" style="--c:${textColor(c)}" data-act="set-text-color" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join('')}
       <label class="swatch custom ${isCustom ? 'on' : ''}" ${isCustom ? `style="--c:${esc(cur)}"` : ''} aria-label="Escolher outra cor"><input type="color" data-color="${key}" value="${isCustom ? esc(cur) : '#2563eb'}"></label></div></div>`;
@@ -1518,6 +1524,7 @@ function renderSettings() {
     <div class="group-title">Cores dos cards</div>
     <div class="group">
       ${colorRow('mainColor', 'Frases principais', "I'm running late, I'll be there soon.", 'var(--strong)')}
+      ${colorRow('mainBg', 'Fundo da frase principal', "I'm running late, I'll be there soon.", '')}
       ${colorRow('secColor', 'Exemplos secundários', "She's always running late for work.", 'var(--text)')}
     </div>
     <p class="hint">A cor escolhida vale para todos os cards de uma vez.</p>
@@ -1565,7 +1572,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.6</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.7</p>`;
 }
 
 /* ---------- Backup ---------- */
