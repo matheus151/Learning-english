@@ -248,6 +248,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .color-default{flex:none;height:28px;padding:0 10px;border-radius:999px;background:var(--card2);font-size:13px;font-weight:600;color:var(--muted)}
 .color-default.on{background:var(--accent-soft);color:var(--accent)}
 .color-sample{font-size:var(--fs);line-height:1.35;margin-top:8px}
+.topics{padding:0 16px}
+.topic{display:flex;align-items:center;gap:8px;width:100%;min-height:50px;text-align:left;font-size:16.5px;font-weight:600;border-bottom:1px solid var(--line)}
+.topic:last-child{border-bottom:0}
+.topic .grow{flex:1;min-width:0}
+.topic .muted{font-size:14px;font-weight:600}
+.vocab-head{display:flex;align-items:center;margin:0 -8px 2px}
+.vocab-title{font-size:24px;font-weight:800;margin:0 0 12px;letter-spacing:-.01em}
 .rv-card{background:var(--card);border-radius:22px;padding:22px 18px;box-shadow:var(--shadow);min-height:260px;display:flex;flex-direction:column}
 .rv-progress{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:4px 0 14px}
 .rv-progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
@@ -289,6 +296,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <section id="view-cards" class="view"><div id="cards"></div></section>
   <section id="view-review" class="view" hidden></section>
   <section id="view-terms" class="view" hidden></section>
+  <section id="view-vocab" class="view" hidden></section>
   <section id="view-settings" class="view" hidden></section>
 </main>
 
@@ -321,6 +329,7 @@ const ICONS = {
   play: '<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>',
   more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  vocab: '<svg viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
   chev: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
@@ -429,6 +438,7 @@ if (!db || !Array.isArray(db.cards)) {
   LS.set(DB_KEY, db);
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
+db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
 let saveT;
 function save() { clearTimeout(saveT); saveT = setTimeout(() => LS.set(DB_KEY, db), 400); }
@@ -443,6 +453,10 @@ function findSent(sid) {
     const s = c.ex.find(x => x.id === sid); if (s) return { s, card: c };
   }
   for (const t of db.terms) { const s = (t.ex || []).find(x => x.id === sid); if (s) return { s, term: t }; }
+  for (const t of db.vocab) for (const v of t.items) {
+    if (v.s.id === sid) return { s: v.s, vocab: v };
+    const s = v.ex.find(x => x.id === sid); if (s) return { s, vocab: v };
+  }
   const s = tmpSents.get(sid); return s ? { s, tmp: true } : null;
 }
 const cardById = id => db.cards.find(c => c.id === id);
@@ -814,38 +828,59 @@ function needAI() {
 }
 const STYLE = `The learner is a Brazilian adult focused on EVERYDAY, natural, spoken American English: the way people really talk at home, at work, with friends, shopping, texting, travelling. Prefer common, useful words and natural contractions. Avoid formal, literary or rare vocabulary. Portuguese translations must be natural Brazilian Portuguese (pt-BR), not literal.`;
 
-function promptExamples(card, n) {
-  const bt = boldTerms(card.main.en);
-  const existing = [card.main.en, ...card.ex.map(s => s.en)].map(plain).slice(-12);
+// Estrutura fixa: 1 frase com o mesmo termo + até 3 com os substitutos indicados na aba de contexto (plan)
+function promptExamples(o) {
+  const plan = (o.plan || []).slice(0, 3);
+  const steps = ['1. Uses the SAME key expression (inflected naturally if needed) in a completely new sentence. Set "alt" to "".'];
+  plan.forEach((t, i) => steps.push(`${i + 2}. Uses "${t}" (inflected naturally if needed). Set "alt" to "${t}".`));
+  for (let i = plan.length; i < 3; i++) steps.push(`${i + 2}. Uses a different substitute expression you choose, and put its base form in "alt". If no good substitute is left, use the key expression again and set "alt" to "".`);
   return `${STYLE}
-Original sentence: "${plain(card.main.en)}"
-${bt.length ? `Key expression(s) the learner highlighted: ${bt.map(t => `"${t}"`).join(', ')}.` : `Key expression: the main phrasal verb, idiom, collocation or useful structure of the original sentence.`}
-Do NOT repeat or paraphrase too closely these existing sentences: ${JSON.stringify(existing)}
-Write ${n} NEW short sentences (max 16 words each) with a similar meaning, each in a different everyday situation, varying the person and tense. Mix two kinds:
-- About half use the SAME key expression (inflected naturally). Wrap it in **double asterisks** and set "alt" to "".
-- The others use a DIFFERENT expression with the same meaning that natives commonly say in everyday speech and that fits this context (a more usual or equally natural synonym, phrasal verb or idiom). Wrap it in **double asterisks** and put that expression (base form) in "alt". Only do this when a natural alternative really exists; otherwise use the original expression.
-Return ONLY JSON: {"examples":[{"en":"...","pt":"...","alt":""}]}`;
+${o.sentence ? `Original sentence: "${plain(o.sentence)}"\n` : ''}${o.term ? `Key expression: "${o.term}"${o.meaning ? `, meaning "${o.meaning}"` : ''}.` : o.hint && o.hint.length ? `The learner highlighted: ${o.hint.map(t => `"${t}"`).join(', ')}. The key expression is the most important of these.` : 'The key expression is the main phrasal verb, idiom, collocation or useful structure of the original sentence.'}
+Do NOT repeat or closely paraphrase these existing sentences: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
+Write exactly 4 NEW short sentences (max 16 words each), each in a different everyday situation, in this exact order:
+${steps.join('\n')}
+Wrap the expression used in each sentence in **double asterisks**. A substitute must keep the same meaning as the key expression and be able to replace it in the original sentence; never use loosely related terms.
+Return ONLY JSON: {"key":"the key expression","examples":[{"en":"...","pt":"...","alt":""}]}`;
+}
+// Garante a etiqueta certa em cada frase: a 1ª é o termo original, as demais seguem os substitutos previstos
+function readExamples(r, plan, term) {
+  const list = (Array.isArray(r) ? r : r.examples || []).filter(x => x && x.en);
+  return list.map((x, i) => {
+    let alt = i === 0 ? '' : plain(x.alt || '');
+    if (i > 0 && plan[i - 1] && !plan.some(p => norm(p) === norm(alt))) alt = plan[i - 1];
+    if (term && norm(alt) === norm(term)) alt = '';
+    return Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1 }, alt ? { alt } : {});
+  });
+}
+// Substitutos de cada termo do card: os mesmos valem para a aba de contexto e para "Novos exemplos"
+function rememberSims(c, terms, list) {
+  c.sims = c.sims || {};
+  const entry = { term: terms[terms.length - 1], list: list.slice(0, 3) };
+  terms.forEach(t => { c.sims[norm(t)] = entry; });
+  c.simKey = norm(entry.term);
+}
+function cardKey(c) {
+  const bold = boldTerms(c.main.en), sims = c.sims || {};
+  for (const k of [c.simKey, ...bold.map(norm)]) if (k && sims[k]) return { term: sims[k].term, list: sims[k].list };
+  const saved = db.terms.find(t => (t.similar || []).length && bold.some(b => norm(b) === norm(t.term)));
+  if (saved) return { term: saved.term, list: saved.similar };
+  return { term: bold.length === 1 ? bold[0] : '', hint: bold, list: [] };
 }
 function promptContext(term, sentence, via) {
   return `${STYLE}
 ${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}".`
   : `Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.`}
 Be direct and objective, no filler.
+Each "similar" item must be common in everyday speech and able to replace the term in this sentence without changing the meaning. Give fewer, or none, if no such term exists; never use loosely related terms.
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
 "kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
 "meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 6 words)",
 "explanation":"ONE short, direct sentence in pt-BR (max 20 words): what it means here and when it is used",
-"similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
+"similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context, in base form (go over, not went over)","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
 "mains":["the main general meanings of the term on its own, regardless of this sentence, in pt-BR, most common first, max 5 words each"],
 "examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
-Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 to 4 "similar" items (empty array if none really fits) and 3 examples in different daily situations, max 15 words each.`;
-}
-function promptTermMore(t) {
-  return `${STYLE}
-Write 3 NEW short everyday sentences (max 15 words) using "${t.term}" with this meaning: "${t.meaning}". Wrap the term in **double asterisks**.
-Do not repeat: ${JSON.stringify((t.ex || []).map(s => plain(s.en)))}
-Return ONLY JSON: {"examples":[{"en":"...","pt":"..."}]}`;
+Give 2 to 4 "mains" items (1 if the term really has a single meaning), exactly 3 "similar" items and 3 examples in different daily situations, max 15 words each.`;
 }
 function promptComplete(lines, force) {
   return `${STYLE}
@@ -859,24 +894,25 @@ Return ONLY JSON with exactly ${lines.length} items: {"items":[{"completed":true
 const cleanAI = s => serialize(parseSent(String(s || '').replace(/\s+/g, ' ').trim())).replace(/ {2,}/g, ' ');
 
 /* ================= Views ================= */
-const TABS = [['cards', 'Cards', I.cards], ['review', 'Revisar', I.review], ['terms', 'Termos', I.book], ['settings', 'Ajustes', I.gear]];
+const TABS = [['cards', 'Cards', I.cards], ['review', 'Revisar', I.review], ['terms', 'Termos', I.book], ['vocab', 'Vocab', I.vocab], ['settings', 'Ajustes', I.gear]];
 function renderTabs() {
   const due = reviewCounts('cards').total + reviewCounts('terms').total;
   $('#tabs').innerHTML = TABS.map(([k, l, ic]) => `<button class="tab ${curView === k ? 'active' : ''}" data-act="tab" data-v="${k}">${ic}${k === 'review' && due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}<span>${l}</span></button>`).join('');
 }
 function renderTop() {
-  const titles = { cards: 'Cards', review: 'Revisar', terms: 'Termos', settings: 'Ajustes' };
+  const titles = { cards: 'Cards', review: 'Revisar', terms: 'Termos', vocab: 'Vocabulário', settings: 'Ajustes' };
   $('#title').textContent = titles[curView];
   let sub = '';
   if (curView === 'cards') sub = `${db.cards.length} card${db.cards.length === 1 ? '' : 's'}` + (query ? ` · busca: “${query}”` : '');
   if (curView === 'terms') sub = `${db.terms.length} termo${db.terms.length === 1 ? '' : 's'} salvos`;
+  if (curView === 'vocab') { const n = db.vocab.reduce((a, t) => a + t.items.length, 0); sub = `${db.vocab.length} campos · ${n} dica${n === 1 ? '' : 's'}`; }
   $('#sub').textContent = sub;
   const a = [];
   if (curView === 'cards') {
     a.push(`<button class="tb ${query || !$('#searchbar').hidden ? 'on' : ''}" data-act="toggle-search" aria-label="Buscar">${I.search}</button>`);
     a.push(`<button class="tb ${S.showTr ? 'on' : ''}" data-act="toggle-showtr" aria-label="Mostrar todas as traduções">${I.tr}</button>`);
     a.push(`<button class="tb primary" data-act="add" aria-label="Novos cards">${I.plus}</button>`);
-  } else if (curView === 'terms') {
+  } else if (curView === 'terms' || curView === 'vocab') {
     a.push(`<button class="tb ${S.showTr ? 'on' : ''}" data-act="toggle-showtr" aria-label="Mostrar todas as traduções">${I.tr}</button>`);
   }
   $('#topActions').innerHTML = a.join('');
@@ -887,7 +923,7 @@ function show(v) {
   curView = v;
   TABS.forEach(([k]) => $('#view-' + k).hidden = k !== v);
   renderTop(); renderTabs();
-  ({ cards: renderCards, review: renderReview, terms: renderTerms, settings: renderSettings })[v]();
+  ({ cards: renderCards, review: renderReview, terms: renderTerms, vocab: renderVocab, settings: renderSettings })[v]();
   if (v !== 'cards') scrollTo(0, 0);
 }
 
@@ -909,9 +945,10 @@ const DEL = `<button class="ib del" data-act="del-ex" aria-label="Apagar exemplo
 // Exemplos que vieram com o card (secundários) x exemplos criados depois (IA, contexto ou adicionados à mão)
 const isGen = s => !!(s.ai || s.gen);
 const exOrdered = c => [...c.ex.filter(s => !isGen(s)), ...c.ex.filter(isGen)];
+const altTag = s => s.alt ? `<span class="alt-tag" title="Expressão alternativa">≈ ${esc(s.alt)}</span>` : '';
 function exGroupsHTML(c) {
   const sec = c.ex.filter(s => !isGen(s)), gen = c.ex.filter(isGen);
-  const row = s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL, tag: s.alt ? `<span class="alt-tag" title="Expressão alternativa">≈ ${esc(s.alt)}</span>` : '' });
+  const row = s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL, tag: altTag(s) });
   return (sec.length ? `<div class="ex-wrap sec"><div class="ex-label">Exemplos <span>${sec.length}</span></div>${sec.map(row).join('')}</div>` : '')
     + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">${I.spark} Criados depois <span>${gen.length}</span></div>${gen.map(row).join('')}</div>` : '');
 }
@@ -1032,11 +1069,17 @@ async function genExamples(c, btn) {
   if (!hasAI()) return needAI();
   busy(btn, true, ' Gerando…');
   try {
-    const r = await askAI(promptExamples(c, 4));
-    const arr = (r.examples || r || []).filter(x => x && x.en);
+    const known = cardKey(c), plan = known.list.map(x => x.term).slice(0, 3);
+    const r = await askAI(promptExamples({ term: known.term, hint: known.hint, sentence: c.main.en, plan, existing: [c.main.en, ...c.ex.map(x => x.en)] }));
+    const key = known.term || plain(r.key || '');
+    const arr = readExamples(r, plan, key);
     if (!arr.length) throw new Error('A IA não retornou exemplos.');
     c.collapsed = false;
-    arr.forEach(x => c.ex.push(Object.assign(newSent(cleanAI(x.en), plain(x.pt || '')), { ai: 1, fresh: 1 }, x.alt && plain(x.alt) ? { alt: plain(x.alt) } : {})));
+    arr.forEach(x => { x.fresh = 1; c.ex.push(x); });
+    if (key && plan.length < 3) {
+      const added = arr.filter(x => x.alt && !plan.some(p => norm(p) === norm(x.alt))).map(x => ({ term: x.alt, note: '' }));
+      rememberSims(c, [key], [...known.list, ...added]);
+    }
     save();
     rerenderCard(c);
     toast(`${arr.length} exemplos novos`);
@@ -1059,10 +1102,10 @@ function deleteCard(c) {
 }
 function deleteSent(sid) {
   const f = findSent(sid); if (!f) return;
-  const owner = f.card || f.term; if (!owner) return;
+  const owner = f.card || f.term || f.vocab; if (!owner) return;
   const list = owner.ex, i = list.indexOf(f.s); if (i < 0) return;
   list.splice(i, 1); save();
-  const rr = () => f.card ? rerenderCard(f.card) : rerenderTerm(f.term);
+  const rr = () => f.card ? rerenderCard(f.card) : f.term ? rerenderTerm(f.term) : rerenderVocabItem(f.vocab);
   rr();
   toast('Exemplo apagado', { undo: () => { list.splice(i, 0, f.s); save(); rr(); } });
 }
@@ -1124,7 +1167,7 @@ function openContext(term, sentEn, sid) {
   term = cleanTerm(term);
   if (!term) return;
   const f = sid ? findSent(sid) : null;
-  ctx = { term, via: null, sent: sentEn || '', cardId: f && f.card ? f.card.id : null, data: null };
+  ctx = { term, via: null, sent: sentEn || '', cardId: f && f.card ? f.card.id : null, isMain: !!(f && f.isMain), data: null };
   openSheet(`<div class="sheet-title">Contexto</div>
     <form class="term-form" id="ctxForm"><input class="input" id="ctxIn" value="${esc(term)}" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Termo"><button class="pill accent" type="submit">Ver</button></form>
     <p class="hint" style="margin:6px 2px 0">Edite para ver um termo maior (ex.: “get the hang of”).</p>
@@ -1144,12 +1187,18 @@ async function loadContext() {
       if (hasAI()) {
         const r = await askAI(promptContext(my.term, my.sent, my.via)).catch(() => null);
         if (r) {
-          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 4).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
+          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 3).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
           data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), plain(x.pt || ''))) };
           ctxCache.set(key, data);
         }
       }
       if (!data) data = await dictLookup(my.term, my.sent);
+    }
+    const card = data.ai && !my.via && my.cardId ? cardById(my.cardId) : null;
+    if (card) {
+      const known = card.sims && (card.sims[norm(my.term)] || card.sims[norm(data.term)]);
+      if (known) data.similar = [...known.list, ...data.similar.filter(x => !known.list.some(k => norm(k.term) === norm(x.term)))].slice(0, 3);
+      if (data.similar.length && (known || my.isMain)) { rememberSims(card, [my.term, data.term], data.similar); save(); }
     }
     if (ctx !== my) return;
     my.data = data;
@@ -1198,7 +1247,7 @@ function renderContext() {
       ${d.defs && d.defs.length ? `<div style="margin-top:8px">${d.defs.map(x => `<div class="def"><div class="pos">${esc(x.pos)}</div>${sentHTML(x.s, { cls: 'ex' })}</div>`).join('')}</div>` : ''}
       ${!d.ai ? `<p class="hint">Dicionário básico. Configure a IA em Ajustes para explicações em português e exemplos do dia a dia.</p>` : ''}
     </div>
-    ${d.ex.length ? `<div class="ex-label" style="padding-top:16px">Em outras frases</div><div class="ctx-card" style="margin-top:6px;padding-top:4px;padding-bottom:4px">${d.ex.map(s => sentHTML(s, { cls: 'ex', extra })).join('')}</div>` : ''}
+    ${d.ex.length ? `<div class="ex-label" style="padding-top:16px">Em outras frases</div><div class="ctx-card" style="margin-top:6px;padding-top:4px;padding-bottom:4px">${d.ex.map(s => sentHTML(s, { cls: 'ex', extra, tag: altTag(s) })).join('')}</div>` : ''}
     <div class="row-btns">
       ${d.ai ? `<button class="pill" data-act="ctx-more">${I.spark} Mais exemplos</button>` : ''}
       <button class="pill ${saved ? 'on' : 'accent'}" data-act="ctx-save" ${saved ? 'disabled' : ''}>${saved ? I.check + ' Salvo em Termos' : I.bookmarkPlus + ' Salvar termo'}</button>
@@ -1210,14 +1259,15 @@ async function ctxMore(btn) {
   const my = ctx;
   busy(btn, true, ' Gerando…');
   try {
-    const r = await askAI(promptTermMore({ term: my.data.term, meaning: my.data.meaning, ex: my.data.ex }));
-    (r.examples || []).filter(x => x && x.en).forEach(x => my.data.ex.push(newSent(cleanAI(x.en), plain(x.pt || ''))));
+    const plan = (my.data.similar || []).map(x => x.term);
+    const r = await askAI(promptExamples({ term: my.data.term, meaning: my.data.meaning, sentence: my.sent, plan, existing: my.data.ex.map(x => x.en) }));
+    my.data.ex.push(...readExamples(r, plan, my.data.term));
     if (ctx === my) renderContext();
   } catch (e) { busy(btn, false); aiError(e); }
 }
 function ctxSave() {
   const d = ctx && ctx.data; if (!d) return;
-  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => newSent(s.en, s.tr)), created: Date.now() };
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => Object.assign(newSent(s.en, s.tr), s.alt ? { alt: s.alt } : {})), created: Date.now() };
   db.terms.unshift(t); save(); renderContext(); renderTabs();
   toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
   if (curView === 'terms') renderTerms();
@@ -1232,7 +1282,7 @@ function termHTML(t) {
     ${t.similar && t.similar.length ? `<div class="ctx-other"><b>Também se diz:</b> ${t.similar.map(x => `<b lang="en" style="color:var(--accent)">${esc(x.term)}</b>${x.note ? ` (${esc(x.note)})` : ''}`).join(', ')}</div>` : ''}
     ${t.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(t.other)}</div>` : ''}
     ${t.ctx ? `<div class="ctx-sent small">${highlightTerm(t.ctx, t.via || t.term)}</div>` : ''}
-    ${t.ex.length ? `<div class="ex-wrap" style="margin-top:6px">${t.ex.map(s => sentHTML(s, { cls: 'ex', extra: DEL })).join('')}</div>` : ''}
+    ${t.ex.length ? `<div class="ex-wrap" style="margin-top:6px">${t.ex.map(s => sentHTML(s, { cls: 'ex', extra: DEL, tag: altTag(s) })).join('')}</div>` : ''}
     <div class="card-foot"><button class="pill" data-act="term-more">${I.spark} Mais exemplos</button><button class="pill" data-act="term-play">${I.play} Ouvir tudo</button></div></article>`;
 }
 function renderTerms() {
@@ -1246,8 +1296,9 @@ async function termMore(t, btn) {
   if (!hasAI()) return needAI();
   busy(btn, true, ' Gerando…');
   try {
-    const r = await askAI(promptTermMore(t));
-    (r.examples || []).filter(x => x && x.en).forEach(x => t.ex.push(newSent(cleanAI(x.en), plain(x.pt || ''))));
+    const plan = (t.similar || []).map(x => x.term).slice(0, 3);
+    const r = await askAI(promptExamples({ term: t.term, meaning: t.meaning, sentence: t.ctx, plan, existing: t.ex.map(x => x.en) }));
+    t.ex.push(...readExamples(r, plan, t.term));
     save(); rerenderTerm(t);
   } catch (e) { busy(btn, false); aiError(e); }
 }
@@ -1256,6 +1307,88 @@ function termMenu(t) {
     <button data-act="term-context">${I.search} Ver contexto de novo</button>
     ${t.cardId && cardById(t.cardId) ? `<button data-act="term-goto-card">${I.cards} Ir para o card de origem</button>` : ''}
     <button data-act="term-del" class="danger">${I.trash} Apagar termo</button></div>`);
+}
+
+/* ---------- Vocabulary view ---------- */
+let vocabOpen = null;
+const topicById = id => db.vocab.find(t => t.id === id);
+function findVocab(id) { for (const t of db.vocab) { const v = t.items.find(x => x.id === id); if (v) return v; } return null; }
+function promptVocab(topic, n) {
+  return `${STYLE}
+Topic (named by the learner, may be in Portuguese): ${JSON.stringify(topic.name)}
+Suggest ${n} useful English vocabulary items for this topic, as natives really say them: a mix of words, phrasal verbs and collocations. Choose useful terms, not only the most basic ones.
+Do NOT suggest any of these: ${JSON.stringify(topic.items.map(v => v.term))}
+Apply each item in one natural everyday sentence (max 15 words) with the item wrapped in **double asterisks**.
+Return ONLY JSON: {"items":[{"term":"...","kind":"short label in Portuguese, e.g. substantivo, verbo, phrasal verb, expressão","meaning":"short pt-BR meaning (max 6 words)","en":"...","pt":"natural pt-BR translation of the sentence"}]}`;
+}
+function promptTermMore(t) {
+  return `${STYLE}
+Write 3 NEW short everyday sentences (max 15 words) using "${t.term}" with this meaning: "${t.meaning}". Wrap the term in **double asterisks**.
+Do not repeat: ${JSON.stringify((t.ex || []).map(s => plain(s.en)))}
+Return ONLY JSON: {"examples":[{"en":"...","pt":"..."}]}`;
+}
+function vocabItemHTML(v) {
+  return `<article class="card" data-vocab="${v.id}" style="--stripe:var(--accent)">
+    <div class="term-head"><div class="grow"><div class="term-name" lang="en">${esc(v.term)}</div>${v.kind ? `<span class="badge gray">${esc(v.kind)}</span>` : ''}</div>
+      <button class="ib" data-act="vocab-speak" aria-label="Ouvir termo">${I.vol}</button><button class="ib del" data-act="vocab-del" aria-label="Apagar dica">${I.trash}</button></div>
+    ${v.meaning ? `<div class="term-mean" style="margin-bottom:10px">${esc(v.meaning)}</div>` : ''}
+    ${mainHTML(v.s)}
+    ${exGroupsHTML(v)}
+    <div class="card-foot"><button class="pill accent" data-act="vocab-more">${I.spark} Mais exemplos</button><span class="sp-auto"></span><button class="ib" data-act="vocab-play" aria-label="Ouvir tudo">${I.play}</button></div></article>`;
+}
+function rerenderVocabItem(v) { const el = $(`.card[data-vocab="${v.id}"]`); if (el) { el.outerHTML = vocabItemHTML(v); observeTr($(`.card[data-vocab="${v.id}"]`)); } }
+function renderVocab() {
+  const box = $('#view-vocab'), topic = topicById(vocabOpen);
+  if (!topic) {
+    vocabOpen = null;
+    box.innerHTML = `<p class="hint" style="margin-top:4px">Escolha um campo para receber dicas de vocabulário, cada uma aplicada a uma frase.</p>
+      <div class="group topics">${db.vocab.map(t => `<button class="topic" data-act="vocab-open" data-id="${t.id}"><span class="grow">${esc(t.name)}</span><span class="muted">${t.items.length || ''}</span><svg viewBox="0 0 24 24" style="transform:rotate(-90deg);color:var(--muted)"><use href="#i-chev"/></svg></button>`).join('')}</div>
+      <button class="btn" data-act="vocab-add-topic">${I.plus} Novo campo</button>`;
+    return;
+  }
+  box.innerHTML = `<div class="vocab-head"><button class="pill ghost" data-act="vocab-back" aria-label="Voltar aos campos"><svg viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chev"/></svg> Campos</button><span class="sp-auto"></span><button class="ib" data-act="vocab-topic-menu" aria-label="Opções do campo">${I.more}</button></div>
+    <h2 class="vocab-title">${esc(topic.name)}</h2>
+    <button class="btn primary" data-act="vocab-gen" style="margin:0 0 14px">${I.spark} Novas dicas</button>
+    ${topic.items.length ? `<div style="display:flex;flex-direction:column;gap:14px">${topic.items.map(vocabItemHTML).join('')}</div>` : '<div class="empty"><h3>Nenhuma dica ainda</h3>Toque em “Novas dicas” para começar.</div>'}`;
+  observeTr(box);
+}
+function topicSheet(topic) {
+  const sh = openSheet(`<div class="sheet-title">${topic ? 'Renomear campo' : 'Novo campo'}</div>
+    <form id="topicForm"><input class="input" id="topicIn" maxlength="40" value="${esc(topic ? topic.name : '')}" placeholder="Ex.: Academia, Carros, Escritório" enterkeyhint="done" aria-label="Nome do campo">
+    <button class="btn primary" type="submit">Salvar</button></form>`);
+  $('#topicForm', sh.body).addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#topicIn', sh.body).value.trim().replace(/\s+/g, ' ');
+    if (!name) return;
+    if (db.vocab.some(t => t !== topic && norm(t.name) === norm(name))) return toast('Já existe um campo com esse nome.');
+    if (topic) topic.name = name; else { const t = { id: uid(), name, items: [] }; db.vocab.push(t); vocabOpen = t.id; }
+    save(); closeSheet(); renderVocab(); renderTop();
+  });
+  setTimeout(() => $('#topicIn', sh.body)?.focus(), 320);
+}
+async function vocabGen(topic, btn) {
+  if (!hasAI()) return needAI();
+  busy(btn, true, ' Gerando dicas…');
+  try {
+    const r = await askAI(promptVocab(topic, 5));
+    const have = new Set(topic.items.map(v => norm(v.term)));
+    const fresh = (r.items || []).filter(x => x && x.term && x.en && !have.has(norm(x.term)) && have.add(norm(x.term))).map(x => ({ id: uid(), term: plain(x.term), kind: plain(x.kind || ''), meaning: plain(x.meaning || ''), s: newSent(cleanAI(x.en), plain(x.pt || '')), ex: [], created: Date.now() }));
+    if (!fresh.length) throw new Error('A IA não trouxe dicas novas. Tente de novo.');
+    topic.items.unshift(...fresh); save();
+    if (curView === 'vocab' && vocabOpen === topic.id) renderVocab(); else busy(btn, false);
+    renderTop();
+    toast(`${fresh.length} dicas novas`);
+  } catch (e) { busy(btn, false); aiError(e); }
+}
+async function vocabMore(v, btn) {
+  if (!hasAI()) return needAI();
+  busy(btn, true, ' Gerando…');
+  try {
+    const r = await askAI(promptTermMore({ term: v.term, meaning: v.meaning, ex: [v.s, ...v.ex] }));
+    const arr = readExamples(r, [], v.term).map(x => { delete x.alt; return x; });
+    if (!arr.length) throw new Error('A IA não retornou exemplos.');
+    v.ex.push(...arr); save(); rerenderVocabItem(v);
+  } catch (e) { busy(btn, false); aiError(e); }
 }
 
 /* ---------- Review ---------- */
@@ -1413,7 +1546,7 @@ function renderSettings() {
 
     <div class="group-title">Backup</div>
     <div class="group">
-      <div class="set-row"><div class="lbl">${db.cards.length} cards · ${db.terms.length} termos<small>${lb == null ? 'Nenhum backup feito ainda' : lb === 0 ? 'Último backup: hoje' : `Último backup: há ${lb} dia${lb > 1 ? 's' : ''}`}</small></div></div>
+      <div class="set-row"><div class="lbl">${db.cards.length} cards · ${db.terms.length} termos · ${db.vocab.reduce((a, t) => a + t.items.length, 0)} dicas<small>${lb == null ? 'Nenhum backup feito ainda' : lb === 0 ? 'Último backup: hoje' : `Último backup: há ${lb} dia${lb > 1 ? 's' : ''}`}</small></div></div>
       <div class="set-row"><button class="pill accent" data-act="backup-share">${I.share} Salvar backup</button><button class="pill" data-act="backup-download">${I.down} Baixar .json</button></div>
       <div class="set-row"><button class="pill" data-act="backup-import">${I.up} Restaurar / importar backup</button></div>
     </div>
@@ -1432,11 +1565,11 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.5</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.6</p>`;
 }
 
 /* ---------- Backup ---------- */
-function backupData() { return { app: 'english-pro', v: 2, exported: new Date().toISOString(), cards: db.cards, terms: db.terms, stats: db.stats }; }
+function backupData() { return { app: 'english-pro', v: 2, exported: new Date().toISOString(), cards: db.cards, terms: db.terms, vocab: db.vocab, stats: db.stats }; }
 function backupFile() {
   const name = `english-pro-backup-${today()}.json`;
   return { name, blob: new Blob([JSON.stringify(backupData())], { type: 'application/json' }) };
@@ -1459,7 +1592,7 @@ function backupDownload() {
 }
 function normalizeImport(data) {
   if (Array.isArray(data)) return { cards: data.map(o => o && o.main ? o : migrateOldCard(o)).filter(Boolean), terms: [] };
-  if (data && Array.isArray(data.cards)) return { cards: data.cards.map(o => o && o.main ? o : migrateOldCard(o)).filter(Boolean), terms: Array.isArray(data.terms) ? data.terms : [], stats: data.stats };
+  if (data && Array.isArray(data.cards)) return { cards: data.cards.map(o => o && o.main ? o : migrateOldCard(o)).filter(Boolean), terms: Array.isArray(data.terms) ? data.terms : [], vocab: Array.isArray(data.vocab) ? data.vocab : null, stats: data.stats };
   throw new Error('Formato não reconhecido');
 }
 function mergeIn(inc) {
@@ -1471,6 +1604,11 @@ function mergeIn(inc) {
   add.forEach(c => { if (ids.has(c.id)) c.id = uid(); nc++; });
   db.cards.push(...add);
   inc.terms.forEach(t => { const k = norm(t.term); if (!haveT.has(k)) { haveT.add(k); db.terms.push(Object.assign({ ex: [] }, t)); nt++; } });
+  (inc.vocab || []).forEach(t => {
+    let mine = db.vocab.find(x => norm(x.name) === norm(t.name));
+    if (!mine) { mine = { id: uid(), name: t.name, items: [] }; db.vocab.push(mine); }
+    (t.items || []).forEach(v => { if (!mine.items.some(x => norm(x.term) === norm(v.term))) mine.items.push(v); });
+  });
   return { nc, nt };
 }
 function offerImport(inc, label) {
@@ -1487,7 +1625,7 @@ function doImport(mode) {
   if (mode === 'replace') {
     if (!confirm('Substituir todos os cards e termos atuais pelos do backup?')) return;
     LS.setRaw('englishPro2_beforeRestore', snap);
-    db.cards = inc.cards; db.terms = inc.terms; if (inc.stats) db.stats = inc.stats;
+    db.cards = inc.cards; db.terms = inc.terms; if (inc.vocab) db.vocab = inc.vocab; if (inc.stats) db.stats = inc.stats;
     save(); closeSheet(); renderAll(); toast(`Restaurado: ${db.cards.length} cards, ${db.terms.length} termos`, { undo: () => { db = JSON.parse(snap); save(); renderAll(); } });
   } else {
     const r = mergeIn(inc); save(); closeSheet(); renderAll();
@@ -1632,7 +1770,7 @@ document.addEventListener('click', e => {
     case 'ctx-more': ctxMore(b); break;
     case 'ctx-save': ctxSave(); break;
     case 'speak-ctx-term': if (ctx && ctx.data) speak([ctx.data.term]); break;
-    case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(Object.assign(newSent(fs.s.en, fs.s.tr), { gen: 1 })); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
+    case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(Object.assign(newSent(fs.s.en, fs.s.tr), { gen: 1 }, fs.s.alt ? { alt: fs.s.alt } : {})); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
 
     case 'speak-term': if (term) speak([term.term]); break;
     case 'term-play': if (term) speak([{ text: term.term }, ...term.ex.map(s => ({ text: s.en, id: s.id }))]); break;
@@ -1641,6 +1779,30 @@ document.addEventListener('click', e => {
     case 'term-del': if (term) { if (sheets.length) closeSheet(); const i = db.terms.indexOf(term); db.terms.splice(i, 1); save(); renderTerms(); renderTop(); renderTabs(); toast('Termo apagado', { undo: () => { db.terms.splice(i, 0, term); save(); renderTerms(); renderTop(); renderTabs(); } }); } break;
     case 'term-context': closeSheet(); openContext(term.term, term.ctx, null); break;
     case 'term-goto-card': closeSheet(); { const id = term.cardId; query = ''; $('#search').value = ''; show('cards'); ensureCardShown(id); const el = $(`.card[data-card="${id}"]`); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); } } break;
+
+    case 'vocab-open': vocabOpen = b.dataset.id; renderVocab(); scrollTo(0, 0); break;
+    case 'vocab-back': vocabOpen = null; stopSpeak(); renderVocab(); scrollTo(0, 0); break;
+    case 'vocab-add-topic': topicSheet(null); break;
+    case 'vocab-topic-menu': { const t = topicById(vocabOpen); if (t) openSheet(`<div class="menu-head">${esc(t.name)}</div><div class="menu"><button data-act="vocab-rename">${I.edit} Renomear campo</button><button data-act="vocab-del-topic" class="danger">${I.trash} Apagar campo</button></div>`); } break;
+    case 'vocab-rename': closeSheet(); topicSheet(topicById(vocabOpen)); break;
+    case 'vocab-del-topic': closeSheet(); {
+      const t = topicById(vocabOpen), i = db.vocab.indexOf(t); if (!t) break;
+      if (t.items.length && !confirm(`Apagar o campo "${t.name}" e suas ${t.items.length} dicas?`)) break;
+      db.vocab.splice(i, 1); vocabOpen = null; save(); renderVocab(); renderTop();
+      toast('Campo apagado', { undo: () => { db.vocab.splice(i, 0, t); vocabOpen = t.id; save(); if (curView === 'vocab') renderVocab(); renderTop(); } });
+    } break;
+    case 'vocab-gen': { const t = topicById(vocabOpen); if (t) vocabGen(t, b); } break;
+    case 'vocab-more': case 'vocab-speak': case 'vocab-play': case 'vocab-del': {
+      const v = findVocab(b.closest('[data-vocab]').dataset.vocab); if (!v) break;
+      if (act === 'vocab-more') vocabMore(v, b);
+      if (act === 'vocab-speak') speak([v.term]);
+      if (act === 'vocab-play') speak([v.s, ...v.ex].map(x => ({ text: x.en, id: x.id })));
+      if (act === 'vocab-del') {
+        const t = db.vocab.find(x => x.items.includes(v)), i = t.items.indexOf(v);
+        t.items.splice(i, 1); save(); renderVocab(); renderTop();
+        toast('Dica apagada', { undo: () => { t.items.splice(i, 0, v); save(); if (curView === 'vocab') renderVocab(); renderTop(); } });
+      }
+    } break;
 
     case 'rv-src': S.revSrc = b.dataset.v; saveS(); renderReview(); break;
     case 'rv-dir': S.revDir = b.dataset.v; saveS(); renderReview(); break;
