@@ -440,7 +440,7 @@ if (!db || !Array.isArray(db.cards)) {
   LS.set(DB_KEY, db);
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
-if (db.simsV !== 2) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 2; }
+if (db.simsV !== 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
 db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
 let saveT;
@@ -812,7 +812,9 @@ async function askAI(prompt) {
       return result;
     } catch (e) {
       console.warn(p, e);
-      if (p !== 'free' && e.quota) aiCool(p, /credit/i.test(e.message) ? 6 * 36e5 : 30 * 6e4);
+      // limite por minuto: o erro diz quando volta ("try again in 4.3s"), então a pausa é só essa
+      const back = /(?:try again|retry) in ([\d.]+)\s*s/i.exec(e.message);
+      if (p !== 'free' && e.quota) aiCool(p, back ? (+back[1] + 1) * 1000 : /credit/i.test(e.message) ? 6 * 36e5 : 30 * 6e4);
       else if (p !== 'free' && e.auth) aiCool(p, 30 * 6e4);
       errs.push(e);
     }
@@ -832,6 +834,14 @@ function needAI() {
 }
 const STYLE = `The learner is a Brazilian adult focused on EVERYDAY, natural, spoken American English: the way people really talk at home, at work, with friends, shopping, texting, travelling. Prefer common, useful words and natural contractions. Avoid formal, literary or rare vocabulary. Portuguese translations must be natural Brazilian Portuguese (pt-BR), not literal.`;
 
+const SYN_RULE = `Rules for every substitute/synonym:
+- Nearly the same meaning as the original term, and it must fit the original sentence in place of it.
+- SIMPLE, very frequent, casual English: the first thing a native would say to a friend, and words an intermediate learner already knows.
+- It may be several words; a simple expression beats a single difficult word. It does not need to match the original's grammar form or length.
+- Do NOT use sophisticated, formal, literary, technical or uncommon words, even if they are accurate dictionary synonyms. Before choosing a term, ask: would people commonly say this in a casual chat? If not, discard it.
+- Only use a less common term when no simple option exists at all.
+Good choices: "to be restless" -> "impatient", "can't sit still"; "exhausted" -> "really tired", "wiped out"; "purchase" -> "buy"; "postpone" -> "put off", "push back".
+Bad choices: "restless" -> "fidgety", "agitated"; "exhausted" -> "fatigued"; "purchase" -> "procure".`;
 // Estrutura fixa: 1 frase com o mesmo termo + até 3 com os substitutos indicados na aba de contexto (plan)
 function promptExamples(o) {
   const plan = (o.plan || []).slice(0, 3);
@@ -843,7 +853,7 @@ ${o.sentence ? `Original sentence: "${plain(o.sentence)}"\n` : ''}${o.term ? `Ke
 Do NOT repeat or closely paraphrase these existing sentences: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
 Write exactly 4 NEW short sentences (max 16 words each), each in a different everyday situation, in this exact order:
 ${steps.join('\n')}
-Wrap the expression used in each sentence in **double asterisks**. A substitute must be what natives really say in casual everyday conversation (never formal, written, technical or rarely used words), keep the same meaning as the key expression and be able to replace it in the original sentence; never use loosely related terms.
+Wrap the expression used in each sentence in **double asterisks**. ${SYN_RULE}
 Return ONLY JSON: {"key":"the key expression","examples":[{"en":"...","pt":"...","alt":""}]}`;
 }
 // Garante a etiqueta certa em cada frase: a 1ª é o termo original, as demais seguem os substitutos previstos
@@ -875,7 +885,8 @@ function promptContext(term, sentence, via) {
 ${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}".`
   : `Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.`}
 Be direct and objective, no filler.
-Each "similar" item must be what native speakers really say in casual everyday conversation (avoid formal, written, literary, technical or rarely used words; prefer common phrasal verbs and simple words, e.g. "go over" rather than "exceed") and must be able to replace the term in this sentence without changing the meaning. List the most commonly spoken first. Give fewer, or none, if no such term exists; never use loosely related terms.
+${SYN_RULE}
+List the most commonly spoken "similar" item first. Give fewer, or none, if nothing fits; never use loosely related terms.
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
 "kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
@@ -1572,7 +1583,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.7</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.8</p>`;
 }
 
 /* ---------- Backup ---------- */
