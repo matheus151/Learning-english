@@ -10,6 +10,7 @@ Abra em https://matheus151.github.io/Learning-english/ e, no Safari, toque em **
 - **Traduzir** qualquer frase em inglês, o card inteiro, ou ligar "mostrar todas as traduções".
 - **Negrito ao deslizar**: passe o dedo sobre uma ou mais palavras para destacar (deslize de novo para tirar).
 - **Contexto**: toque numa palavra (ou numa expressão em negrito) para ver o significado naquela frase, explicação e novas frases de exemplo, e salvar em **Termos**.
+- **Sinônimos no card**: até 3 sinônimos simples abaixo da frase principal, com o botão ≈ para ocultar.
 - **Novos exemplos**: 1 frase nova com o mesmo termo e 3 com os substitutos indicados na tela de contexto.
 - **Vocabulário**: dicas por campo (família, casa, comida… e campos seus), cada uma aplicada a uma frase, com "Mais exemplos".
 - **Criar cards colando frases**, uma por linha. Frases incompletas ou sem contexto são completadas pela IA, e as palavras originais ficam em negrito.
