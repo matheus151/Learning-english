@@ -66,11 +66,11 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 
 /* ---------- Cards ---------- */
 #cards{display:flex;flex-direction:column;gap:14px}
-.card{background:var(--card);border-radius:var(--radius);padding:14px 16px 12px;box-shadow:var(--shadow);position:relative;scroll-margin-top:calc(var(--top) + 76px)}
+.card{background:var(--card);border-radius:var(--radius);padding:10px 14px 10px;box-shadow:var(--shadow);position:relative;scroll-margin-top:calc(var(--top) + 76px)}
 .card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:4px;border-radius:0 4px 4px 0;background:var(--stripe,var(--accent));opacity:.85}
 .card.flash{animation:flash 1.2s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--accent-soft)}100%{box-shadow:var(--shadow)}}
-.card-head{display:flex;align-items:center;gap:8px;margin:-4px -6px 4px 0;min-height:30px}
+.card-head{display:flex;align-items:center;gap:8px;margin:-4px -6px 2px 0;min-height:28px}
 .num{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .badge{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .badge.gray{color:var(--muted);background:var(--card2)}
@@ -87,10 +87,10 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .main .en b,.main .w.b,.main .sp.b{color:var(--main-c,var(--strong))}
 .sec .en{color:var(--sec-c,inherit)}
 .sec .en b,.sec .w.b,.sec .sp.b{color:var(--sec-c,var(--strong))}
-.card .main .sent-row{background:var(--main-bg,var(--accent-soft));border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.card .main .sent-row{background:var(--main-bg,var(--accent-soft));border-radius:12px;padding:6px 10px;margin-bottom:8px}
 .card .main .sent-row .en{padding:0}
 .sim-box:empty{display:none}
-.sim-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-4px 0 10px;font-size:13.5px}
+.sim-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:-3px 0 8px;font-size:13.5px}
 .sim-row .chip{padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px;align-items:center}
 .sim-mark{font-weight:800;color:var(--muted)}
 .ex-toggle{flex:none;display:flex;align-items:center;gap:2px;height:34px;min-width:34px;margin:0 -6px 0 2px;padding:0 6px;justify-content:center;border-radius:999px;color:var(--muted)}
@@ -106,7 +106,8 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .w.sel,.sp.sel{background:var(--sel)!important}
 .sent.speaking .en{color:var(--accent)}
 .sent.speaking .w.b,.sent.speaking .en b{color:var(--accent)}
-.main-tools{display:flex;gap:8px;flex-wrap:wrap}
+.main-tools{display:flex;gap:6px;flex-wrap:wrap}
+.main-tools .pill{height:32px}
 .pill{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:999px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap}
 .pill svg{width:17px;height:17px}
 .pill.on{background:var(--accent-soft);color:var(--accent)}
@@ -118,18 +119,19 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .tr b{font-weight:800}
 .tr .muted,.muted{color:var(--muted)}
 .tr .err{color:var(--danger)}
-.ex-wrap{margin-top:12px;border-top:1px solid var(--line)}
-.ex-wrap.sec .sent.ex{border-left:3px solid var(--sec-c,var(--sec));padding-left:10px;margin:6px 0;border-bottom:0}
+.ex-wrap{margin-top:8px;border-top:1px solid var(--line)}
+.ex-wrap.sec .sent.ex{border-left:3px solid var(--sec-c,var(--sec));padding-left:10px;margin:4px 0;border-bottom:0}
 .ex-wrap.sec .ex-label{color:var(--sec-c,var(--sec))}
 .ex-wrap.gen{border-top:1px dashed var(--gen-line)}
 .ex-wrap.gen .ex-label{color:var(--gen);align-items:center}
 .ex-wrap.gen .ex-label svg{width:14px;height:14px}
-.ex-wrap.gen .sent.ex{background:var(--gen-bg);border-left:3px solid var(--gen);border-radius:0 12px 12px 0;padding:7px 0 7px 10px;margin:6px 0;border-bottom:0}
+.ex-wrap.gen .sent.ex{background:var(--gen-bg);border-left:3px solid var(--gen);border-radius:0 10px 10px 0;padding:3px 0 3px 10px;margin:4px 0;border-bottom:0}
 .ex-wrap.gen .sent.ex .w.b,.ex-wrap.gen .sent.ex .sp.b,.ex-wrap.gen .sent.ex .en b{background:linear-gradient(transparent 58%,var(--gen-hl) 58%)}
-.ex-group{margin:8px 0 10px}
+.ex-group{margin:6px 0 8px}
+.ex-kids{margin-left:14px}
 .ex-wrap.gen .sent.ex.head{background:var(--main-bg,var(--accent-soft));border-left-color:var(--accent);margin-bottom:4px}
 .ex-wrap.gen .sent.ex.head .en b,.ex-wrap.gen .sent.ex.head .w.b,.ex-wrap.gen .sent.ex.head .sp.b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
-.ex-kids .sent.ex{margin:5px 0}
+.ex-kids .sent.ex{margin:3px 0}
 .ex-group.folded .ex-kids{display:none}
 .ib.grp-toggle{width:auto;min-width:34px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;gap:2px}
 .grp-toggle svg{transition:transform .15s}
@@ -156,17 +158,18 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .chip span{font-size:12.5px;color:var(--muted)}
 .ctx-mains{margin:4px 0 0;padding-left:20px;font-size:15.5px;line-height:1.45}
 .ctx-sub{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:12px}
-.ex-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 0 2px;display:flex;gap:6px}
+.ex-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 0 0;display:flex;gap:6px}
 .ex-label span{font-weight:600;opacity:.7}
-.sent.ex{padding:7px 0;border-bottom:1px solid var(--line)}
+.sent.ex{padding:4px 0;border-bottom:1px solid var(--line)}
 .sent.ex:last-child{border-bottom:0}
 .sent-row{display:flex;gap:4px;align-items:flex-start}
-.sent.ex .en{flex:1;font-size:var(--fs);line-height:1.45;padding-top:5px}
-.sent.ex .tools{display:flex;margin-right:-8px}
+.sent.ex .en{flex:1;font-size:var(--fs);line-height:1.4;padding-top:4px}
+.sent.ex .tools{display:flex;margin-right:-6px}
+.sent.ex .tools .ib{width:30px;height:30px}
 .sent.ex .tr{margin-top:4px;margin-right:0}
 .sent.ex.new{animation:newex 1.6s ease-out}
 @keyframes newex{0%{background:var(--accent-soft)}100%{background:transparent}}
-.card-foot{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.card-foot{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
 .card-foot .sp-auto{flex:1}
 details.note{margin-top:10px;font-size:14px;color:var(--muted)}
 details.note summary{cursor:pointer;font-weight:600;list-style:none}
@@ -794,7 +797,7 @@ async function gemini(prompt, key) {
     try {
       r = await fetchT(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(key)}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.9, responseMimeType: 'application/json' } })
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: Object.assign({ temperature: 0.9, responseMimeType: 'application/json' }, m.startsWith('gemini-2.5') ? { thinkingConfig: { thinkingBudget: 0 } } : {}) })
       });
       d = await r.json().catch(() => ({}));
     } catch (e) { err = err || aiFail('Sem conexão com a IA.'); continue; }
@@ -814,7 +817,7 @@ async function chatAI(url, key, models, prompt, extra) {
     const r = await fetchT(url, {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, key ? { Authorization: 'Bearer ' + key } : {}),
-      body: JSON.stringify(Object.assign({ model: m, messages: [{ role: 'user', content: prompt + '\n\nReply with the JSON only, no other text.' }] }, extra))
+      body: JSON.stringify(Object.assign({ model: m, messages: [{ role: 'user', content: prompt + '\n\nReply with the JSON only, no other text.' }] }, typeof extra === 'function' ? extra(m) : extra))
     });
     const d = await r.json().catch(() => ({}));
     const text = d.choices?.[0]?.message?.content;
@@ -843,7 +846,7 @@ async function claude(prompt, key) {
 const AI_CALL = {
   gemini,
   claude,
-  groq: (prompt, key) => chatAI('https://api.groq.com/openai/v1/chat/completions', key, ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], prompt, { temperature: 0.8, response_format: { type: 'json_object' } }),
+  groq: (prompt, key) => chatAI('https://api.groq.com/openai/v1/chat/completions', key, ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], prompt, m => Object.assign({ temperature: 0.8, response_format: { type: 'json_object' } }, m.includes('gpt-oss') ? { reasoning_effort: 'low' } : {})),
   openrouter: (prompt, key) => chatAI('https://openrouter.ai/api/v1/chat/completions', key, ['openrouter/free'], prompt, { temperature: 0.8 }),
   free: async prompt => {
     const call = () => chatAI('https://text.pollinations.ai/openai', '', ['openai'], prompt, { seed: Math.floor(Math.random() * 1e9), max_tokens: 4000, reasoning_effort: 'low' });
@@ -1030,8 +1033,8 @@ function exGroupsHTML(c) {
     seen.add(s.grp);
     const items = gen.filter(x => x.grp === s.grp), head = items.find(x => x.head) || items[0], kids = items.filter(x => x !== head);
     const toggle = kids.length ? `<button class="ib grp-toggle" data-act="grp-toggle" aria-expanded="${!head.fold}" aria-label="Mostrar ou ocultar equivalentes"><span class="ex-count">${kids.length}</span>${I.chev}</button>` : '';
-    parts.push(`<div class="ex-group${head.fold ? ' folded' : ''}">${sentHTML(head, { cls: 'ex head' + (head.fresh ? ' new' : ''), extra: toggle + DEL, tag: '<span class="head-tag">termo original</span>' })}`
-      + (kids.length ? `<div class="ex-kids">${kids.map(k => sentHTML(k, { cls: 'ex kid', extra: DEL, tag: altTag(k) })).join('')}</div>` : '') + '</div>');
+    parts.push(`<div class="ex-group${head.fold ? ' folded' : ''}">${sentHTML(head, { cls: 'ex head' + (head.fresh ? ' new' : ''), extra: toggle + DEL })}`
+      + (kids.length ? `<div class="ex-kids">${kids.map(k => sentHTML(k, { cls: 'ex kid', extra: DEL })).join('')}</div>` : '') + '</div>');
   });
   const n = seen.size + gen.filter(s => !s.grp).length;
   return (sec.length ? `<div class="ex-wrap sec"><div class="ex-label">Exemplos <span>${sec.length}</span></div>${sec.map(row).join('')}</div>` : '')
@@ -1099,7 +1102,7 @@ function cardHTML(c, n) {
     ${c.note ? `<details class="note"><summary>Nota / tradução antiga ▾</summary><div>${esc(c.note)}</div></details>` : ''}
     ${exGroupsHTML(c)}
     <div class="card-foot">
-      <button class="pill accent" data-act="gen">${I.spark} Novos exemplos</button>
+      <button class="pill accent" data-act="gen" ${genBusy.has(c.id) ? 'disabled' : ''}>${genBusy.has(c.id) ? '<span class="spin"></span> Gerando…' : I.spark + ' Novos exemplos'}</button>
       <span class="sp-auto"></span>
       <button class="ib" data-act="play-all" aria-label="Ouvir tudo">${I.play}</button>
       <button class="ib ${allOpen ? 'on' : ''}" data-act="tr-card" aria-label="Traduzir tudo do card">${I.tr}</button>
@@ -1211,15 +1214,15 @@ function subsSpec(plan) {
     : `Substitutes: ${plan.length ? `start with ${JSON.stringify(plan)}, then ` : ''}choose more until there are at least 5 (up to 6) substitutes for the key expression in the original sentence, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`;
 }
 const GROUP_RULE = `Write ONE new short everyday sentence (max 16 words) that uses the key expression with the same meaning, in a situation different from the original.
-Then, for each substitute, write ANOTHER new short sentence (max 16 words) that uses it with the same meaning, in a situation similar to that new sentence with the key expression (same kind of context, different words). Conjugate every expression correctly for its sentence (e.g. "it went over", never "it go over"); every sentence must be grammatical and natural.
-Wrap the expression in **double asterisks** in every English and Portuguese sentence.`;
-const GROUP_JSON = `"similar":[{"term":"...","note":"pt-BR, max 5 words: the nuance"}],"example":{"en":"...","pt":"..."},"variants":[{"term":"the substitute","en":"...","pt":"..."}]`;
+Then, for each substitute, write ANOTHER new short sentence (max 16 words) that uses it with the same meaning, in a situation similar to that new sentence with the key expression (same kind of context, different words). Conjugate every expression correctly for its sentence (e.g. "it went over", "I've had enough of"; never "it go over" or "I'm had enough of"); every sentence must be grammatical and natural.
+Wrap the expression in **double asterisks** in every sentence.`;
+const GROUP_JSON = `"similar":[{"term":"...","note":"pt-BR, max 5 words: the nuance"}],"example":{"en":"..."},"variants":[{"term":"the substitute","en":"..."}]`;
 function promptGroup(o) {
   return `${STYLE}
 Original sentence: "${plain(o.sentence)}"
 ${keyLine(o)}
 ${subsSpec(o.plan || [])}
-${GROUP_RULE}
+${o.situation ? `Situation for the new sentences: ${o.situation}.\n` : ''}${GROUP_RULE}
 Do not repeat or closely paraphrase: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
 Return ONLY JSON: {"key":"the key expression",${GROUP_JSON}}`;
 }
@@ -1257,18 +1260,33 @@ function applyGroup(c, r, withExample = true) {
   c.ex.push(head, ...kids);
   return head;
 }
-async function genExamples(c, btn) {
+// Cada toque cria 3 grupos, pedidos ao mesmo tempo (um por situação) e mostrados conforme chegam
+const SITUATIONS = ['at home or with family', 'at work or school', 'with friends, going out or shopping', 'while travelling or commuting', 'texting, online or on the phone'];
+const genBusy = new Set();
+async function genExamples(c) {
   if (!hasAI()) return needAI();
-  busy(btn, true, ' Gerando…');
-  try {
+  if (genBusy.has(c.id)) return;
+  genBusy.add(c.id); rerenderCard(c);
+  simPause = Math.max(simPause, Date.now() + 30000);   // a busca automática espera para não disputar o limite da IA
+  const sits = [...SITUATIONS].sort(() => Math.random() - .5).slice(0, 3);
+  let made = 0, err = null;
+  const one = sit => {
     const known = cardKey(c);
-    const r = await askAI(promptGroup({ term: known.term, hint: known.hint, sentence: c.main.en, plan: known.list.map(x => x.term), existing: [c.main.en, ...c.ex.map(x => x.en)] }));
-    const head = applyGroup(c, Array.isArray(r) ? r[0] || {} : r);
-    if (!head) throw new Error('A IA não retornou exemplos.');
-    c.collapsed = false; head.fresh = 1; c.autoDone = 1;
-    save(); rerenderCard(c);
-    toast('Novo exemplo com os equivalentes');
-  } catch (e) { busy(btn, false); aiError(e); }
+    return askAI(promptGroup({ term: known.term, hint: known.hint, sentence: c.main.en, plan: known.list.map(x => x.term), existing: [c.main.en, ...c.ex.map(x => x.en)], situation: sit }))
+      .then(r => {
+        const head = applyGroup(c, Array.isArray(r) ? r[0] || {} : r);
+        if (!head) return;
+        made++; head.fresh = 1; c.collapsed = false; c.autoDone = 1;
+        save(); rerenderCard(c);
+      })
+      .catch(e => { err = err || e; });
+  };
+  // sem 5 equivalentes guardados, o 1º pedido escolhe; os outros usam os mesmos
+  if (cardKey(c).list.length < 5) { await one(sits.shift()); }
+  await Promise.all(sits.map(one));
+  genBusy.delete(c.id); rerenderCard(c);
+  if (made) toast(made === 1 ? 'Novo exemplo com os equivalentes' : `${made} exemplos novos com os equivalentes`);
+  else aiError(err || new Error('A IA não retornou exemplos.'));
 }
 function cardMenu(c) {
   openSheet(`<div class="menu-head">${esc(plain(c.main.en))}</div><div class="menu" data-card="${c.id}">
@@ -1759,7 +1777,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 3.1</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 3.2</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -1949,7 +1967,7 @@ document.addEventListener('click', e => {
     case 'toggle-ex': if (card) { card.collapsed = !card.collapsed; save(); cardEl.classList.toggle('ex-closed', card.collapsed); b.setAttribute('aria-expanded', String(!card.collapsed)); } break;
     case 'play-all': if (card) speak([card.main, ...exOrdered(card)].map(s => ({ text: s.en, id: s.id }))); break;
     case 'tr-card': if (card) toggleTrCard(card); break;
-    case 'gen': if (card) genExamples(card, b); break;
+    case 'gen': if (card) genExamples(card); break;
     case 'card-menu': if (card) cardMenu(card); break;
     case 'edit-card': closeSheet(); editCard(card); break;
     case 'complete-card': closeSheet(); completeCard(card); break;

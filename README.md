@@ -11,7 +11,7 @@ Abra em https://matheus151.github.io/Learning-english/ e, no Safari, toque em **
 - **Negrito ao deslizar**: passe o dedo sobre uma ou mais palavras para destacar (deslize de novo para tirar).
 - **Contexto**: toque numa palavra (ou expressão em negrito) para ver o tipo (phrasal verb, adjetivo…), o significado naquela frase, pelo menos 5 equivalentes do dia a dia (um embaixo do outro, com significado e se é mais usual, coloquial…) e outras frases com o termo em outros contextos de uso; dá para salvar em **Termos**.
 - **Sinônimos no card**: os equivalentes simples abaixo da frase principal, com o botão ≈ para ocultar.
-- **Novos exemplos**: uma frase nova com o termo original e, abaixo dela, uma frase para cada equivalente em situação parecida; a setinha recolhe os equivalentes.
+- **Novos exemplos**: cada toque cria 3 frases novas com o termo original (pedidas ao mesmo tempo) e, abaixo de cada uma, uma frase para cada equivalente em situação parecida; a setinha recolhe os equivalentes.
 - **Vocabulário**: dicas por campo (família, casa, comida… e campos seus), cada uma aplicada a uma frase, com "Mais exemplos".
 - **Criar cards colando frases**, uma por linha. Frases incompletas ou sem contexto são completadas pela IA, e as palavras originais ficam em negrito.
 - **Revisar** com repetição espaçada (EN → PT ou PT → EN), para cards e termos.
