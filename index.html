@@ -126,6 +126,23 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .ex-wrap.gen .ex-label svg{width:14px;height:14px}
 .ex-wrap.gen .sent.ex{background:var(--gen-bg);border-left:3px solid var(--gen);border-radius:0 12px 12px 0;padding:7px 0 7px 10px;margin:6px 0;border-bottom:0}
 .ex-wrap.gen .sent.ex .w.b,.ex-wrap.gen .sent.ex .sp.b,.ex-wrap.gen .sent.ex .en b{background:linear-gradient(transparent 58%,var(--gen-hl) 58%)}
+.ex-group{margin:8px 0 10px}
+.ex-wrap.gen .sent.ex.head{background:var(--main-bg,var(--accent-soft));border-left-color:var(--accent);margin-bottom:4px}
+.ex-wrap.gen .sent.ex.head .en b,.ex-wrap.gen .sent.ex.head .w.b,.ex-wrap.gen .sent.ex.head .sp.b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
+.ex-kids{margin-left:12px;padding-left:10px;border-left:2px dashed var(--gen-line)}
+.ex-kids .sent.ex{margin:5px 0}
+.ex-kids .sent.ex .en{font-size:calc(var(--fs) * .94)}
+.ex-group.folded .ex-kids{display:none}
+.ib.grp-toggle{width:auto;min-width:34px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;gap:2px}
+.grp-toggle svg{transition:transform .15s}
+.ex-group.folded .grp-toggle svg{transform:rotate(-90deg)}
+.ex-group.folded .grp-toggle .ex-count{display:inline}
+.head-tag{display:inline-block;font-size:11.5px;font-weight:700;color:var(--accent);background:var(--card);border:1px solid var(--accent-soft);border-radius:999px;padding:1px 8px;margin-bottom:2px}
+.kind-badge{font-size:13px;font-weight:800;color:var(--on-accent);background:var(--accent);padding:3px 10px;border-radius:999px}
+.ctx-base{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--tr-bg);color:var(--tr);font-size:15px}
+.ctx-base b{font-weight:800}
+.ctx-info{margin-top:10px;font-size:14px;line-height:1.45;color:var(--muted)}
+.ctx-info b{color:var(--text)}
 .alt-tag{display:inline-block;font-size:11.5px;font-weight:700;color:var(--gen);background:var(--card);border:1px solid var(--gen-line);border-radius:999px;padding:1px 8px;margin-bottom:2px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chip{display:inline-flex;align-items:baseline;gap:6px;padding:7px 12px;border-radius:12px;background:var(--accent-soft);color:var(--text);font-size:15px;text-align:left}
@@ -446,6 +463,11 @@ if (!db || !Array.isArray(db.cards)) {
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
 if (db.simsV !== 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
+if (db.exV !== 4) {
+  if (LS.raw('englishPro2_beforeV4') == null) LS.setRaw('englishPro2_beforeV4', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
+  db.cards.forEach(c => { c.ex = c.ex.filter(x => !x.ai && !(x.gen && x.alt)); ['sims', 'simKey', 'simTried', 'autoDone'].forEach(k => delete c[k]); });
+  db.exV = 4;
+}
 db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
 let saveT;
@@ -793,7 +815,7 @@ async function chatAI(url, key, models, prompt, extra) {
     if (r.ok && text) return text;
     const fail = aiFail(d.error?.message || ('Erro ' + r.status), r.status);
     err = err && err.quota ? err : fail;
-    if (![404, 429, 500, 503].includes(r.status) && !(r.ok || (r.status === 400 && /model/i.test(fail.message)))) throw fail;
+    if (![404, 429, 500, 503].includes(r.status) && !(r.ok || (r.status === 400 && /model|validate JSON/i.test(fail.message)))) throw fail;
   }
   throw err;
 }
@@ -899,7 +921,7 @@ function readExamples(r, plan, term) {
 // Substitutos de cada termo do card: os mesmos valem para a aba de contexto e para "Novos exemplos"
 function rememberSims(c, terms, list) {
   c.sims = c.sims || {};
-  const entry = { term: terms[terms.length - 1], list: list.slice(0, 3) };
+  const entry = { term: terms[terms.length - 1], list: list.slice(0, 6) };
   terms.forEach(t => { c.sims[norm(t)] = entry; });
   c.simKey = norm(entry.term);
 }
@@ -910,23 +932,25 @@ function cardKey(c) {
   if (saved) return { term: saved.term, list: saved.similar };
   return { term: bold.length === 1 ? bold[0] : '', hint: bold, list: [] };
 }
-function promptContext(term, sentence, via) {
+function promptContext(term, sentence, via, plan) {
+  plan = plan || [];
   return `${STYLE}
-${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}".`
-  : `Explain the English term "${term}"${sentence ? ` exactly as it is used in this sentence: "${plain(sentence)}"` : ''}.`}
+${via && sentence ? `Explain the English term "${term}" as an everyday alternative to "${via}" in this sentence: "${plain(sentence)}". The base sentence is that sentence with "${via}" replaced by "${term}".`
+  : sentence ? `Explain the English term "${term}" exactly as it is used in this sentence: "${plain(sentence)}". The base sentence is this sentence.`
+  : `Explain the English term "${term}". The base sentence is one short everyday sentence you write using it.`}
 Be direct and objective, no filler.
-${SYN_RULE}
-List the most commonly spoken "similar" item first. Give fewer, or none, if nothing fits; never use loosely related terms.
+${plan.length >= 5 ? `Similar terms: use exactly these, in this order: ${JSON.stringify(plan)}.` : `Similar terms: give at least 5 (up to 6) English terms or expressions that fit perfectly in the base sentence with nearly the same meaning, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`}
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
-"kind":"short label in Portuguese, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, collocation",
-"meaning":"short pt-BR translation of the term IN THIS CONTEXT (max 6 words)",
-"explanation":"ONE short, direct sentence in pt-BR (max 20 words): what it means here and when it is used",
-"similar":[{"term":"everyday English term/expression with the same idea that also fits THIS context, in base form (go over, not went over)","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum, mais forte"}],
-"mains":["the main general meanings of the term on its own, regardless of this sentence, in pt-BR, most common first, max 5 words each"],
-"uses":["the main situations where this term is used in real life, in pt-BR, max 8 words each, e.g. reuniões e compromissos que atrasam"],
-"examples":[{"en":"new everyday sentence using the term, wrapped in **double asterisks**","pt":"..."}]}
-Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 or 3 "uses" items, exactly 3 "similar" items and 3 examples in different daily situations, max 15 words each.`;
+"kind":"short label in Portuguese for what it is, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, advérbio, collocation",
+"meaning":"short pt-BR meaning of the term IN THIS CONTEXT (max 6 words)",
+"note":"ONE short, direct pt-BR sentence (max 15 words) explaining it here, especially if it is a phrasal verb, idiom or slang",
+"base":{"en":"the base sentence with the term in **double asterisks**","pt":"natural pt-BR translation with the translated term in **double asterisks**"},
+"mains":["the main general meanings of the term on its own, in pt-BR, most common first, max 5 words each"],
+"uses":["the main situations where this term is used in real life, in pt-BR, max 8 words each"],
+"similar":[{"term":"the similar term, in base form","note":"pt-BR, max 5 words: the nuance, e.g. mais informal, mais comum"}],
+"swaps":[{"term":"the similar term","en":"the base sentence with the term swapped for this similar term, keeping the rest; adjust inflection and the words right around it (e.g. drop \"were\" before \"couldn't sit still\") so it stays grammatical and natural; the similar term in **double asterisks**","pt":"natural pt-BR translation with the translated term in **double asterisks**"}]}
+Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 or 3 "uses" items, and exactly one "swaps" item for each "similar" item, in the same order.`;
 }
 function promptComplete(lines, force) {
   return `${STYLE}
@@ -993,54 +1017,59 @@ const isGen = s => !!(s.ai || s.gen);
 const exOrdered = c => [...c.ex.filter(s => !isGen(s)), ...c.ex.filter(isGen)];
 const altTag = s => s.alt ? `<span class="alt-tag" title="Expressão alternativa">≈ ${esc(s.alt)}</span>` : '';
 function exGroupsHTML(c) {
-  const sec = c.ex.filter(s => !isGen(s)), gen = c.ex.filter(isGen);
+  const sec = c.ex.filter(s => !isGen(s)), gen = c.ex.filter(isGen), seen = new Set(), parts = [];
   const row = s => sentHTML(s, { cls: 'ex' + (s.fresh ? ' new' : ''), extra: DEL, tag: altTag(s) });
+  gen.forEach(s => {
+    if (!s.grp) { parts.push(row(s)); return; }
+    if (seen.has(s.grp)) return;
+    seen.add(s.grp);
+    const items = gen.filter(x => x.grp === s.grp), head = items.find(x => x.head) || items[0], kids = items.filter(x => x !== head);
+    const toggle = kids.length ? `<button class="ib grp-toggle" data-act="grp-toggle" aria-expanded="${!head.fold}" aria-label="Mostrar ou ocultar equivalentes"><span class="ex-count">${kids.length}</span>${I.chev}</button>` : '';
+    parts.push(`<div class="ex-group${head.fold ? ' folded' : ''}">${sentHTML(head, { cls: 'ex head' + (head.fresh ? ' new' : ''), extra: toggle + DEL, tag: '<span class="head-tag">termo original</span>' })}`
+      + (kids.length ? `<div class="ex-kids">${kids.map(k => sentHTML(k, { cls: 'ex kid', extra: DEL, tag: altTag(k) })).join('')}</div>` : '') + '</div>');
+  });
+  const n = seen.size + gen.filter(s => !s.grp).length;
   return (sec.length ? `<div class="ex-wrap sec"><div class="ex-label">Exemplos <span>${sec.length}</span></div>${sec.map(row).join('')}</div>` : '')
-    + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">${I.spark} Criados depois <span>${gen.length}</span></div>${gen.map(row).join('')}</div>` : '');
+    + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">${I.spark} Criados depois <span>${n}</span></div>${parts.join('')}</div>` : '');
 }
 // Sinônimos embaixo da frase principal: buscados em lotes só para os cards que aparecem na tela e guardados no card
 const simWait = new Set(), simLoading = new Set();
 let simBusy = false, simPause = 0, simT = null;
 const simAuto = () => S.showSims && aiChain().length > 0 && aiChain()[0] !== 'free' && Date.now() >= simPause;
-const needsSims = c => S.showSims && !c.simTried && !cardKey(c).list.length;
+// Falta algo no card: equivalentes (pelo menos 5) ou o primeiro grupo de exemplos
+const needsSims = c => S.showSims && !c.autoDone && (cardKey(c).list.length < 5 || !c.ex.some(s => s.grp));
 function simInner(c) {
   if (c.simHidden) return '';
-  const known = cardKey(c), list = known.list.slice(0, 3);
-  if (list.length) return `<div class="sim-row"><span class="sim-mark">≈</span>${list.map(x => `<button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>`).join('')}</div>`;
-  if (c.simTried) return '<div class="sim-row muted">≈ Sem sinônimo simples para esta frase</div>';
-  if (simLoading.has(c.id) || simAuto()) return '<div class="sim-row muted">≈ Buscando sinônimos…</div>';
-  return '<div class="sim-row"><button class="chip" data-act="sim-fetch">≈ Ver sinônimos</button></div>';
+  const known = cardKey(c), list = known.list.slice(0, 6);
+  if (list.length && !simLoading.has(c.id)) return `<div class="sim-row"><span class="sim-mark">≈</span>${list.map(x => `<button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>`).join('')}</div>`;
+  if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="sim-row muted">≈ Buscando sinônimos e exemplos…</div>';
+  if (c.autoDone) return '<div class="sim-row muted">≈ Sem sinônimo simples para esta frase</div>';
+  return '<div class="sim-row"><button class="chip" data-act="sim-fetch">≈ Ver sinônimos e exemplos</button></div>';
 }
 function paintSims(c) { const el = $(`.card[data-card="${c.id}"] .sim-box`); if (el) el.innerHTML = simInner(c); }
-function promptSims(cards) {
-  const list = cards.map((c, i) => { const k = cardKey(c); return { i, sentence: plain(c.main.en), term: k.term || (k.hint || []).join(' / ') }; });
-  return `${STYLE}
-For each sentence below, find the key expression ("term" when given; if several are given or none, choose the main one) and give up to 3 substitutes for it in that sentence, most commonly spoken first, in base form.
-${SYN_RULE}
-Sentences: ${JSON.stringify(list)}
-Return ONLY JSON with one item per sentence: {"items":[{"i":0,"key":"...","similar":[{"term":"...","note":"pt-BR, max 5 words: the nuance"}]}]}`;
-}
 async function fetchSims(cards) {
   simBusy = true;
   cards.forEach(c => { simLoading.add(c.id); paintSims(c); });
+  const grew = new Set();
   try {
-    const r = await askAI(promptSims(cards));
+    const r = await askAI(promptAuto(cards));
     const items = Array.isArray(r) ? r : r.items || [];
     cards.forEach((c, i) => {
-      const it = items.find(x => x && +x.i === i) || items[i] || {}, known = cardKey(c), key = known.term || plain(it.key || '');
-      const list = (Array.isArray(it.similar) ? it.similar : []).filter(x => x && x.term && norm(x.term) !== norm(key)).slice(0, 3).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
-      if (key && list.length) rememberSims(c, [key], list); else c.simTried = 1;
+      const it = items.find(x => x && +x.i === i) || items[i];
+      if (!it) return;
+      if (applyGroup(c, it, !c.ex.some(s => s.grp))) grew.add(c);
+      c.autoDone = 1;
     });
     save();
   } catch (e) { simPause = Date.now() + 10 * 6e4; console.warn(e); }
   simBusy = false;
-  cards.forEach(c => { simLoading.delete(c.id); paintSims(c); });
+  cards.forEach(c => { simLoading.delete(c.id); if (grew.has(c)) rerenderCard(c); else paintSims(c); });
   if (simWait.size) { clearTimeout(simT); simT = setTimeout(runSims, 8000); }
 }
 function runSims() {
   simT = null;
   if (simBusy || !simAuto()) return;
-  const batch = [...simWait].slice(0, 8).map(id => { simWait.delete(id); return cardById(id); }).filter(c => c && needsSims(c) && !c.simHidden);
+  const batch = [...simWait].slice(0, 3).map(id => { simWait.delete(id); return cardById(id); }).filter(c => c && needsSims(c) && !c.simHidden);
   if (batch.length) fetchSims(batch); else if (simWait.size) runSims();
 }
 const simObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => entries.forEach(en => {
@@ -1166,24 +1195,74 @@ async function createCards(btn) {
 }
 
 /* ---------- Card actions ---------- */
+// Grupos de exemplos: uma frase nova com o termo original e, abaixo dela, a mesma frase com cada equivalente
+function keyLine(o) {
+  return o.term ? `Key expression: "${o.term}"${o.meaning ? `, meaning "${o.meaning}"` : ''}.`
+    : o.hint && o.hint.length ? `The learner highlighted: ${o.hint.map(t => `"${t}"`).join(', ')}. The key expression is the most important of these.`
+    : 'The key expression is the main phrasal verb, idiom, collocation or useful structure of the original sentence.';
+}
+function subsSpec(plan) {
+  return plan.length >= 5 ? `Substitutes: use exactly these, in this order: ${JSON.stringify(plan)}.`
+    : `Substitutes: ${plan.length ? `start with ${JSON.stringify(plan)}, then ` : ''}choose more until there are at least 5 (up to 6) substitutes for the key expression in the original sentence, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`;
+}
+const GROUP_RULE = `Write ONE new short everyday sentence (max 16 words) that uses the key expression with the same meaning, in a situation different from the original.
+Then rewrite that new sentence once for each substitute, swapping the key expression for it and keeping the rest of the sentence. Adjust inflection and the words right around it (e.g. drop "were" before "couldn't sit still") so every version is grammatical and natural; never output a broken sentence.
+Wrap the expression in **double asterisks** in every English and Portuguese sentence.`;
+const GROUP_JSON = `"similar":[{"term":"...","note":"pt-BR, max 5 words: the nuance"}],"example":{"en":"...","pt":"..."},"variants":[{"term":"the substitute","en":"...","pt":"..."}]`;
+function promptGroup(o) {
+  return `${STYLE}
+Original sentence: "${plain(o.sentence)}"
+${keyLine(o)}
+${subsSpec(o.plan || [])}
+${GROUP_RULE}
+Do not repeat or closely paraphrase: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
+Return ONLY JSON: {"key":"the key expression",${GROUP_JSON}}`;
+}
+function promptAuto(cards) {
+  const list = cards.map((c, i) => { const k = cardKey(c); return { i, sentence: plain(c.main.en), term: k.term || (k.hint || []).join(' / '), substitutes: k.list.map(x => x.term), example: !c.ex.some(s => s.grp) }; });
+  return `${STYLE}
+For each item below, find the key expression of the sentence ("term" when given; if several or none are given, choose the main one).
+Substitutes: when "substitutes" has 5 or more, use exactly those; otherwise complete it to at least 5 (up to 6) substitutes for the key expression in that sentence, simplest and most commonly spoken first, in base form.
+${SYN_RULE}
+Only when "example" is true: ${GROUP_RULE}
+Items: ${JSON.stringify(list)}
+Return ONLY JSON with one result per item: {"items":[{"i":0,"key":"...",${GROUP_JSON}}]}
+Leave "example" null and "variants" empty when the item's "example" is false.`;
+}
+// Se a IA esquecer o negrito, marca o termo quando ele aparece na frase
+function boldIn(en, term) {
+  en = String(en || '');
+  if (en.includes('**') || !term) return en;
+  const i = en.toLowerCase().indexOf(String(term).toLowerCase());
+  return i < 0 ? en : en.slice(0, i) + '**' + en.slice(i, i + term.length) + '**' + en.slice(i + term.length);
+}
+// Guarda os equivalentes no card e, se veio um exemplo, cria o grupo. Devolve a frase principal do grupo.
+function applyGroup(c, r, withExample = true) {
+  const known = cardKey(c), key = known.term || plain(r.key || '');
+  // a lista também inclui os termos usados nas frases (às vezes a IA lista menos do que usa)
+  const extra = [...(Array.isArray(r.similar) ? r.similar : []), ...(Array.isArray(r.variants) ? r.variants : [])].filter(x => x && x.term).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
+  const list = [];
+  [...(known.list.length >= 5 ? known.list : [...known.list, ...extra])].forEach(x => { if (norm(x.term) !== norm(key) && !list.some(y => norm(y.term) === norm(x.term))) list.push(x); });
+  if (key && list.length) rememberSims(c, [key], list);
+  const ex = r.example;
+  if (!withExample || !ex || !ex.en) return null;
+  const grp = uid();
+  const head = Object.assign(newSent(cleanAI(boldIn(ex.en, key)), cleanAI(ex.pt || '')), { ai: 1, grp, head: 1 });
+  const kids = (Array.isArray(r.variants) ? r.variants : []).filter(v => v && v.en).map((v, i) => Object.assign(newSent(cleanAI(boldIn(v.en, plain(v.term || '') || (list[i] && list[i].term))), cleanAI(v.pt || '')), { ai: 1, grp }, (plain(v.term || '') || (list[i] && list[i].term)) ? { alt: plain(v.term || '') || list[i].term } : {}));
+  c.ex.push(head, ...kids);
+  return head;
+}
 async function genExamples(c, btn) {
   if (!hasAI()) return needAI();
   busy(btn, true, ' Gerando…');
   try {
-    const known = cardKey(c), plan = known.list.map(x => x.term).slice(0, 3);
-    const r = await askAI(promptExamples({ term: known.term, hint: known.hint, sentence: c.main.en, plan, existing: [c.main.en, ...c.ex.map(x => x.en)] }));
-    const key = known.term || plain(r.key || '');
-    const arr = readExamples(r, plan, key);
-    if (!arr.length) throw new Error('A IA não retornou exemplos.');
-    c.collapsed = false;
-    arr.forEach(x => { x.fresh = 1; c.ex.push(x); });
-    if (key && plan.length < 3) {
-      const added = arr.filter(x => x.alt && !plan.some(p => norm(p) === norm(x.alt))).map(x => ({ term: x.alt, note: '' }));
-      rememberSims(c, [key], [...known.list, ...added]);
-    }
-    save();
-    rerenderCard(c);
-    toast(`${arr.length} exemplos novos`);
+    const known = cardKey(c);
+    const r = await askAI(promptGroup({ term: known.term, hint: known.hint, sentence: c.main.en, plan: known.list.map(x => x.term), existing: [c.main.en, ...c.ex.map(x => x.en)] }));
+    const head = applyGroup(c, Array.isArray(r) ? r[0] || {} : r);
+    if (!head) throw new Error('A IA não retornou exemplos.');
+    c.collapsed = false; head.fresh = 1; c.autoDone = 1;
+    save(); rerenderCard(c);
+    toast('Novo exemplo com os equivalentes');
   } catch (e) { busy(btn, false); aiError(e); }
 }
 function cardMenu(c) {
@@ -1204,11 +1283,12 @@ function deleteCard(c) {
 function deleteSent(sid) {
   const f = findSent(sid); if (!f) return;
   const owner = f.card || f.term || f.vocab; if (!owner) return;
-  const list = owner.ex, i = list.indexOf(f.s); if (i < 0) return;
-  list.splice(i, 1); save();
+  const list = owner.ex; if (list.indexOf(f.s) < 0) return;
+  const gone = (f.s.head && f.s.grp ? list.filter(x => x.grp === f.s.grp) : [f.s]).map(x => [list.indexOf(x), x]);
+  gone.slice().reverse().forEach(([i]) => list.splice(i, 1)); save();
   const rr = () => f.card ? rerenderCard(f.card) : f.term ? rerenderTerm(f.term) : rerenderVocabItem(f.vocab);
   rr();
-  toast('Exemplo apagado', { undo: () => { list.splice(i, 0, f.s); save(); rr(); } });
+  toast(gone.length > 1 ? 'Exemplo e equivalentes apagados' : 'Exemplo apagado', { undo: () => { gone.forEach(([i, x]) => list.splice(i, 0, x)); save(); rr(); } });
 }
 function toggleTrCard(c) {
   const all = [c.main, ...c.ex], open = all.every(s => openTr.has(s.id));
@@ -1224,7 +1304,7 @@ async function completeCard(c) {
     const it = (r.items || r)[0];
     if (!it || !it.completed || !it.en) return toast('Essa frase já está completa e com contexto.');
     const before = { en: c.main.en, tr: c.main.tr, src: c.src };
-    delete c.sims; delete c.simKey; delete c.simTried; c.src = c.src || plain(c.main.en); c.main.en = cleanAI(it.en); c.main.tr = cleanAI(it.pt || '');
+    delete c.sims; delete c.simKey; delete c.simTried; delete c.autoDone; c.src = c.src || plain(c.main.en); c.main.en = cleanAI(it.en); c.main.tr = cleanAI(it.pt || '');
     save(); rerenderCard(c, true);
     toast('Contexto criado', { undo: () => { Object.assign(c.main, { en: before.en, tr: before.tr }); c.src = before.src; save(); rerenderCard(c); } });
   } catch (e) { aiError(e); }
@@ -1247,7 +1327,7 @@ function saveEdit(c) {
   if (!plain(en)) return toast('A frase principal não pode ficar vazia.');
   const tr = $('#edTr').value.trim();
   if (en !== c.main.en && tr === (c.main.tr || '')) c.main.tr = ''; else c.main.tr = tr;
-  if (plain(en) !== plain(c.main.en)) { delete c.sims; delete c.simKey; delete c.simTried; }
+  if (plain(en) !== plain(c.main.en)) { delete c.sims; delete c.simKey; delete c.simTried; delete c.autoDone; }
   c.main.en = en;
   const old = new Map(c.ex.map(s => [s.id, s]));
   c.ex = $$('#edEx .edit-ex').map(row => {
@@ -1281,16 +1361,21 @@ function openContext(term, sentEn, sid, via) {
 async function loadContext() {
   const body = $('#ctxBody'); if (!body || !ctx) return;
   const my = ctx;
-  const key = my.term.toLowerCase() + '|' + plain(my.sent) + '|' + (my.via || '');
+  const card0 = !my.via && my.cardId ? cardById(my.cardId) : null;
+  const known0 = card0 && card0.sims && card0.sims[norm(my.term)];
+  const plan = known0 ? known0.list.map(x => x.term) : [];
+  const key = my.term.toLowerCase() + '|' + plain(my.sent) + '|' + (my.via || '') + '|' + plan.join(',');
   body.innerHTML = `<div class="loading"><span class="spin"></span>Buscando “${esc(my.term)}”…</div>`;
   try {
     let data = ctxCache.get(key);
     if (!data) {
       if (hasAI()) {
-        const r = await askAI(promptContext(my.term, my.sent, my.via)).catch(() => null);
+        const r = await askAI(promptContext(my.term, my.sent, my.via, plan)).catch(() => null);
         if (r) {
-          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 3).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
-          data = { ai: true, term: plain(r.term || my.term), kind: r.kind || '', meaning: plain(r.meaning || ''), expl: r.explanation || '', mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), uses: (Array.isArray(r.uses) ? r.uses : []).map(plain).filter(Boolean).slice(0, 3), similar, ex: (r.examples || []).filter(x => x && x.en).map(x => newSent(cleanAI(x.en), cleanAI(x.pt || ''))) };
+          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 6).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
+          const swaps = (Array.isArray(r.swaps) ? r.swaps : []).filter(x => x && x.en).map((x, i) => Object.assign(newSent(cleanAI(boldIn(x.en, plain(x.term || '') || (similar[i] && similar[i].term))), cleanAI(x.pt || '')), { alt: plain(x.term || '') || (similar[i] && similar[i].term) || '' }));
+          const base = r.base && r.base.en ? newSent(cleanAI(r.base.en), cleanAI(r.base.pt || '')) : null;
+          data = { ai: true, term: plain(r.term || my.term), kind: plain(r.kind || ''), meaning: plain(r.meaning || ''), expl: plain(r.note || r.explanation || ''), mains: (Array.isArray(r.mains) ? r.mains : []).map(plain).filter(Boolean).slice(0, 4), uses: (Array.isArray(r.uses) ? r.uses : []).map(plain).filter(Boolean).slice(0, 3), similar, base, ex: swaps };
           ctxCache.set(key, data);
         }
       }
@@ -1299,7 +1384,7 @@ async function loadContext() {
     const card = data.ai && !my.via && my.cardId ? cardById(my.cardId) : null;
     if (card) {
       const known = card.sims && (card.sims[norm(my.term)] || card.sims[norm(data.term)]);
-      if (known) data.similar = [...known.list, ...data.similar.filter(x => !known.list.some(k => norm(k.term) === norm(x.term)))].slice(0, 3);
+      if (known) data.similar = [...known.list, ...data.similar.filter(x => !known.list.some(k => norm(k.term) === norm(x.term)))].slice(0, 6);
       if (data.similar.length && (known || my.isMain)) { rememberSims(card, [my.term, data.term], data.similar); save(); paintSims(card); }
     }
     if (ctx !== my) return;
@@ -1334,43 +1419,42 @@ function meaningsHTML(d, hasCtx, meanCls, explCls) {
     + (d.uses && d.uses.length ? `<div class="ctx-sub">Principais contextos de uso</div><ul class="ctx-mains">${d.uses.map(m => `<li>${esc(m)}</li>`).join('')}</ul>` : '')
     + (inCtx ? `<div class="ctx-sub">Neste contexto</div><div class="${meanCls}">${esc(inCtx)}</div>` : '') + expl;
 }
+// Como no app de vídeos: termo, tipo e significado naquela frase em destaque; depois equivalentes e a frase com cada um
 function renderContext() {
   const d = ctx.data, body = $('#ctxBody'); if (!body) return;
   d.ex.forEach(s => tmpSents.set(s.id, s));
+  if (d.base) tmpSents.set(d.base.id, d.base);
   (d.defs || []).forEach(x => tmpSents.set(x.s.id, x.s));
   const saved = db.terms.some(t => t.term.toLowerCase() === d.term.toLowerCase());
   const card = ctx.cardId ? cardById(ctx.cardId) : null;
   const extra = card ? `<button class="ib" data-act="ex-to-card" aria-label="Adicionar ao card">${I.plus}</button>` : '';
+  const head = d.ai
+    ? `<div class="ctx-sub">${ctx.sent ? 'Neste contexto' : 'Significado'}</div><div class="ctx-mean">${esc(d.meaning)}</div>`
+      + (d.expl ? `<div class="ctx-expl">${esc(d.expl)}</div>` : '')
+      + (d.base && d.base.tr ? `<div class="ctx-base">${textHTML(d.base.tr)}</div>` : '')
+      + (d.mains.length || d.uses.length ? `<div class="ctx-info">${d.mains.length ? `<div><b>Principais significados:</b> ${d.mains.map(esc).join(' · ')}</div>` : ''}${d.uses.length ? `<div><b>Contextos de uso:</b> ${d.uses.map(esc).join(' · ')}</div>` : ''}</div>` : '')
+    : meaningsHTML(d, !!ctx.sent, 'ctx-mean', 'ctx-expl');
   body.innerHTML = `<div class="ctx-card">
-      <div class="ctx-term"><h3 lang="en">${esc(d.term)}</h3>${d.kind ? `<span class="badge">${esc(d.kind)}</span>` : ''}<span style="flex:1"></span><button class="ib" data-act="speak-ctx-term" aria-label="Ouvir">${I.vol}</button></div>
-      ${meaningsHTML(d, !!ctx.sent, 'ctx-mean', 'ctx-expl')}
+      <div class="ctx-term"><h3 lang="en">${esc(d.term)}</h3>${d.kind ? `<span class="kind-badge">${esc(d.kind)}</span>` : ''}<span style="flex:1"></span><button class="ib" data-act="speak-ctx-term" aria-label="Ouvir">${I.vol}</button></div>
+      ${head}
       ${ctx.via ? `<div class="ctx-other">Alternativa a <b lang="en">${esc(ctx.via)}</b> nesta frase · <button class="pill ghost" style="height:auto;padding:0" data-act="ctx-back">voltar</button></div>` : ''}
-      ${d.similar && d.similar.length ? `<div class="ctx-sub">Também se diz</div><div class="chips">${d.similar.map(x => `<button class="chip" data-act="ctx-similar" data-term="${esc(x.term)}"><b lang="en">${esc(x.term)}</b>${x.note ? `<span>${esc(x.note)}</span>` : ''}</button>`).join('')}</div>` : ''}
       ${d.other ? `<div class="ctx-other"><b>Outros sentidos:</b> ${esc(d.other)}</div>` : ''}
       ${d.defs && d.defs.length ? `<div style="margin-top:8px">${d.defs.map(x => `<div class="def"><div class="pos">${esc(x.pos)}</div>${sentHTML(x.s, { cls: 'ex' })}</div>`).join('')}</div>` : ''}
-      ${!d.ai ? `<p class="hint">Dicionário básico. Configure a IA em Ajustes para explicações em português e exemplos do dia a dia.</p>` : ''}
+      ${!d.ai ? `<p class="hint">Dicionário básico. Configure a IA em Ajustes para explicações em português e equivalentes do dia a dia.</p>` : ''}
     </div>
-    ${d.ex.length ? `<div class="ex-label" style="padding-top:16px">Em outras frases</div><div class="ctx-card" style="margin-top:6px;padding-top:4px;padding-bottom:4px">${d.ex.map(s => sentHTML(s, { cls: 'ex', extra, tag: altTag(s) })).join('')}</div>` : ''}
+    ${d.similar && d.similar.length ? `<div class="ex-label" style="padding-top:16px">Também se diz <span>${d.similar.length}</span></div><div class="chips">${d.similar.map(x => `<button class="chip" data-act="ctx-similar" data-term="${esc(x.term)}"><b lang="en">${esc(x.term)}</b>${x.note ? `<span>${esc(x.note)}</span>` : ''}</button>`).join('')}</div>` : ''}
+    ${d.ex.length ? `<div class="ex-label" style="padding-top:16px">${d.ai ? 'Em outras frases · a mesma frase com cada equivalente' : 'Em outras frases'}</div><div class="ctx-card ex-wrap gen" style="margin-top:6px;padding-top:4px;padding-bottom:4px;border-top:0">`
+      + (d.ai && d.base ? sentHTML(d.base, { cls: 'ex head', extra, tag: '<span class="head-tag">termo original</span>' }) + '<div class="ex-kids">' : '')
+      + d.ex.map(s => sentHTML(s, { cls: d.ai ? 'ex kid' : 'ex', extra, tag: altTag(s) })).join('')
+      + (d.ai && d.base ? '</div>' : '') + '</div>' : ''}
     <div class="row-btns">
-      ${d.ai ? `<button class="pill" data-act="ctx-more">${I.spark} Mais exemplos</button>` : ''}
       <button class="pill ${saved ? 'on' : 'accent'}" data-act="ctx-save" ${saved ? 'disabled' : ''}>${saved ? I.check + ' Salvo em Termos' : I.bookmarkPlus + ' Salvar termo'}</button>
     </div>`;
   observeTr(body);
 }
-async function ctxMore(btn) {
-  if (!ctx || !ctx.data) return;
-  const my = ctx;
-  busy(btn, true, ' Gerando…');
-  try {
-    const plan = (my.data.similar || []).map(x => x.term);
-    const r = await askAI(promptExamples({ term: my.data.term, meaning: my.data.meaning, sentence: my.sent, plan, existing: my.data.ex.map(x => x.en) }));
-    my.data.ex.push(...readExamples(r, plan, my.data.term));
-    if (ctx === my) renderContext();
-  } catch (e) { busy(btn, false); aiError(e); }
-}
 function ctxSave() {
   const d = ctx && ctx.data; if (!d) return;
-  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], uses: d.uses || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: d.ex.map(s => Object.assign(newSent(s.en, s.tr), s.alt ? { alt: s.alt } : {})), created: Date.now() };
+  const t = { id: uid(), term: d.term, kind: d.kind, meaning: d.meaning, expl: d.expl || (d.defs || []).map(x => plain(x.s.en)).slice(0, 2).join(' / '), mains: d.mains || [], uses: d.uses || [], ctxTr: d.ctxTr || '', similar: d.similar || [], via: ctx.via || '', ctx: ctx.sent ? plain(ctx.sent) : '', cardId: ctx.cardId, ex: [...(d.base ? [d.base] : []), ...d.ex].map(s => Object.assign(newSent(s.en, s.tr), s.alt ? { alt: s.alt } : {})), created: Date.now() };
   db.terms.unshift(t); save(); renderContext(); renderTabs();
   toast('Termo salvo', { undo: () => { db.terms = db.terms.filter(x => x !== t); save(); if (ctx) renderContext(); if (curView === 'terms') renderTerms(); renderTabs(); } });
   if (curView === 'terms') renderTerms();
@@ -1636,7 +1720,7 @@ function renderSettings() {
 
     <div class="group-title">Tradução</div>
     <div class="group">
-      <div class="set-row"><div class="lbl">Mostrar sinônimos nos cards<small>Busca com a IA os sinônimos dos cards que aparecem na tela</small></div><label class="switch"><input type="checkbox" data-set="showSims" ${S.showSims ? 'checked' : ''}><span></span></label></div>
+      <div class="set-row"><div class="lbl">Sinônimos e exemplos automáticos<small>Para os cards que aparecem na tela, a IA busca os equivalentes e cria um exemplo com eles</small></div><label class="switch"><input type="checkbox" data-set="showSims" ${S.showSims ? 'checked' : ''}><span></span></label></div>
       <div class="set-row"><div class="lbl">Mostrar traduções sempre<small>Traduz tudo automaticamente ao rolar</small></div><label class="switch"><input type="checkbox" data-set="showTr" ${S.showTr ? 'checked' : ''}><span></span></label></div>
     </div>
 
@@ -1670,7 +1754,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 2.9</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 3.0</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -1793,7 +1877,7 @@ function endSwipe(e) {
   f.s.en = serialize(toks);
   // o destaque mudou: o negrito da tradução é refeito para acompanhar
   if (f.s.tr) { f.s.tr = f.s.tr.replace(/\*\*/g, ''); delete f.s.trFor; paintTr(f.s); if (S.showTr || openTr.has(f.s.id)) ensureTr(f.s); }
-  if (f.isMain && f.card) { delete f.card.simKey; delete f.card.simTried; paintSims(f.card); observeSims($(`.card[data-card="${f.card.id}"]`)); }
+  if (f.isMain && f.card) { delete f.card.simKey; delete f.card.simTried; delete f.card.autoDone; paintSims(f.card); observeSims($(`.card[data-card="${f.card.id}"]`)); }
   if (!f.tmp) save();
   $$(`.sent[data-sid="${f.s.id}"] > .en,.sent[data-sid="${f.s.id}"] .sent-row > .en`).forEach(en => { en.innerHTML = wordsHTML(f.s.en); en.dataset.w = '1'; });
   if (!S.tipDone) { S.tipDone = true; saveS(); }
@@ -1853,6 +1937,7 @@ document.addEventListener('click', e => {
       if (open) { fs.s.trErr = false; box.innerHTML = trInner(fs.s); ensureTr(fs.s); }
     } break;
     case 'del-ex': if (fs) deleteSent(fs.s.id); break;
+    case 'grp-toggle': if (fs) { fs.s.fold = !fs.s.fold; save(); b.closest('.ex-group').classList.toggle('folded', !!fs.s.fold); b.setAttribute('aria-expanded', String(!fs.s.fold)); } break;
     case 'sim-toggle': if (card) { card.simHidden = !card.simHidden; save(); b.classList.toggle('on', !card.simHidden); b.setAttribute('aria-expanded', String(!card.simHidden)); paintSims(card); observeSims(cardEl); } break;
     case 'sim-chip': if (card) openContext(b.dataset.term, card.main.en, card.main.id, b.dataset.via); break;
     case 'sim-fetch': if (card) { if (simBusy) toast('Aguarde um instante…'); else fetchSims([card]); } break;
@@ -1878,7 +1963,6 @@ document.addEventListener('click', e => {
     case 'ctx-retry': loadContext(); break;
     case 'ctx-similar': if (ctx) { ctx.via = ctx.via || (ctx.data && ctx.data.term) || ctx.term; ctx.term = b.dataset.term; $('#ctxIn').value = ctx.term; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, ctx.via); $('#ctxIn').closest('.sheet-body').scrollTop = 0; loadContext(); } break;
     case 'ctx-back': if (ctx && ctx.via) { ctx.term = ctx.via; ctx.via = null; $('#ctxIn').value = ctx.term; if ($('#ctxSent')) $('#ctxSent').innerHTML = highlightTerm(ctx.sent, ctx.term); loadContext(); } break;
-    case 'ctx-more': ctxMore(b); break;
     case 'ctx-save': ctxSave(); break;
     case 'speak-ctx-term': if (ctx && ctx.data) speak([ctx.data.term]); break;
     case 'ex-to-card': if (ctx && fs) { const c = cardById(ctx.cardId); if (c) { if (c.ex.some(s => plain(s.en) === plain(fs.s.en))) return toast('Já está no card'); c.ex.push(Object.assign(newSent(fs.s.en, fs.s.tr), { gen: 1 }, fs.s.alt ? { alt: fs.s.alt } : {})); save(); if (curView === 'cards') rerenderCard(c); b.innerHTML = I.check; b.disabled = true; toast('Adicionado ao card'); } } break;
