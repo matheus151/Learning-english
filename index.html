@@ -148,6 +148,7 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .ex-wrap.gen .sent.ex.head .en b,.ex-wrap.gen .sent.ex.head .w.b,.ex-wrap.gen .sent.ex.head .sp.b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
 .ex-kids .sent.ex{margin:3px 0}
 .ex-group.folded .ex-kids{display:none}
+.ex-kids .sent.ex .en b,.ex-kids .sent.ex .w.b,.ex-kids .sent.ex .sp.b{color:var(--syn-c,var(--strong))}
 .ib.grp-toggle{width:auto;min-width:34px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;gap:2px}
 .grp-toggle svg{transition:transform .15s}
 .ex-group.folded .grp-toggle svg{transform:rotate(-90deg)}
@@ -408,7 +409,7 @@ const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2
 
 /* ================= Settings ================= */
 const SET_KEY = 'englishPro2Settings';
-const DEF = { showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+const DEF = { synColor: '', showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
 let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
 if (LS.raw(SET_KEY) == null) {
   // herda preferências da versão antiga (V38)
@@ -486,19 +487,20 @@ if (!db || !Array.isArray(db.cards)) {
   LS.set(DB_KEY, db);
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
-if (db.simsV !== 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
-if (db.exV !== 4) {
+if ((db.simsV || 0) < 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
+if ((db.exV || 0) < 4) {
   if (LS.raw('englishPro2_beforeV4') == null) LS.setRaw('englishPro2_beforeV4', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
   db.cards.forEach(c => { c.ex = c.ex.filter(x => !x.ai && !(x.gen && x.alt)); ['sims', 'simKey', 'simTried', 'autoDone'].forEach(k => delete c[k]); });
   db.exV = 4;
 }
 // v5: os cards ficam só com a frase principal; os exemplos (todos) e os sinônimos antigos saem.
 // Cópia em englishPro2_beforeV5 (substitui a da v4, para não estourar o espaço do aparelho).
-if (db.exV !== 5) {
+if ((db.exV || 0) < 5) {
   if (LS.raw('englishPro2_beforeV5') == null) LS.setRaw('englishPro2_beforeV5', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
   LS.setRaw('englishPro2_beforeV4', '');
   db.cards.forEach(c => { c.ex = []; ['sims', 'simKey', 'simTried', 'autoDone', 'collapsed'].forEach(k => delete c[k]); });
   db.exV = 5;
+  LS.set(DB_KEY, db);   // grava a migração já, para ela não se repetir
 }
 db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
@@ -536,7 +538,7 @@ function applyTheme() {
   r.dataset.theme = t;
   r.style.setProperty('--fs', S.fs + 'px');
   if (S.mainBg) r.style.setProperty('--main-bg', hexA(textColor(S.mainBg), t === 'dark' ? .24 : .13)); else r.style.removeProperty('--main-bg');
-  [['--main-c', S.mainColor], ['--sec-c', S.secColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
+  [['--main-c', S.mainColor], ['--sec-c', S.secColor], ['--syn-c', S.synColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
   r.style.setProperty('--accent', S.accent);
   r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
   r.style.setProperty('--sel', hexA(S.accent, .28));
@@ -1082,7 +1084,7 @@ function simInner(c) {
   if (c.simHidden) return '';
   const known = cardKey(c), list = known.list.slice(0, 8);
   const add = `<button class="syn-add" data-act="sim-edit">${I.plus} Sinônimo</button>`;
-  if (list.length && !simLoading.has(c.id)) return `<div class="syn-card">${list.map(x => `<button class="syn-row" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}"><b lang="en">${esc(x.term)}</b>${x.meaning ? `<span class="syn-pt">${esc(x.meaning)}</span>` : ''}${x.note ? `<span class="reg-tag">${esc(x.note)}</span>` : ''}</button>`).join('')}${add}</div>`;
+  if (list.length) return `<div class="syn-card">${list.map(x => `<button class="syn-row" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}"><b lang="en">${esc(x.term)}</b>${x.meaning ? `<span class="syn-pt">${esc(x.meaning)}</span>` : ''}${x.note ? `<span class="reg-tag">${esc(x.note)}</span>` : ''}</button>`).join('')}${add}</div>`;
   if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="syn-card syn-wait"><span class="spin"></span> Buscando sinônimos…</div>';
   if (c.autoDone) return `<div class="syn-card"><div class="syn-wait">Sem sinônimo simples para esta frase</div>${add}</div>`;
   return '<div class="syn-card"><button class="syn-add" data-act="sim-fetch">≈ Ver sinônimos</button></div>';
@@ -1111,7 +1113,7 @@ async function fetchSims(cards) {
       if (it.usage) { c.main.usage = plain(it.usage); paintTr(c.main); }
       c.autoDone = 1;
     });
-    save();
+    saveNow();
   } catch (e) { simPause = Date.now() + 10 * 6e4; console.warn(e); }
   simBusy = false;
   cards.forEach(c => { simLoading.delete(c.id); paintSims(c); });
@@ -1153,7 +1155,7 @@ Return ONLY JSON: {"similar":[{"term":"...","meaning":"short pt-BR meaning (max 
     const add = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(k.term) && !k.list.some(y => norm(y.term) === norm(x.term))).slice(0, 1)
       .map(x => ({ term: plain(x.term), note: regPt(x.register || x.note || ''), meaning: plain(x.meaning || '') }));
     if (!add.length) throw new Error('A IA não achou outro sinônimo simples.');
-    rememberSims(c, [k.term], [...k.list, ...add]); save();
+    rememberSims(c, [k.term], [...k.list, ...add]); saveNow();
     const sh = sheets[sheets.length - 1]; if (sh && sh.refresh) sh.refresh();
   } catch (e) { aiError(e); }
   busy(btn, false);
@@ -1353,7 +1355,7 @@ async function genExamples(c) {
         const head = applyGroup(c, Array.isArray(r) ? r[0] || {} : r);
         if (!head) return;
         made++; head.fresh = 1; c.collapsed = false; c.autoDone = 1;
-        save(); rerenderCard(c);
+        saveNow(); rerenderCard(c);
       })
       .catch(e => { err = err || e; });
   };
@@ -1783,7 +1785,7 @@ function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) 
 function colorRow(key, label, sample, fallback) {
   const cur = S[key], isCustom = !!cur && !TEXT_COLORS[cur];
   return `<div class="set-row color-row"><div class="lbl">${label}</div>
-    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
+    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : key === 'synColor' ? 'color:var(--text)' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
     <div class="swatches"><button class="color-default ${cur ? '' : 'on'}" data-act="set-text-color" data-k="${key}" data-v="">Padrão</button>
       ${Object.keys(TEXT_COLORS).map(c => `<button class="swatch ${cur === c ? 'on' : ''}" style="--c:${textColor(c)}" data-act="set-text-color" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join('')}
       <label class="swatch custom ${isCustom ? 'on' : ''}" ${isCustom ? `style="--c:${esc(cur)}"` : ''} aria-label="Escolher outra cor"><input type="color" data-color="${key}" value="${isCustom ? esc(cur) : '#2563eb'}"></label></div></div>`;
@@ -1805,6 +1807,7 @@ function renderSettings() {
     <div class="group">
       ${colorRow('mainColor', 'Frases principais', "I'm running late, I'll be there soon.", 'var(--strong)')}
       ${colorRow('mainBg', 'Fundo da frase principal', "I'm running late, I'll be there soon.", '')}
+      ${colorRow('synColor', 'Sinônimos nos exemplos criados', 'They were <b style="color:var(--syn-c,var(--strong))">antsy</b> the whole trip.', '')}
       ${colorRow('secColor', 'Exemplos secundários', "She's always running late for work.", 'var(--text)')}
     </div>
     <p class="hint">A cor escolhida vale para todos os cards de uma vez.</p>
@@ -1853,7 +1856,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 4.0</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 4.1</p>`;
 }
 
 /* ---------- Backup ---------- */
