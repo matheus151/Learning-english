@@ -17,6 +17,7 @@ Abra em https://matheus151.github.io/Learning-english/ e, no Safari, toque em **
 - **Revisar** com repetição espaçada (EN → PT ou PT → EN), para cards e termos.
 - **Apagar** card, exemplo ou termo, sempre com "Desfazer".
 - **Tema** (auto, claro, escuro, sépia), **tamanho da fonte** e cor de destaque.
+- **Termos do player de vídeos**: o que você salva com 💾 no [Player Estudo Pro](https://matheus151.github.io/tests/) chega aqui sozinho e vira um card novo, com o termo como frase principal. Os dois apps ficam no mesmo domínio e usam uma caixa de entrada comum (`englishPro2_inbox`); este app recolhe ao abrir (e na hora, se os dois estiverem abertos no Safari) e não cria card repetido.
 - **Backup** em .json pelo menu de compartilhar do iPhone (Arquivos, iCloud…) e restauração.
   Também aceita backups da versão antiga.
 
