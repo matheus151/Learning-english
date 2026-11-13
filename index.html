@@ -2087,9 +2087,56 @@ addEventListener('scroll', () => {
   }, 250);
 }, { passive: true });
 
+/* ========= Caixa de entrada do Player Estudo Pro (vídeos do YouTube) =========
+   O player mora no mesmo domínio (matheus151.github.io/tests/), então os dois
+   apps enxergam o mesmo armazenamento do navegador. Cada termo que você salva
+   num vídeo é deixado nesta caixa; aqui ele vira um card novo, com o termo como
+   frase principal. A caixa é só uma fila de entrega: quem tira de lá o que já
+   virou card é este app. */
+const INBOX_KEY = 'englishPro2_inbox';
+function readInbox() {
+  try { const b = JSON.parse(localStorage.getItem(INBOX_KEY) || 'null'); return b && Array.isArray(b.itens) ? b : null; }
+  catch { return null; }
+}
+function drainInbox() {
+  const box = readInbox(); if (!box || !box.itens.length) return 0;
+  const have = new Set(db.cards.map(c => norm(c.main.en)));
+  const usados = new Set(), novos = [];
+  for (const it of box.itens) {
+    if (!it || !it.id) continue;
+    usados.add(it.id);
+    const en = plain(it.en), k = norm(en);
+    if (!k || have.has(k)) continue;      // termo repetido: nada de card duplicado
+    have.add(k); novos.push(newCard(en));
+  }
+  // Relê antes de gravar: o player pode ter posto outro termo neste meio-tempo
+  try {
+    const atual = readInbox() || { v: 1, itens: [] };
+    atual.itens = atual.itens.filter(x => !usados.has(x && x.id));
+    atual.lido = Date.now();
+    atual.criados = (atual.criados || 0) + novos.length;
+    localStorage.setItem(INBOX_KEY, JSON.stringify(atual));
+  } catch {}
+  if (!novos.length) return 0;
+  db.cards.unshift(...novos);
+  saveNow();
+  return novos.length;
+}
+// Ao voltar para o app (e quando o player grava com os dois abertos no Safari)
+function checarPlayer() {
+  const n = drainInbox(); if (!n) return;
+  if (curView !== 'cards') show('cards'); else renderCards();
+  toast(`${n} card${n > 1 ? 's' : ''} do player de vídeos`);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checarPlayer(); });
+addEventListener('storage', e => { if (e.key === INBOX_KEY) checarPlayer(); });
+
 /* ================= Boot ================= */
+const doPlayer = drainInbox();   // antes do primeiro desenho: os cards já entram prontos
 show('cards');
+if (doPlayer) toast(`${doPlayer} card${doPlayer > 1 ? 's' : ''} do player de vídeos`);
 (() => {
+  if (doPlayer) return;          // chegou card novo do player: fica no topo, com ele à vista
   const id = LS.raw('ep2Pos'); if (!id) return;
   ensureCardShown(id);
   const el = $(`.card[data-card="${id}"]`); if (el && db.cards[0] && db.cards[0].id !== id) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60);
