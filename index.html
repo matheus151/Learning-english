@@ -66,12 +66,12 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 
 /* ---------- Cards ---------- */
 #cards{display:flex;flex-direction:column;gap:14px}
-.card{background:var(--card);border-radius:var(--radius);padding:10px 14px 10px;box-shadow:var(--shadow);border:1px solid var(--line);position:relative;scroll-margin-top:calc(var(--top) + 76px)}
-.card::before{display:none}
+.card{background:var(--card);border-radius:var(--radius);padding:10px 14px 10px;box-shadow:var(--shadow);position:relative;scroll-margin-top:calc(var(--top) + 76px)}
+.card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:4px;border-radius:0 4px 4px 0;background:var(--stripe,var(--accent));opacity:.85}
 .card.flash{animation:flash 1.2s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--accent-soft)}100%{box-shadow:var(--shadow)}}
 .card-head{display:flex;align-items:center;gap:8px;margin:-4px -6px 2px 0;min-height:28px}
-.num{font-size:12px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.num{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .badge{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .badge.gray{color:var(--muted);background:var(--card2)}
 .card-head .grow{flex:1;min-width:0;display:flex;gap:6px;overflow:hidden}
@@ -90,20 +90,6 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .card .main .sent-row{background:var(--main-bg,var(--accent-soft));border-radius:12px;padding:6px 10px;margin-bottom:8px}
 .card .main .sent-row .en{padding:0}
 .sim-box:empty{display:none}
-.syn-card{margin:-2px 0 8px;padding:0 10px;border-radius:12px;background:var(--card2)}
-.syn-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;width:100%;padding:7px 0;text-align:left;border-bottom:1px solid var(--line)}
-.syn-row b{font-size:15.5px;font-weight:700;color:var(--accent)}
-.syn-row b::before{content:"≈ ";color:var(--muted);font-weight:600}
-.syn-pt{font-size:13.5px;color:var(--muted)}
-.syn-row .reg-tag{margin-left:auto;background:var(--card)}
-.syn-add{display:inline-flex;align-items:center;gap:4px;padding:7px 0;font-size:13.5px;font-weight:700;color:var(--accent)}
-.syn-add svg{width:15px;height:15px}
-.syn-wait{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13.5px;color:var(--muted)}
-.syn-edit-list{padding:2px 14px}
-.syn-edit{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
-.syn-edit:last-child{border-bottom:0}
-.syn-edit-txt{flex:1;min-width:0;display:flex;flex-direction:column}
-.syn-edit-txt b{color:var(--accent);font-size:16px}
 .sim-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:-3px 0 8px;font-size:13.5px}
 .sim-row .chip{padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px;align-items:center}
 .sim-mark{font-weight:800;color:var(--muted)}
@@ -129,26 +115,24 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .pill.ghost{background:transparent;color:var(--accent);padding:0 8px}
 .pill.danger{color:var(--danger)}
 .pill:disabled{opacity:.55}
-.tr{margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--card2);color:var(--text);font-size:calc(var(--fs) * .84);line-height:1.4}
-.tr b{font-weight:800;color:var(--accent)}
-.tr-use{margin-top:7px;padding-top:7px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
-.tr-use b{color:var(--text);font-weight:700}
+.tr{margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--tr-bg);color:var(--tr);font-size:calc(var(--fs) * .84);line-height:1.4;border:1px dashed var(--tr-line)}
+.tr b{font-weight:800}
 .tr .muted,.muted{color:var(--muted)}
 .tr .err{color:var(--danger)}
 .ex-wrap{margin-top:8px;border-top:1px solid var(--line)}
 .ex-wrap.sec .sent.ex{border-left:3px solid var(--sec-c,var(--sec));padding-left:10px;margin:4px 0;border-bottom:0}
 .ex-wrap.sec .ex-label{color:var(--sec-c,var(--sec))}
-.ex-wrap.gen .ex-label{color:var(--muted);align-items:center}
+.ex-wrap.gen{border-top:1px dashed var(--gen-line)}
+.ex-wrap.gen .ex-label{color:var(--gen);align-items:center}
 .ex-wrap.gen .ex-label svg{width:14px;height:14px}
-.ex-wrap.gen .sent.ex{background:transparent;border-left:3px solid var(--gen-line);border-radius:0;padding:3px 0 3px 10px;margin:4px 0;border-bottom:0}
+.ex-wrap.gen .sent.ex{background:var(--gen-bg);border-left:3px solid var(--gen);border-radius:0 10px 10px 0;padding:3px 0 3px 10px;margin:4px 0;border-bottom:0}
 .ex-wrap.gen .sent.ex .w.b,.ex-wrap.gen .sent.ex .sp.b,.ex-wrap.gen .sent.ex .en b{background:linear-gradient(transparent 58%,var(--gen-hl) 58%)}
 .ex-group{margin:6px 0 8px}
 .ex-kids{margin-left:14px}
-.ex-wrap.gen .sent.ex.head{background:var(--gen-bg);border-left-color:var(--accent);border-radius:0 10px 10px 0;margin-bottom:4px}
+.ex-wrap.gen .sent.ex.head{background:var(--main-bg,var(--accent-soft));border-left-color:var(--accent);margin-bottom:4px}
 .ex-wrap.gen .sent.ex.head .en b,.ex-wrap.gen .sent.ex.head .w.b,.ex-wrap.gen .sent.ex.head .sp.b{background:linear-gradient(transparent 58%,var(--hl) 58%)}
 .ex-kids .sent.ex{margin:3px 0}
 .ex-group.folded .ex-kids{display:none}
-.ex-kids .sent.ex .en b,.ex-kids .sent.ex .w.b,.ex-kids .sent.ex .sp.b{color:var(--syn-c,var(--strong))}
 .ib.grp-toggle{width:auto;min-width:34px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;gap:2px}
 .grp-toggle svg{transition:transform .15s}
 .ex-group.folded .grp-toggle svg{transform:rotate(-90deg)}
@@ -201,6 +185,12 @@ details.note div{white-space:pre-line;margin-top:6px;padding:8px 10px;background
 
 /* ---------- Tab bar ---------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;padding:6px 8px calc(var(--bot) + 4px);background:var(--card);border-top:.5px solid var(--line)}
+/* Dentro da aba Cards do player: a barra de abas é a de lá, e o topo não precisa
+   do recuo da barra de status (a moldura já começa abaixo dela) */
+.embutido .tabbar{display:none}
+.embutido main{padding-bottom:28px}
+.embutido .topbar{padding-top:8px}
+.embutido #toast,.embutido #stopSpeak{bottom:18px}
 .tabbar-in{display:flex;width:100%;max-width:520px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:10.5px;font-weight:600;color:var(--muted);position:relative}
 .tab svg{width:24px;height:24px}
@@ -356,6 +346,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 <script>
 'use strict';
+/* Aberto dentro da aba Cards do Player Estudo (uma moldura, mesma origem):
+   a barra de abas daqui sai de cena, porque quem troca de tela são as fileiras
+   do player, por mensagem. Fora da moldura nada muda. */
+const EMBUTIDO = /[?&]embed=1(&|$)/.test(location.search);
+if (EMBUTIDO) document.documentElement.classList.add('embutido');
+
 /* ================= Utils ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -409,7 +405,7 @@ const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2
 
 /* ================= Settings ================= */
 const SET_KEY = 'englishPro2Settings';
-const DEF = { synColor: '', showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+const DEF = { showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
 let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
 if (LS.raw(SET_KEY) == null) {
   // herda preferências da versão antiga (V38)
@@ -487,20 +483,11 @@ if (!db || !Array.isArray(db.cards)) {
   LS.set(DB_KEY, db);
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
-if ((db.simsV || 0) < 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
-if ((db.exV || 0) < 4) {
+if (db.simsV !== 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
+if (db.exV !== 4) {
   if (LS.raw('englishPro2_beforeV4') == null) LS.setRaw('englishPro2_beforeV4', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
   db.cards.forEach(c => { c.ex = c.ex.filter(x => !x.ai && !(x.gen && x.alt)); ['sims', 'simKey', 'simTried', 'autoDone'].forEach(k => delete c[k]); });
   db.exV = 4;
-}
-// v5: os cards ficam só com a frase principal; os exemplos (todos) e os sinônimos antigos saem.
-// Cópia em englishPro2_beforeV5 (substitui a da v4, para não estourar o espaço do aparelho).
-if ((db.exV || 0) < 5) {
-  if (LS.raw('englishPro2_beforeV5') == null) LS.setRaw('englishPro2_beforeV5', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
-  LS.setRaw('englishPro2_beforeV4', '');
-  db.cards.forEach(c => { c.ex = []; ['sims', 'simKey', 'simTried', 'autoDone', 'collapsed'].forEach(k => delete c[k]); });
-  db.exV = 5;
-  LS.set(DB_KEY, db);   // grava a migração já, para ela não se repetir
 }
 db.vocab = db.vocab || ['Família', 'Casa', 'Comida', 'Economia', 'Objetos', 'Trabalho', 'Viagem', 'Saúde', 'Compras', 'Sentimentos'].map(name => ({ id: uid(), name, items: [] }));
 
@@ -533,22 +520,18 @@ const textColor = v => { const p = TEXT_COLORS[v]; return p ? p[document.documen
 function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
 const mq = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
-  const t = S.theme === 'auto' ? (mq.matches ? 'dark' : 'light') : S.theme;
+  // Dentro da aba Cards do player (moldura escura), "automático" vira escuro:
+  // um app claro dentro de uma moldura preta fica estranho. Tema escolhido a dedo
+  // (claro, escuro, sépia) continua mandando.
+  const t = S.theme === 'auto' ? ((EMBUTIDO || mq.matches) ? 'dark' : 'light') : S.theme;
   const r = document.documentElement;
   r.dataset.theme = t;
   r.style.setProperty('--fs', S.fs + 'px');
   if (S.mainBg) r.style.setProperty('--main-bg', hexA(textColor(S.mainBg), t === 'dark' ? .24 : .13)); else r.style.removeProperty('--main-bg');
-  [['--main-c', S.mainColor], ['--sec-c', S.secColor], ['--syn-c', S.synColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
+  [['--main-c', S.mainColor], ['--sec-c', S.secColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
   r.style.setProperty('--accent', S.accent);
   r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
   r.style.setProperty('--sel', hexA(S.accent, .28));
-  // marca-texto, exemplos e equivalentes usam tons da mesma cor de destaque
-  const dk = t === 'dark';
-  r.style.setProperty('--hl', hexA(S.accent, dk ? .4 : .2));
-  r.style.setProperty('--gen', S.accent);
-  r.style.setProperty('--gen-bg', hexA(S.accent, dk ? .16 : .07));
-  r.style.setProperty('--gen-line', hexA(S.accent, dk ? .45 : .3));
-  r.style.setProperty('--gen-hl', hexA(S.accent, dk ? .3 : .15));
   const bg = getComputedStyle(r).getPropertyValue('--bg').trim();
   $('meta[name=theme-color]').setAttribute('content', bg);
 }
@@ -703,7 +686,7 @@ function pumpTr() {
   }
 }
 function trInner(s) {
-  if (s.tr) return textHTML(s.tr) + (s.usage ? `<div class="tr-use"><b>Contexto:</b> ${esc(s.usage)}</div>` : '');
+  if (s.tr) return textHTML(s.tr);
   if (s.trErr) return '<span class="err">Não foi possível traduzir agora. Toque em traduzir de novo.</span>';
   return '<span class="muted">Traduzindo…</span>';
 }
@@ -929,7 +912,6 @@ const STYLE = `The learner is a Brazilian adult focused on EVERYDAY, natural, sp
 
 const SYN_RULE = `Rules for every substitute/synonym:
 - Nearly the same meaning as the original term, and it must fit the original sentence in place of it.
-- Think like a native American speaker in everyday, casual conversation: what would they actually say here?
 - SIMPLE, very frequent, casual English: the first thing a native would say to a friend, and words an intermediate learner already knows.
 - It may be several words; a simple expression beats a single difficult word. It does not need to match the original's grammar form or length.
 - Do NOT use sophisticated, formal, literary, technical or uncommon words, even if they are accurate dictionary synonyms. Before choosing a term, ask: would people commonly say this in a casual chat? If not, discard it.
@@ -963,7 +945,7 @@ function readExamples(r, plan, term) {
 // Substitutos de cada termo do card: os mesmos valem para a aba de contexto e para "Novos exemplos"
 function rememberSims(c, terms, list) {
   c.sims = c.sims || {};
-  const entry = { term: terms[terms.length - 1], list: list.slice(0, 8) };
+  const entry = { term: terms[terms.length - 1], list: list.slice(0, 6) };
   terms.forEach(t => { c.sims[norm(t)] = entry; });
   c.simKey = norm(entry.term);
 }
@@ -981,7 +963,7 @@ ${via && sentence ? `Explain the English term "${term}" as an everyday alternati
   : sentence ? `Explain the English term "${term}" exactly as it is used in this sentence: "${plain(sentence)}". The base sentence is this sentence.`
   : `Explain the English term "${term}". The base sentence is one short everyday sentence you write using it.`}
 Be direct and objective, no filler.
-${plan.length >= 3 ? `Similar terms: use exactly these, in this order: ${JSON.stringify(plan)}.` : `Similar terms: give 3 (or 4) English terms or expressions that fit perfectly in the base sentence with nearly the same meaning, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`}
+${plan.length >= 5 ? `Similar terms: use exactly these, in this order: ${JSON.stringify(plan)}.` : `Similar terms: give at least 5 (up to 6) English terms or expressions that fit perfectly in the base sentence with nearly the same meaning, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`}
 Return ONLY JSON:
 {"term":"the term as a dictionary entry (keep phrasal verbs/idioms whole)",
 "kind":"short label in Portuguese for what it is, e.g. phrasal verb, expressão idiomática, gíria, verbo, substantivo, adjetivo, advérbio, collocation",
@@ -989,7 +971,7 @@ Return ONLY JSON:
 "note":"ONE short, direct pt-BR sentence (max 15 words) explaining it here, especially if it is a phrasal verb, idiom or slang",
 "mains":["the main general meanings of the term on its own, in pt-BR, most common first, max 5 words each"],
 "uses":["the main situations where this term is used in real life, in pt-BR, max 8 words each"],
-"similar":[{"term":"the similar term, in base form","meaning":"short pt-BR meaning of it here (max 6 words)","register":"exactly one of these Portuguese labels: mais usual, coloquial, gíria, neutro, formal"}],
+"similar":[{"term":"the similar term, in base form","meaning":"short pt-BR meaning of it here (max 6 words)","register":"pt-BR, 1-3 words: how it is used, e.g. mais usual, coloquial, gíria, neutro, mais formal"}],
 "examples":[{"en":"a new everyday sentence with the term (same meaning family) in **double asterisks**","pt":"natural pt-BR translation with the translated term in **double asterisks**","context":"pt-BR, max 5 words: the situation or use shown, e.g. no trabalho, sentido figurado"}]}
 Give 2 to 4 "mains" items (1 if the term really has a single meaning), 2 or 3 "uses" items, and 3 "examples" showing the term in different possible contexts of use (other meanings too, if it has them).`;
 }
@@ -1036,7 +1018,24 @@ function show(v) {
   renderTop(); renderTabs();
   ({ cards: renderCards, review: renderReview, terms: renderTerms, vocab: renderVocab, settings: renderSettings })[v]();
   if (v !== 'cards') scrollTo(0, 0);
+  avisarPlayer();
 }
+// Na moldura do player: conta para ele qual tela está aberta e quantas revisões
+// esperam, para as fileiras de cima ficarem certas.
+function avisarPlayer() {
+  if (!EMBUTIDO) return;
+  try {
+    const due = reviewCounts('cards').total + reviewCounts('terms').total;
+    parent.postMessage({ app: 'english-pro', tipo: 'estado', vista: curView, revisar: due }, location.origin);
+  } catch (e) {}
+}
+addEventListener('message', e => {
+  if (!EMBUTIDO || e.origin !== location.origin) return;
+  const d = e.data;
+  if (!d || d.app !== 'player-estudo') return;
+  if (d.tipo === 'ver' && TABS.some(([k]) => k === d.vista)) show(d.vista);
+  if (d.tipo === 'caixa') checarPlayer();   // o player acabou de salvar um termo
+});
 
 /* ---------- Cards view ---------- */
 function sentHTML(s, o = {}) {
@@ -1071,94 +1070,41 @@ function exGroupsHTML(c) {
   });
   const n = seen.size + gen.filter(s => !s.grp).length;
   return (sec.length ? `<div class="ex-wrap sec"><div class="ex-label">Exemplos <span>${sec.length}</span></div>${sec.map(row).join('')}</div>` : '')
-    + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">Exemplos criados <span>${n}</span></div>${parts.join('')}</div>` : '');
+    + (gen.length ? `<div class="ex-wrap gen"><div class="ex-label">${I.spark} Criados depois <span>${n}</span></div>${parts.join('')}</div>` : '');
 }
 // Sinônimos embaixo da frase principal: buscados em lotes só para os cards que aparecem na tela e guardados no card
 const simWait = new Set(), simLoading = new Set();
 let simBusy = false, simPause = 0, simT = null;
 const simAuto = () => S.showSims && aiChain().length > 0 && aiChain()[0] !== 'free' && Date.now() >= simPause;
 // Falta algo no card: equivalentes (pelo menos 5) ou o primeiro grupo de exemplos
-// Falta algo no card: os 3 sinônimos ou o contexto de uso da frase principal (exemplos só pelo botão)
-const needsSims = c => S.showSims && !c.autoDone && (cardKey(c).list.length < 3 || !c.main.usage);
+const needsSims = c => S.showSims && !c.autoDone && (cardKey(c).list.length < 5 || !c.ex.some(s => s.grp));
 function simInner(c) {
   if (c.simHidden) return '';
-  const known = cardKey(c), list = known.list.slice(0, 8);
-  const add = `<button class="syn-add" data-act="sim-edit">${I.plus} Sinônimo</button>`;
-  if (list.length) return `<div class="syn-card">${list.map(x => `<button class="syn-row" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}"><b lang="en">${esc(x.term)}</b>${x.meaning ? `<span class="syn-pt">${esc(x.meaning)}</span>` : ''}${x.note ? `<span class="reg-tag">${esc(x.note)}</span>` : ''}</button>`).join('')}${add}</div>`;
-  if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="syn-card syn-wait"><span class="spin"></span> Buscando sinônimos…</div>';
-  if (c.autoDone) return `<div class="syn-card"><div class="syn-wait">Sem sinônimo simples para esta frase</div>${add}</div>`;
-  return '<div class="syn-card"><button class="syn-add" data-act="sim-fetch">≈ Ver sinônimos</button></div>';
+  const known = cardKey(c), list = known.list.slice(0, 6);
+  if (list.length && !simLoading.has(c.id)) return `<div class="sim-row"><span class="sim-mark">≈</span>${list.map(x => `<button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>`).join('')}</div>`;
+  if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="sim-row muted">≈ Buscando sinônimos e exemplos…</div>';
+  if (c.autoDone) return '<div class="sim-row muted">≈ Sem sinônimo simples para esta frase</div>';
+  return '<div class="sim-row"><button class="chip" data-act="sim-fetch">≈ Ver sinônimos e exemplos</button></div>';
 }
 function paintSims(c) { const el = $(`.card[data-card="${c.id}"] .sim-box`); if (el) el.innerHTML = simInner(c); }
-function promptAuto(cards) {
-  const list = cards.map((c, i) => { const k = cardKey(c); return { i, sentence: plain(c.main.en), term: k.term || (k.hint || []).join(' / '), substitutes: k.list.map(x => x.term) }; });
-  return `${STYLE}
-For each item below, find the key expression of the sentence ("term" when given; if several or none are given, choose the main one).
-Substitutes: when "substitutes" has 3 or more, use exactly those; otherwise give exactly 3 substitutes for the key expression in that sentence, the way a native American speaker would naturally say it in everyday conversation, most common first, in base form.
-${SYN_RULE}
-"usage": in pt-BR, objective and short (max 12 words): the everyday situations where the key expression is usually used, not its meaning (e.g. "reclamar do trânsito, do trabalho ou de pessoas").
-Items: ${JSON.stringify(list)}
-Return ONLY JSON with one result per item: {"items":[{"i":0,"key":"...","usage":"...","similar":[{"term":"...","meaning":"short pt-BR meaning (max 5 words)","register":"exactly one of these Portuguese labels: mais usual, coloquial, gíria, neutro, formal"}]}]}`;
-}
 async function fetchSims(cards) {
   simBusy = true;
   cards.forEach(c => { simLoading.add(c.id); paintSims(c); });
+  const grew = new Set();
   try {
     const r = await askAI(promptAuto(cards));
     const items = Array.isArray(r) ? r : r.items || [];
     cards.forEach((c, i) => {
       const it = items.find(x => x && +x.i === i) || items[i];
       if (!it) return;
-      applyGroup(c, it, false);
-      if (it.usage) { c.main.usage = plain(it.usage); paintTr(c.main); }
+      if (applyGroup(c, it, !c.ex.some(s => s.grp))) grew.add(c);
       c.autoDone = 1;
     });
-    saveNow();
+    save();
   } catch (e) { simPause = Date.now() + 10 * 6e4; console.warn(e); }
   simBusy = false;
-  cards.forEach(c => { simLoading.delete(c.id); paintSims(c); });
+  cards.forEach(c => { simLoading.delete(c.id); if (grew.has(c)) rerenderCard(c); else paintSims(c); });
   if (simWait.size) { clearTimeout(simT); simT = setTimeout(runSims, 8000); }
-}
-// Sinônimos do card: ver, apagar, digitar um ou pedir mais um à IA
-function simsSheet(c) {
-  const k = cardKey(c);
-  if (!k.term) { if (!simBusy) fetchSims([c]); return toast('Buscando os sinônimos primeiro…'); }
-  const rows = () => cardKey(c).list.map(x => `<div class="syn-edit"><span class="syn-edit-txt"><b lang="en">${esc(x.term)}</b>${x.meaning ? `<span class="syn-pt">${esc(x.meaning)}</span>` : ''}</span>${x.note ? `<span class="reg-tag">${esc(x.note)}</span>` : ''}<button class="ib del" data-act="sim-del" data-term="${esc(x.term)}" aria-label="Remover sinônimo">${I.x}</button></div>`).join('') || '<p class="hint">Nenhum sinônimo ainda.</p>';
-  const sh = openSheet(`<div data-card="${c.id}"><div class="sheet-title">Sinônimos</div><p class="hint" style="margin-top:-6px">de <b lang="en">${esc(k.term)}</b></p>
-    <div class="ctx-card syn-edit-list" id="simEditList">${rows()}</div>
-    <form class="term-form" id="simAddForm" style="margin-top:12px"><input class="input" id="simAddIn" placeholder="Digite um sinônimo em inglês" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Novo sinônimo"><button class="pill accent" type="submit">Adicionar</button></form>
-    <button class="btn" data-act="sim-suggest">${I.spark} Sugerir mais um com a IA</button></div>`);
-  sh.refresh = () => { const el = $('#simEditList', sh.body); if (el) el.innerHTML = rows(); paintSims(c); };
-  $('#simAddForm', sh.body).addEventListener('submit', async e => {
-    e.preventDefault();
-    const t = cleanTerm($('#simAddIn', sh.body).value), kk = cardKey(c);
-    if (!t) return;
-    if (kk.list.some(x => norm(x.term) === norm(t))) return toast('Já está na lista');
-    const item = { term: t, note: '', meaning: '' };
-    rememberSims(c, [kk.term], [...kk.list, item]); save();
-    $('#simAddIn', sh.body).value = ''; sh.refresh();
-    item.meaning = await translate(t).catch(() => ''); save(); sh.refresh();
-  });
-}
-async function suggestSim(c, btn) {
-  if (!hasAI()) return needAI();
-  const k = cardKey(c);
-  busy(btn, true, ' Pensando…');
-  try {
-    const r = await askAI(`${STYLE}
-Original sentence: "${plain(c.main.en)}"
-Key expression: "${k.term}"
-Current substitutes: ${JSON.stringify(k.list.map(x => x.term))}
-Give ONE more substitute that fits this sentence, different from the current ones, the way a native American speaker would naturally say it in everyday conversation, in base form.
-${SYN_RULE}
-Return ONLY JSON: {"similar":[{"term":"...","meaning":"short pt-BR meaning (max 5 words)","register":"exactly one of these Portuguese labels: mais usual, coloquial, gíria, neutro, formal"}]}`);
-    const add = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(k.term) && !k.list.some(y => norm(y.term) === norm(x.term))).slice(0, 1)
-      .map(x => ({ term: plain(x.term), note: regPt(x.register || x.note || ''), meaning: plain(x.meaning || '') }));
-    if (!add.length) throw new Error('A IA não achou outro sinônimo simples.');
-    rememberSims(c, [k.term], [...k.list, ...add]); saveNow();
-    const sh = sheets[sheets.length - 1]; if (sh && sh.refresh) sh.refresh();
-  } catch (e) { aiError(e); }
-  busy(btn, false);
 }
 function runSims() {
   simT = null;
@@ -1188,7 +1134,7 @@ function cardHTML(c, n) {
     ${c.note ? `<details class="note"><summary>Nota / tradução antiga ▾</summary><div>${esc(c.note)}</div></details>` : ''}
     ${exGroupsHTML(c)}
     <div class="card-foot">
-      <button class="pill accent" data-act="gen" ${genBusy.has(c.id) ? 'disabled' : ''}>${genBusy.has(c.id) ? '<span class="spin"></span> Criando…' : I.spark + ' Criar exemplos'}</button>
+      <button class="pill accent" data-act="gen" ${genBusy.has(c.id) ? 'disabled' : ''}>${genBusy.has(c.id) ? '<span class="spin"></span> Gerando…' : I.spark + ' Novos exemplos'}</button>
       <span class="sp-auto"></span>
       <button class="ib" data-act="play-all" aria-label="Ouvir tudo">${I.play}</button>
       <button class="ib ${allOpen ? 'on' : ''}" data-act="tr-card" aria-label="Traduzir tudo do card">${I.tr}</button>
@@ -1296,8 +1242,8 @@ function keyLine(o) {
     : 'The key expression is the main phrasal verb, idiom, collocation or useful structure of the original sentence.';
 }
 function subsSpec(plan) {
-  return plan.length >= 3 ? `Substitutes: use exactly these, in this order: ${JSON.stringify(plan)}.`
-    : `Substitutes: ${plan.length ? `start with ${JSON.stringify(plan)}, then ` : ''}choose more until there are exactly 3 substitutes for the key expression in the original sentence, the way a native American speaker would say it in everyday conversation, most common first, in base form.\n${SYN_RULE}`;
+  return plan.length >= 5 ? `Substitutes: use exactly these, in this order: ${JSON.stringify(plan)}.`
+    : `Substitutes: ${plan.length ? `start with ${JSON.stringify(plan)}, then ` : ''}choose more until there are at least 5 (up to 6) substitutes for the key expression in the original sentence, simplest and most commonly spoken first, in base form.\n${SYN_RULE}`;
 }
 const GROUP_RULE = `Write ONE new short everyday sentence (max 16 words) that uses the key expression with the same meaning, in a situation different from the original.
 Then, for each substitute, write ANOTHER new short sentence (max 16 words) that uses it with the same meaning, in a situation similar to that new sentence with the key expression (same kind of context, different words). Conjugate every expression correctly for its sentence (e.g. "it went over", "I've had enough of"; never "it go over" or "I'm had enough of"); every sentence must be grammatical and natural.
@@ -1312,9 +1258,17 @@ ${o.situation ? `Situation for the new sentences: ${o.situation}.\n` : ''}${GROU
 Do not repeat or closely paraphrase: ${JSON.stringify((o.existing || []).map(plain).slice(-12))}
 Return ONLY JSON: {"key":"the key expression",${GROUP_JSON}}`;
 }
-// Etiqueta de uso sempre em português, mesmo quando a IA responde em inglês
-const REG_PT = { colloquial: 'coloquial', casual: 'coloquial', informal: 'coloquial', slang: 'gíria', common: 'mais usual', usual: 'mais usual', 'most common': 'mais usual', 'very common': 'mais usual', neutral: 'neutro', formal: 'formal' };
-const regPt = v => { const t = plain(v).toLowerCase(); return REG_PT[t] || plain(v); };
+function promptAuto(cards) {
+  const list = cards.map((c, i) => { const k = cardKey(c); return { i, sentence: plain(c.main.en), term: k.term || (k.hint || []).join(' / '), substitutes: k.list.map(x => x.term), example: !c.ex.some(s => s.grp) }; });
+  return `${STYLE}
+For each item below, find the key expression of the sentence ("term" when given; if several or none are given, choose the main one).
+Substitutes: when "substitutes" has 5 or more, use exactly those; otherwise complete it to at least 5 (up to 6) substitutes for the key expression in that sentence, simplest and most commonly spoken first, in base form.
+${SYN_RULE}
+Only when "example" is true: ${GROUP_RULE}
+Items: ${JSON.stringify(list)}
+Return ONLY JSON with one result per item: {"items":[{"i":0,"key":"...",${GROUP_JSON}}]}
+Leave "example" null and "variants" empty when the item's "example" is false.`;
+}
 // Se a IA esquecer o negrito, marca o termo quando ele aparece na frase
 function boldIn(en, term) {
   en = String(en || '');
@@ -1326,9 +1280,9 @@ function boldIn(en, term) {
 function applyGroup(c, r, withExample = true) {
   const known = cardKey(c), key = known.term || plain(r.key || '');
   // a lista também inclui os termos usados nas frases (às vezes a IA lista menos do que usa)
-  const extra = [...(Array.isArray(r.similar) ? r.similar : []), ...(Array.isArray(r.variants) ? r.variants : [])].filter(x => x && x.term).map(x => ({ term: plain(x.term), note: regPt(x.register || x.note || ''), meaning: plain(x.meaning || '') }));
+  const extra = [...(Array.isArray(r.similar) ? r.similar : []), ...(Array.isArray(r.variants) ? r.variants : [])].filter(x => x && x.term).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
   const list = [];
-  [...(known.list.length >= 3 ? known.list : [...known.list, ...extra])].forEach(x => { if (norm(x.term) !== norm(key) && !list.some(y => norm(y.term) === norm(x.term))) list.push(x); });
+  [...(known.list.length >= 5 ? known.list : [...known.list, ...extra])].forEach(x => { if (norm(x.term) !== norm(key) && !list.some(y => norm(y.term) === norm(x.term))) list.push(x); });
   if (key && list.length) rememberSims(c, [key], list);
   const ex = r.example;
   if (!withExample || !ex || !ex.en) return null;
@@ -1355,7 +1309,7 @@ async function genExamples(c) {
         const head = applyGroup(c, Array.isArray(r) ? r[0] || {} : r);
         if (!head) return;
         made++; head.fresh = 1; c.collapsed = false; c.autoDone = 1;
-        saveNow(); rerenderCard(c);
+        save(); rerenderCard(c);
       })
       .catch(e => { err = err || e; });
   };
@@ -1473,7 +1427,7 @@ async function loadContext() {
       if (hasAI()) {
         const r = await askAI(promptContext(my.term, my.sent, my.via, plan)).catch(() => null);
         if (r) {
-          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 6).map(x => ({ term: plain(x.term), note: regPt(x.register || x.note || ''), meaning: plain(x.meaning || '') }));
+          const similar = (Array.isArray(r.similar) ? r.similar : []).filter(x => x && x.term && norm(x.term) !== norm(my.term)).slice(0, 6).map(x => ({ term: plain(x.term), note: plain(x.register || x.note || ''), meaning: plain(x.meaning || '') }));
           const term = plain(r.term || my.term);
           const swaps = (Array.isArray(r.examples) ? r.examples : []).filter(x => x && x.en).map(x => Object.assign(newSent(cleanAI(boldIn(x.en, term)), cleanAI(x.pt || '')), x.context ? { use: plain(x.context) } : {}));
           const base = null;
@@ -1785,7 +1739,7 @@ function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) 
 function colorRow(key, label, sample, fallback) {
   const cur = S[key], isCustom = !!cur && !TEXT_COLORS[cur];
   return `<div class="set-row color-row"><div class="lbl">${label}</div>
-    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : key === 'synColor' ? 'color:var(--text)' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
+    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
     <div class="swatches"><button class="color-default ${cur ? '' : 'on'}" data-act="set-text-color" data-k="${key}" data-v="">Padrão</button>
       ${Object.keys(TEXT_COLORS).map(c => `<button class="swatch ${cur === c ? 'on' : ''}" style="--c:${textColor(c)}" data-act="set-text-color" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join('')}
       <label class="swatch custom ${isCustom ? 'on' : ''}" ${isCustom ? `style="--c:${esc(cur)}"` : ''} aria-label="Escolher outra cor"><input type="color" data-color="${key}" value="${isCustom ? esc(cur) : '#2563eb'}"></label></div></div>`;
@@ -1807,7 +1761,6 @@ function renderSettings() {
     <div class="group">
       ${colorRow('mainColor', 'Frases principais', "I'm running late, I'll be there soon.", 'var(--strong)')}
       ${colorRow('mainBg', 'Fundo da frase principal', "I'm running late, I'll be there soon.", '')}
-      ${colorRow('synColor', 'Sinônimos nos exemplos criados', 'They were <b style="color:var(--syn-c,var(--strong))">antsy</b> the whole trip.', '')}
       ${colorRow('secColor', 'Exemplos secundários', "She's always running late for work.", 'var(--text)')}
     </div>
     <p class="hint">A cor escolhida vale para todos os cards de uma vez.</p>
@@ -1822,7 +1775,7 @@ function renderSettings() {
 
     <div class="group-title">Tradução</div>
     <div class="group">
-      <div class="set-row"><div class="lbl">Sinônimos automáticos<small>Para os cards que aparecem na tela, a IA busca 3 sinônimos e o contexto de uso</small></div><label class="switch"><input type="checkbox" data-set="showSims" ${S.showSims ? 'checked' : ''}><span></span></label></div>
+      <div class="set-row"><div class="lbl">Sinônimos e exemplos automáticos<small>Para os cards que aparecem na tela, a IA busca os equivalentes e cria um exemplo com eles</small></div><label class="switch"><input type="checkbox" data-set="showSims" ${S.showSims ? 'checked' : ''}><span></span></label></div>
       <div class="set-row"><div class="lbl">Mostrar traduções sempre<small>Traduz tudo automaticamente ao rolar</small></div><label class="switch"><input type="checkbox" data-set="showTr" ${S.showTr ? 'checked' : ''}><span></span></label></div>
     </div>
 
@@ -1856,7 +1809,7 @@ function renderSettings() {
       <div class="set-row"><button class="pill danger" data-act="wipe-terms">${I.trash} Apagar todos os termos</button></div>
       <div class="set-row"><button class="pill danger" data-act="wipe-review">Zerar progresso da revisão</button></div>
     </div>
-    <p class="hint" style="text-align:center;margin-top:24px">English Pro 4.1</p>`;
+    <p class="hint" style="text-align:center;margin-top:24px">English Pro 3.2</p>`;
 }
 
 /* ---------- Backup ---------- */
@@ -2042,9 +1995,6 @@ document.addEventListener('click', e => {
     case 'grp-toggle': if (fs) { fs.s.fold = !fs.s.fold; save(); b.closest('.ex-group').classList.toggle('folded', !!fs.s.fold); b.setAttribute('aria-expanded', String(!fs.s.fold)); } break;
     case 'sim-toggle': if (card) { card.simHidden = !card.simHidden; save(); b.classList.toggle('on', !card.simHidden); b.setAttribute('aria-expanded', String(!card.simHidden)); paintSims(card); observeSims(cardEl); } break;
     case 'sim-chip': if (card) openContext(b.dataset.term, card.main.en, card.main.id, b.dataset.via); break;
-    case 'sim-edit': if (card) simsSheet(card); break;
-    case 'sim-del': if (card) { const k = cardKey(card); rememberSims(card, [k.term], k.list.filter(x => norm(x.term) !== norm(b.dataset.term))); save(); const sh = sheets[sheets.length - 1]; if (sh && sh.refresh) sh.refresh(); } break;
-    case 'sim-suggest': if (card) suggestSim(card, b); break;
     case 'sim-fetch': if (card) { if (simBusy) toast('Aguarde um instante…'); else fetchSims([card]); } break;
     case 'toggle-ex': if (card) { card.collapsed = !card.collapsed; save(); cardEl.classList.toggle('ex-closed', card.collapsed); b.setAttribute('aria-expanded', String(!card.collapsed)); } break;
     case 'play-all': if (card) speak([card.main, ...exOrdered(card)].map(s => ({ text: s.en, id: s.id }))); break;
