@@ -91,6 +91,12 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .card .main .sent-row .en{padding:0}
 .sim-box:empty{display:none}
 .sim-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:-3px 0 8px;font-size:13.5px}
+/* Equivalentes um embaixo do outro, com o significado curto ao lado */
+.sim-lista{display:flex;flex-direction:column;gap:1px;margin:-3px 0 8px}
+.sim-item{display:flex;align-items:baseline;gap:8px;padding:3px 0}
+.sim-item+.sim-item{border-top:1px solid var(--line)}
+.sim-item .chip{flex:none;padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px}
+.sim-note{flex:1;min-width:0;font-size:13px;color:var(--muted);line-height:1.35}
 .sim-row .chip{padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px;align-items:center}
 .sim-mark{font-weight:800;color:var(--muted)}
 .ex-toggle{flex:none;display:flex;align-items:center;gap:2px;height:34px;min-width:34px;margin:0 -6px 0 2px;padding:0 6px;justify-content:center;border-radius:999px;color:var(--muted)}
@@ -326,7 +332,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   </div>
   <div class="searchbar" id="searchbar" hidden>
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="search" type="search" placeholder="Buscar nos cards" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <input id="search" type="search" placeholder="Buscar nos cards (ou o número)" autocomplete="off" autocapitalize="off" spellcheck="false">
     <button class="clear" data-act="clear-search" aria-label="Limpar"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
 </header>
@@ -1016,13 +1022,25 @@ function renderTop() {
   if (curView !== 'cards') $('#searchbar').hidden = true;
 }
 function show(v) {
-  if (v !== curView) stopSpeak();
+  const veioDeOutraTela = v !== curView;
+  if (veioDeOutraTela) stopSpeak();
   curView = v;
   TABS.forEach(([k]) => $('#view-' + k).hidden = k !== v);
   renderTop(); renderTabs();
   ({ cards: renderCards, review: renderReview, terms: renderTerms, vocab: renderVocab, settings: renderSettings })[v]();
   if (v !== 'cards') scrollTo(0, 0);
+  else if (veioDeOutraTela) voltarParaOndeParou();
   avisarPlayer();
+}
+// Voltou para os cards: retoma no card em que você estava lendo.
+// A posição é guardada enquanto você rola (ep2Pos).
+function voltarParaOndeParou() {
+  if (query) return;                      // numa busca o certo é começar do topo
+  const id = LS.raw('ep2Pos'); if (!id) return;
+  if (db.cards[0] && db.cards[0].id === id) return;   // já é o primeiro
+  ensureCardShown(id);
+  const el = $(`.card[data-card="${id}"]`);
+  if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 40);
 }
 // Na moldura do player: conta para ele qual tela está aberta e quantas revisões
 // esperam, para as fileiras de cima ficarem certas.
@@ -1085,7 +1103,9 @@ const needsSims = c => S.showSims && !c.autoDone && (cardKey(c).list.length < 5 
 function simInner(c) {
   if (c.simHidden) return '';
   const known = cardKey(c), list = known.list.slice(0, 6);
-  if (list.length && !simLoading.has(c.id)) return `<div class="sim-row"><span class="sim-mark">≈</span>${list.map(x => `<button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>`).join('')}</div>`;
+  // Um equivalente por linha, com o significado curto ao lado: bate o olho e
+  // entende a diferença entre eles sem precisar abrir cada um.
+  if (list.length && !simLoading.has(c.id)) return `<div class="sim-lista">${list.map(x => `<div class="sim-item"><button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>${x.note ? `<span class="sim-note">${esc(x.note)}</span>` : ''}</div>`).join('')}</div>`;
   if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="sim-row muted">≈ Buscando sinônimos e exemplos…</div>';
   if (c.autoDone) return '<div class="sim-row muted">≈ Sem sinônimo simples para esta frase</div>';
   return '<div class="sim-row"><button class="chip" data-act="sim-fetch">≈ Ver sinônimos e exemplos</button></div>';
@@ -1164,12 +1184,18 @@ function renderCards(reset) {
   if (reset || !cardsShown) cardsShown = PAGE;
   cardNum = new Map(db.cards.map((c, i) => [c.id, i + 1]));
   const q = norm(query);
-  const list = cardList = q ? db.cards.filter(c => norm([c.main.en, c.main.tr, ...c.ex.map(s => s.en + ' ' + (s.tr || '')), c.note || ''].join(' ')).includes(q)) : db.cards;
+  // Só um número (com ou sem #): vai direto no card daquela posição
+  const porNumero = /^#?\s*(\d{1,6})\s*$/.exec(String(query || '').trim());
+  const list = cardList = porNumero
+    ? db.cards.filter((c, i) => i + 1 === +porNumero[1])
+    : (q ? db.cards.filter(c => norm([c.main.en, c.main.tr, ...c.ex.map(s => s.en + ' ' + (s.tr || '')), c.note || ''].join(' ')).includes(q)) : db.cards);
   let html = '';
   if (migrationNote) html += `<div class="tip"><div style="flex:1"><b>Tudo certo!</b> ${esc(migrationNote)} A primeira frase de cada card virou a frase principal e as demais viraram exemplos.</div><button class="ib" data-act="dismiss-migration">${I.x}</button></div>`;
   if (!S.tipDone && db.cards.length) html += `<div class="tip"><div style="flex:1"><b>Dica:</b> deslize o dedo sobre uma ou mais palavras para deixá-las em <b>negrito</b> (deslize de novo para tirar). Toque numa palavra para ver o contexto dela.</div><button class="ib" data-act="dismiss-tip">${I.x}</button></div>`;
   if (!db.cards.length) html += `<div class="empty"><h3>Nenhum card ainda</h3>Cole frases em inglês, uma por linha — cada uma vira um card.<br><button class="pill accent" data-act="add">${I.plus} Criar cards</button></div>`;
-  else if (!list.length) html += `<div class="empty"><h3>Nada encontrado</h3>Nenhum card tem “${esc(query)}”.</div>`;
+  else if (!list.length) html += porNumero
+    ? `<div class="empty"><h3>Nada encontrado</h3>Você tem ${db.cards.length} cards — não existe o número ${esc(porNumero[1])}.</div>`
+    : `<div class="empty"><h3>Nada encontrado</h3>Nenhum card tem “${esc(query)}”.</div>`;
   html += list.slice(0, cardsShown).map(c => cardHTML(c, cardNum.get(c.id))).join('');
   if (list.length > cardsShown) html += '<div id="moreCards" style="height:1px"></div>';
   $('#cards').innerHTML = html;
@@ -2164,7 +2190,9 @@ function drainInbox() {
     localStorage.setItem(INBOX_KEY, JSON.stringify(atual));
   } catch {}
   if (!novos.length) return 0;
-  db.cards.unshift(...novos);
+  // Os que chegam do player vão para o FIM da lista: o estudo segue a ordem em
+  // que você salvou, sem embaralhar o que já estava na frente.
+  db.cards.push(...novos);
   saveNow();
   return novos.length;
 }
@@ -2181,12 +2209,9 @@ addEventListener('storage', e => { if (e.key === INBOX_KEY) checarPlayer(); });
 const doPlayer = drainInbox();   // antes do primeiro desenho: os cards já entram prontos
 show('cards');
 if (doPlayer) toast(`${doPlayer} card${doPlayer > 1 ? 's' : ''} do player de vídeos`);
-(() => {
-  if (doPlayer) return;          // chegou card novo do player: fica no topo, com ele à vista
-  const id = LS.raw('ep2Pos'); if (!id) return;
-  ensureCardShown(id);
-  const el = $(`.card[data-card="${id}"]`); if (el && db.cards[0] && db.cards[0].id !== id) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60);
-})();
+// Abriu o app: retoma no card em que você parou (os que chegaram do player
+// entram no fim da lista, então nada some de vista por causa deles)
+voltarParaOndeParou();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
