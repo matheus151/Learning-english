@@ -91,12 +91,17 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .card .main .sent-row .en{padding:0}
 .sim-box:empty{display:none}
 .sim-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:-3px 0 8px;font-size:13.5px}
-/* Equivalentes um embaixo do outro, com o significado curto ao lado */
+/* Equivalentes um embaixo do outro: termo, significado e em que situação se usa.
+   Sem fundo — quem separa é a cor do texto, escolhida em Ajustes. */
 .sim-lista{display:flex;flex-direction:column;gap:1px;margin:-3px 0 8px}
-.sim-item{display:flex;align-items:baseline;gap:8px;padding:3px 0}
+.sim-item{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;padding:4px 0}
 .sim-item+.sim-item{border-top:1px solid var(--line)}
-.sim-item .chip{flex:none;padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px}
-.sim-note{flex:1;min-width:0;font-size:13px;color:var(--muted);line-height:1.35}
+.sim-item .chip{flex:none;padding:0;font-size:14.5px;font-weight:700;color:var(--sim-c,var(--accent));background:none;border-radius:0}
+.sim-note{flex:1 1 100%;min-width:0;font-size:13px;color:var(--muted);line-height:1.35}
+@media (min-width:430px){.sim-note{flex:1 1 auto}}
+.sim-reg{flex:none;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.reg-gíria,.reg-informal{color:var(--gen);border-color:var(--gen-line)}
+.reg-formal{color:var(--sec)}
 .sim-row .chip{padding:3px 10px;font-size:14px;font-weight:600;color:var(--accent);border-radius:999px;align-items:center}
 .sim-mark{font-weight:800;color:var(--muted)}
 .ex-toggle{flex:none;display:flex;align-items:center;gap:2px;height:34px;min-width:34px;margin:0 -6px 0 2px;padding:0 6px;justify-content:center;border-radius:999px;color:var(--muted)}
@@ -140,6 +145,10 @@ main{max-width:720px;margin:0 auto;padding:8px 16px calc(96px + var(--bot))}
 .ex-kids .sent.ex{margin:3px 0}
 .ex-group.folded .ex-kids{display:none}
 .ib.grp-toggle{width:auto;min-width:34px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;gap:2px}
+/* Setinha dos equivalentes: centralizada embaixo do exemplo criado */
+.grp-linha{display:flex;justify-content:center;margin:2px 0 4px}
+.grp-linha .grp-toggle{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:26px;padding:0 14px;border-radius:999px;background:var(--card2);color:var(--muted);border:1px solid var(--line)}
+.grp-linha .grp-toggle .ex-count{display:inline;font-size:12px}
 .grp-toggle svg{transition:transform .15s}
 .ex-group.folded .grp-toggle svg{transform:rotate(-90deg)}
 .ex-group.folded .grp-toggle .ex-count{display:inline}
@@ -413,7 +422,7 @@ const STRIPES = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2
 const SET_KEY = 'englishPro2Settings';
 // fsMain / fsEx: quanto a frase principal e os exemplos crescem sobre o tamanho
 // base da fonte (1.12 e 1 eram fixos no CSS antes de virarem ajuste)
-const DEF = { showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', theme: 'auto', fs: 19, fsMain: 1.12, fsEx: 1, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
+const DEF = { showSims: true, aiFree: true, mainBg: '', mainColor: '', secColor: '', simColor: '', theme: 'auto', fs: 19, fsMain: 1.12, fsEx: 1, rate: 1, voice: '', showTr: false, accent: '#2563eb', ai: 'auto', revDir: 'en', revSrc: 'cards', revAuto: true, newPerDay: 15, autoComplete: true, tipDone: false, lastBackup: 0 };
 let S = Object.assign({}, DEF, LS.get(SET_KEY, {}));
 if (LS.raw(SET_KEY) == null) {
   // herda preferências da versão antiga (V38)
@@ -492,6 +501,15 @@ if (!db || !Array.isArray(db.cards)) {
 }
 db.terms = db.terms || []; db.stats = db.stats || {};
 if (db.simsV !== 3) { db.cards.forEach(c => { delete c.sims; delete c.simKey; }); db.simsV = 3; }
+// Equivalentes guardados antes do significado/registro: libera a busca para
+// completá-los (os termos continuam os mesmos, só ganham a explicação)
+if (db.simsV4 !== 1) {
+  db.cards.forEach(c => {
+    const e = c.sims && c.simKey ? c.sims[c.simKey] : null;
+    if (e && e.list && e.list.length && e.list.some(x => !x.note)) delete c.autoDone;
+  });
+  db.simsV4 = 1;
+}
 if (db.exV !== 4) {
   if (LS.raw('englishPro2_beforeV4') == null) LS.setRaw('englishPro2_beforeV4', JSON.stringify(db.cards.map(c => ({ id: c.id, ex: c.ex, sims: c.sims }))));
   db.cards.forEach(c => { c.ex = c.ex.filter(x => !x.ai && !(x.gen && x.alt)); ['sims', 'simKey', 'simTried', 'autoDone'].forEach(k => delete c[k]); });
@@ -538,7 +556,7 @@ function applyTheme() {
   r.style.setProperty('--fs-main', S.fsMain || DEF.fsMain);
   r.style.setProperty('--fs-ex', S.fsEx || DEF.fsEx);
   if (S.mainBg) r.style.setProperty('--main-bg', hexA(textColor(S.mainBg), t === 'dark' ? .24 : .13)); else r.style.removeProperty('--main-bg');
-  [['--main-c', S.mainColor], ['--sec-c', S.secColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
+  [['--main-c', S.mainColor], ['--sec-c', S.secColor], ['--sim-c', S.simColor]].forEach(([k, v]) => v ? r.style.setProperty(k, textColor(v)) : r.style.removeProperty(k));
   r.style.setProperty('--accent', S.accent);
   r.style.setProperty('--accent-soft', hexA(S.accent, t === 'dark' ? .22 : .12));
   r.style.setProperty('--sel', hexA(S.accent, .28));
@@ -680,7 +698,11 @@ function applyMarks(tr, marked) {
   });
   return out;
 }
-const needsTr = s => !s.tr || (s.trFor !== s.en && boldTerms(s.en).length > 0 && !s.tr.includes('**'));
+// Também vale para tradução antiga (de IA ou da mão) que ficou sem o negrito:
+// uma tentativa por frase, marcada em trMarcado para não repetir sem fim.
+const needsTr = s => !s.tr
+  || (s.trFor !== s.en && boldTerms(s.en).length > 0 && !s.tr.includes('**'))
+  || (boldTerms(s.en).length > 0 && !s.tr.includes('**') && !s.trMarcado);
 const trPending = new Set(), trQueue = [];
 let trActive = 0;
 function ensureTr(s) {
@@ -691,7 +713,7 @@ function ensureTr(s) {
 function pumpTr() {
   while (trActive < 3 && trQueue.length) {
     const { s, res } = trQueue.shift(), en = s.en; trActive++;
-    translateMarked(en).then(t => { if (s.en !== en) return; const marked = s.tr ? applyMarks(s.tr, t) : t; s.tr = !marked.includes('**') && t.includes('**') && (s.ai || s.gen) ? t : marked; s.trFor = en; save(); }).catch(() => { if (!s.tr) s.trErr = true; else s.trFor = en; })
+    translateMarked(en).then(t => { if (s.en !== en) return; const marked = s.tr ? applyMarks(s.tr, t) : t; s.tr = !marked.includes('**') && t.includes('**') && (s.ai || s.gen) ? t : marked; s.trFor = en; s.trMarcado = 1; save(); }).catch(() => { if (!s.tr) s.trErr = true; else { s.trFor = en; s.trMarcado = 1; } })
       .finally(() => { trActive--; trPending.delete(s.id); paintTr(s); res(); if (s.en !== en) ensureTr(s); pumpTr(); });
   }
 }
@@ -1069,9 +1091,11 @@ function sentHTML(s, o = {}) {
 }
 function mainHTML(s, toggle = '', simBox = '', simPill = '') {
   const open = S.showTr || openTr.has(s.id);
-  return `<div class="sent main" data-sid="${s.id}"><div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>${toggle}</div>${simBox}
-    <div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button><button class="pill ${open ? 'on' : ''}" data-act="tr">${I.tr} Traduzir</button>${simPill}</div>
-    <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div></div>`;
+  // A tradução vem logo ABAIXO da frase principal — antes dos equivalentes e
+  // dos botões —, que é onde o olho procura por ela.
+  return `<div class="sent main" data-sid="${s.id}"><div class="sent-row"><div class="en" lang="en">${textHTML(s.en)}</div>${toggle}</div>
+    <div class="tr" ${open ? '' : 'hidden'}>${open ? trInner(s) : ''}</div>${simBox}
+    <div class="main-tools"><button class="pill" data-act="speak">${I.vol} Ouvir</button><button class="pill ${open ? 'on' : ''}" data-act="tr">${I.tr} Traduzir</button>${simPill}</div></div>`;
 }
 const DEL = `<button class="ib del" data-act="del-ex" aria-label="Apagar exemplo">${I.x}</button>`;
 // Exemplos que vieram com o card (secundários) x exemplos criados depois (IA, contexto ou adicionados à mão)
@@ -1086,8 +1110,10 @@ function exGroupsHTML(c) {
     if (seen.has(s.grp)) return;
     seen.add(s.grp);
     const items = gen.filter(x => x.grp === s.grp), head = items.find(x => x.head) || items[0], kids = items.filter(x => x !== head);
-    const toggle = kids.length ? `<button class="ib grp-toggle" data-act="grp-toggle" aria-expanded="${!head.fold}" aria-label="Mostrar ou ocultar equivalentes"><span class="ex-count">${kids.length}</span>${I.chev}</button>` : '';
-    parts.push(`<div class="ex-group${head.fold ? ' folded' : ''}">${sentHTML(head, { cls: 'ex head' + (head.fresh ? ' new' : ''), extra: toggle + DEL })}`
+    // A setinha dos equivalentes fica centralizada EMBAIXO do exemplo criado,
+    // separando a frase principal do grupo das variações dela.
+    const toggle = kids.length ? `<div class="grp-linha"><button class="grp-toggle" data-act="grp-toggle" data-sid="${head.id}" aria-expanded="${!head.fold}" aria-label="Mostrar ou ocultar equivalentes"><span class="ex-count">${kids.length}</span>${I.chev}</button></div>` : '';
+    parts.push(`<div class="ex-group${head.fold ? ' folded' : ''}">${sentHTML(head, { cls: 'ex head' + (head.fresh ? ' new' : ''), extra: DEL })}${toggle}`
       + (kids.length ? `<div class="ex-kids">${kids.map(k => sentHTML(k, { cls: 'ex kid', extra: DEL })).join('')}</div>` : '') + '</div>');
   });
   const n = seen.size + gen.filter(s => !s.grp).length;
@@ -1098,14 +1124,22 @@ function exGroupsHTML(c) {
 const simWait = new Set(), simLoading = new Set();
 let simBusy = false, simPause = 0, simT = null;
 const simAuto = () => S.showSims && aiChain().length > 0 && aiChain()[0] !== 'free' && Date.now() >= simPause;
-// Falta algo no card: equivalentes (pelo menos 5) ou o primeiro grupo de exemplos
-const needsSims = c => S.showSims && !c.autoDone && (cardKey(c).list.length < 5 || !c.ex.some(s => s.grp));
+// Só os cinco registros abaixo; qualquer outra coisa que a IA escrever é ignorada
+const REGISTROS = ['gíria', 'informal', 'casual', 'neutro', 'formal'];
+function regNome(v) {
+  const t = String(v || '').toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return REGISTROS.find(r => r.normalize('NFD').replace(/[̀-ͯ]/g, '') === t) || '';
+}
+// Falta algo no card: equivalentes (pelo menos 5, com o significado de cada um)
+// ou o primeiro grupo de exemplos
+const needsSims = c => S.showSims && !c.autoDone
+  && (cardKey(c).list.length < 5 || cardKey(c).list.some(x => !x.note) || !c.ex.some(s => s.grp));
 function simInner(c) {
   if (c.simHidden) return '';
   const known = cardKey(c), list = known.list.slice(0, 6);
-  // Um equivalente por linha, com o significado curto ao lado: bate o olho e
-  // entende a diferença entre eles sem precisar abrir cada um.
-  if (list.length && !simLoading.has(c.id)) return `<div class="sim-lista">${list.map(x => `<div class="sim-item"><button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>${x.note ? `<span class="sim-note">${esc(x.note)}</span>` : ''}</div>`).join('')}</div>`;
+  // Um equivalente por linha: o termo, o que ele quer dizer e em que situação
+  // se usa (gíria, informal, casual, neutro, formal).
+  if (list.length && !simLoading.has(c.id)) return `<div class="sim-lista">${list.map(x => `<div class="sim-item"><button class="chip" lang="en" data-act="sim-chip" data-term="${esc(x.term)}" data-via="${esc(known.term)}">${esc(x.term)}</button>${x.reg ? `<span class="sim-reg reg-${esc(x.reg)}">${esc(x.reg)}</span>` : ''}${x.note ? `<span class="sim-note">${esc(x.note)}</span>` : ''}</div>`).join('')}</div>`;
   if (simLoading.has(c.id) || (needsSims(c) && simAuto())) return '<div class="sim-row muted">≈ Buscando sinônimos e exemplos…</div>';
   if (c.autoDone) return '<div class="sim-row muted">≈ Sem sinônimo simples para esta frase</div>';
   return '<div class="sim-row"><button class="chip" data-act="sim-fetch">≈ Ver sinônimos e exemplos</button></div>';
@@ -1278,7 +1312,8 @@ function subsSpec(plan) {
 const GROUP_RULE = `Write ONE new short everyday sentence (max 16 words) that uses the key expression with the same meaning, in a situation different from the original.
 Then, for each substitute, write ANOTHER new short sentence (max 16 words) that uses it with the same meaning, in a situation similar to that new sentence with the key expression (same kind of context, different words). Conjugate every expression correctly for its sentence (e.g. "it went over", "I've had enough of"; never "it go over" or "I'm had enough of"); every sentence must be grammatical and natural.
 Wrap the expression in **double asterisks** in every sentence.`;
-const GROUP_JSON = `"similar":[{"term":"...","note":"pt-BR, max 5 words: the nuance"}],"example":{"en":"..."},"variants":[{"term":"the substitute","en":"..."}]`;
+// note = o que o termo quer dizer, em poucas palavras; reg = em que situação ele é usado
+const GROUP_JSON = `"similar":[{"term":"...","note":"pt-BR, max 6 words: what this one means","reg":"one of: gíria, informal, casual, neutro, formal"}],"example":{"en":"..."},"variants":[{"term":"the substitute","en":"..."}]`;
 function promptGroup(o) {
   return `${STYLE}
 Original sentence: "${plain(o.sentence)}"
@@ -1310,7 +1345,7 @@ function boldIn(en, term) {
 function applyGroup(c, r, withExample = true) {
   const known = cardKey(c), key = known.term || plain(r.key || '');
   // a lista também inclui os termos usados nas frases (às vezes a IA lista menos do que usa)
-  const extra = [...(Array.isArray(r.similar) ? r.similar : []), ...(Array.isArray(r.variants) ? r.variants : [])].filter(x => x && x.term).map(x => ({ term: plain(x.term), note: plain(x.note || '') }));
+  const extra = [...(Array.isArray(r.similar) ? r.similar : []), ...(Array.isArray(r.variants) ? r.variants : [])].filter(x => x && x.term).map(x => ({ term: plain(x.term), note: plain(x.note || ''), reg: regNome(x.reg) }));
   const list = [];
   [...(known.list.length >= 5 ? known.list : [...known.list, ...extra])].forEach(x => { if (norm(x.term) !== norm(key) && !list.some(y => norm(y.term) === norm(x.term))) list.push(x); });
   if (key && list.length) rememberSims(c, [key], list);
@@ -1766,10 +1801,11 @@ function voiceOptions() {
   return sorted.map(v => `<option value="${esc(v.name)}" ${cur && cur.name === v.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
 }
 function oldVersionsFound() { return OLD_KEYS.map(k => ({ k, arr: readOldKey(k) })).filter(x => x.arr && x.arr.length && !isOldSample(x.arr)); }
+const VAR_DA_COR = { mainColor: '--main-c', secColor: '--sec-c', simColor: '--sim-c' };
 function colorRow(key, label, sample, fallback) {
   const cur = S[key], isCustom = !!cur && !TEXT_COLORS[cur];
   return `<div class="set-row color-row"><div class="lbl">${label}</div>
-    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : `color:var(${key === 'mainColor' ? '--main-c' : '--sec-c'},${fallback})`}" lang="en">${sample}</div>
+    <div class="color-sample" style="${key === 'mainBg' ? 'background:var(--main-bg,var(--accent-soft));color:var(--main-c,var(--strong));border-radius:12px;padding:8px 10px' : `color:var(${VAR_DA_COR[key] || '--sec-c'},${fallback})`}" lang="en">${sample}</div>
     <div class="swatches"><button class="color-default ${cur ? '' : 'on'}" data-act="set-text-color" data-k="${key}" data-v="">Padrão</button>
       ${Object.keys(TEXT_COLORS).map(c => `<button class="swatch ${cur === c ? 'on' : ''}" style="--c:${textColor(c)}" data-act="set-text-color" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join('')}
       <label class="swatch custom ${isCustom ? 'on' : ''}" ${isCustom ? `style="--c:${esc(cur)}"` : ''} aria-label="Escolher outra cor"><input type="color" data-color="${key}" value="${isCustom ? esc(cur) : '#2563eb'}"></label></div></div>`;
@@ -1797,6 +1833,7 @@ function renderSettings() {
       ${colorRow('mainColor', 'Frases principais', "I'm running late, I'll be there soon.", 'var(--strong)')}
       ${colorRow('mainBg', 'Fundo da frase principal', "I'm running late, I'll be there soon.", '')}
       ${colorRow('secColor', 'Exemplos secundários', "She's always running late for work.", 'var(--text)')}
+      ${colorRow('simColor', 'Equivalentes (≈)', 'running behind', 'var(--accent)')}
     </div>
     <p class="hint">A cor escolhida vale para todos os cards de uma vez.</p>
 
@@ -2004,7 +2041,9 @@ document.addEventListener('click', e => {
   const act = b.dataset.act;
   const cardEl = b.closest('[data-card]'), card = cardEl && cardById(cardEl.dataset.card);
   const termEl = b.closest('[data-term]'), term = termEl && termById(termEl.dataset.term);
-  const sentEl = b.closest('.sent'), fs = sentEl && findSent(sentEl.dataset.sid);
+  // data-sid no próprio botão: a setinha dos equivalentes fica FORA da frase
+  // (centralizada embaixo dela), então não dá para achá-la subindo o DOM
+  const sentEl = b.closest('.sent'), fs = b.dataset.sid ? findSent(b.dataset.sid) : (sentEl && findSent(sentEl.dataset.sid));
   switch (act) {
     case 'tab': closeAllSheets(); if (b.dataset.v === curView) scrollTo({ top: 0, behavior: 'smooth' }); else show(b.dataset.v); break;
     case 'close-sheet': closeSheet(); break;
